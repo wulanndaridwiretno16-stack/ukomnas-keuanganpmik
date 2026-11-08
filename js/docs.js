@@ -114,27 +114,29 @@
       key: 'pl', no: 4, folder: '4. PL', label: 'Berkas Pengawas Lokal', role: 'Pengawas Lokal',
       parts: [
         { key: 'honor', label: 'Honor Pengawas Lokal', groups: [{ title: 'Honorarium Pengawas Lokal', items: ['honor_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir Pengawas Lokal - Briefing', who: (r) => names(r, 'pl') }, { title: 'Daftar Hadir Pengawas Lokal - Pelaksanaan', who: (r) => names(r, 'pl') }] },
-        { key: 'transport', label: 'Transport Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal', items: ['trans_briefing_pl', 'trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal - Briefing', items: ['trans_briefing_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal - Pelaksanaan', items: ['trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium Pengawas Lokal', 'Kuitansi Honorarium Pengawas Lokal', 'Daftar Penerimaan Honorarium Pengawas Lokal', 'Daftar Hadir Pengawas Lokal Briefing', 'Daftar Hadir Pengawas Lokal Pelaksanaan', 'Surat Tugas Pengawas Lokal', 'SPBY Transport Lokal Pengawas Lokal', 'Kuitansi Transport Lokal Pengawas Lokal', 'Daftar Penerimaan Transport Pengawas Lokal'],
     },
     {
       key: 'pp', no: 5, folder: '5. PP', label: 'Berkas Pengawas Pusat', role: 'Pengawas Pusat',
       parts: [
-        { key: 'honor', label: 'Honor Pengawas Pusat', groups: [
-          { title: 'Honorarium Bimtek Komponen Uji (Briefing)', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: false },
+        { key: 'honor-briefing', label: 'Honor Briefing Pengawas Pusat', groups: [
+          { title: 'Honorarium Bimtek Komponen Uji (Briefing)', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
+        ], hadir: [{ title: 'Daftar Hadir H-1 Pengawas Pusat (Briefing)', who: (r, c) => [c.pp.full_name] }] },
+        { key: 'honor-pelaksanaan', label: 'Honor Pelaksanaan Pengawas Pusat', groups: [
           { title: 'Honorarium Bimtek Peserta Uji (Pelaksanaan)', items: ['honor_pelaksanaan_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
-        ], hadir: [
-          { title: 'Daftar Hadir H-1 Pengawas Pusat (Briefing)', who: (r, c) => [c.pp.full_name] },
-          { title: 'Daftar Hadir Pelaksanaan Pengawas Pusat', who: (r, c) => [c.pp.full_name] },
-        ] },
-        { key: 'transport', label: 'Transport Pengawas Pusat', groups: [
-          { title: 'Transport Lokal Pengawas Pusat (Dalam Kota)', items: ['trans_dalam_kota', 'trans_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
+        ], hadir: [{ title: 'Daftar Hadir Pelaksanaan Pengawas Pusat', who: (r, c) => [c.pp.full_name] }] },
+        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Pusat', groups: [
+          { title: 'Transport Lokal Pengawas Pusat - Briefing', items: ['trans_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
         ], hadir: [] },
-        { key: 'operasional', label: 'Biaya Operasional Pengawas Pusat', groups: [
-          { title: 'Biaya Operasional Pengawas Pusat', items: ['ops_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: false },
+        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Pusat', groups: [
+          { title: 'Transport Lokal Pengawas Pusat - Pelaksanaan (Dalam Kota)', items: ['trans_dalam_kota'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
         ], hadir: [] },
-        { key: 'perjadin', label: 'Rincian Perjalanan Dinas', groups: [], perjadin: true, hadir: [] },
+        { key: 'laporan', label: 'Laporan Perjalanan Dinas (dibuat PP)', custom: 'laporan', groups: [], hadir: [] },
+        { key: 'kperjadin', label: 'Kuitansi Perjalanan Dinas (dibuat PP)', custom: 'kperjadin', groups: [], hadir: [] },
+        { key: 'kops', label: 'Kuitansi Biaya Operasional PP (dibuat PP)', custom: 'kops', groups: [], hadir: [] },
       ],
       checklist: ['SPBY Perjalanan Dinas Pengawas Pusat', 'Kuitansi Perjalanan Dinas (luar kota & dalam kota)', 'Rincian Perjalanan Dinas', 'Daftar Pengeluaran Riil', 'SPPD Pelaksanaan (stempel CBT)', 'Invoice Hotel dan/atau Tiket Travel', 'Boarding Pass PP (luar kota)', 'Laporan Perjalanan Dinas', 'SPBY & Kuitansi Honorarium Briefing', 'Daftar Hadir H-1', 'SPBY & Kuitansi Honorarium Pelaksanaan', 'Daftar Penerimaan Pelaksanaan', 'Daftar Hadir Pelaksanaan', 'Surat Tugas PP (dari institusi)', 'SPBY, Kuitansi & Daftar Penerimaan Transport Lokal', 'SPBY, Kuitansi & Nota Biaya Operasional PP'],
     },
@@ -451,7 +453,8 @@
       const a = (Number(i.nilai) || 0) * (Number(i.qty) || 0);
       const v = real[i.key], has = !isHonorItem(i) && v !== undefined && v !== null && v !== '' && isFinite(Number(v));
       const f = staffFactor(r, i.key), extra = f > 1;
-      const rl = has ? Number(v) : extra ? Math.round(a * f) : a, K = rl < a ? a - rl : 0, L = rl > a ? rl - a : 0;
+      const mv = PP_FORM.includes(i.key) ? pmAmt(r, i.key) : null;
+      const rl = mv !== null ? mv : has ? Number(v) : extra ? Math.round(a * f) : a, K = rl < a ? a - rl : 0, L = rl > a ? rl - a : 0;
       tA += a; tR += rl; tK += K; tL += L;
       return [i.label, NUM(a), NUM(rl), K ? NUM(K) : '-', L ? NUM(L) : '-', PP_OWN.includes(i.key) ? 'dibuat mandiri PP' : extra ? `petugas ${actualCount(r, ITEM_STAFF[i.key])} orang (anggaran ${headcount(r, ITEM_STAFF[i.key])})` : ''];
     });
@@ -486,8 +489,88 @@
   }
 
   /* ---------- Builder berkas ---------- */
+  /* ---------- Dokumen yang dibuat mandiri oleh PP (data dari isian PP: r.pp_mandiri) ---------- */
+  const PM = (r) => r.pp_mandiri || {};
+  const pmAmt = (r, key) => { const v = PM(r)[key]; return v === undefined || v === null || v === '' || !isFinite(Number(v)) ? null : Number(v); };
+  const anggaranOf = (r, key) => { const i = r.items.find((x) => x.key === key); return i ? (Number(i.nilai) || 0) * (Number(i.qty) || 0) : 0; };
+  const amtPP = (r, key) => { const v = pmAmt(r, key); return v === null ? anggaranOf(r, key) : v; };   // belum diisi PP -> pakai anggaran PJ
+  const PP_FORM = ['tiket', 'hotel', 'ops_pp'];
+  const dots = '.............................';
+  const fmtDate = (s) => (s ? new Date(s + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : dots);
+  const lamaHari = (a, b) => (a && b ? Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000) + 1) : null);
+
+  function kuitansiMandiri(doc, c, o) {
+    const { r, pj, pp } = c;
+    let y = title(doc, kop(doc), 'KUITANSI', o.sub);
+    y = infoBlock(doc, y, [
+      ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS PMIK ' + YEAR + ' (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
+      ['Uang sejumlah', RP(o.total)],
+      ['Terbilang', cap(terbilang(o.total)) + ' rupiah'],
+      ['Untuk pembayaran', o.forText],
+    ]);
+    doc.autoTable({
+      startY: y + 1, theme: 'grid', styles: { fontSize: 9 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
+      head: [['Uraian', 'Jumlah']],
+      body: o.rows.map((x) => [x[0], RP(x[1])]).concat([[{ content: 'TOTAL', styles: { fontStyle: 'bold' } }, { content: RP(o.total), styles: { fontStyle: 'bold' } }]]),
+      columnStyles: { 1: { halign: 'right', cellWidth: 40 } },
+    });
+    doc.setFontSize(9); doc.setTextColor(60);
+    doc.text(doc.splitTextToSize(o.note, PW - 2 * M), M, at(doc) + 6);
+    doc.setTextColor(0); doc.setFontSize(10);
+    doc.text('Tempat/Tanggal: ' + (PM(r).tempat || dots) + ', ' + dots + ' ' + YEAR, M, at(doc) + 18);
+    signBlock(doc, at(doc) + 26, pj.full_name, pp.full_name, 'Yang menerima (PP),');
+    doc.setFontSize(8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, 275);
+  }
+  const CUSTOM = {
+    kperjadin(r, pj, pp) {
+      setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r);
+      const tiket = amtPP(r, 'tiket'), hotel = amtPP(r, 'hotel'), total = tiket + hotel;
+      kuitansiMandiri(doc, c, {
+        sub: 'Perjalanan Dinas Pengawas Pusat - Nomor: ........ / KWT-PD / UKOMNAS-PMIK / ' + YEAR, total,
+        forText: `Perjalanan dinas luar kota Pengawas Pusat ke TUK ${r.tuk_name}` + (m.kota_asal ? ` dari ${m.kota_asal}` : ''),
+        rows: [[`Tiket PP - Transport Luar Kota${m.moda ? ' (' + m.moda + ')' : ''}${m.kota_asal ? ', ' + m.kota_asal + ' - ' + r.tuk_name : ''}`, tiket], [`Hotel${m.hotel_nama ? ' - ' + m.hotel_nama : ''}${m.hotel_malam ? ' (' + m.hotel_malam + ' malam)' : ''}`, hotel]],
+        note: 'Dibuat mandiri oleh PP sesuai bukti pengeluaran (at cost). Lampirkan invoice hotel dan/atau tiket serta boarding pass PP.',
+      });
+      footers(doc, c, 'Kuitansi Perjalanan Dinas'); return doc;
+    },
+    kops(r, pj, pp) {
+      setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r), total = amtPP(r, 'ops_pp');
+      kuitansiMandiri(doc, c, {
+        sub: 'Biaya Operasional Pengawas Pusat - Nomor: ........ / KWT-OP / UKOMNAS-PMIK / ' + YEAR, total,
+        forText: m.ops_uraian || `Biaya operasional Pengawas Pusat selama pelaksanaan UKOMNAS di TUK ${r.tuk_name}`,
+        rows: [[m.ops_uraian || 'Biaya Operasional Pengawas Pusat (at cost)', total]],
+        note: 'Dibuat mandiri oleh PP sesuai nota pengeluaran (at cost). Lampirkan nota biaya operasional.',
+      });
+      footers(doc, c, 'Kuitansi Biaya Operasional PP'); return doc;
+    },
+    laporan(r, pj, pp) {
+      setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r);
+      let y = title(doc, kop(doc), 'LAPORAN PERJALANAN DINAS', 'Pengawas Pusat UKOMNAS PMIK ' + YEAR);
+      const lama = lamaHari(m.tgl_berangkat, m.tgl_pulang);
+      y = infoBlock(doc, y, [
+        ['Nama', pp.full_name], ['Asal Institusi', r.pp_institusi], ['Dasar penugasan', m.surat_tugas || 'Surat Tugas Nomor ' + dots],
+        ['Tempat tujuan (TUK)', r.tuk_name], ['Kota asal', m.kota_asal || dots], ['Moda transportasi', m.moda || dots],
+        ['Berangkat', fmtDate(m.tgl_berangkat)], ['Kembali', fmtDate(m.tgl_pulang)], ['Lama perjalanan', lama ? lama + ' hari' : dots],
+      ]);
+      const sec = (judul, isi) => {
+        if (y > 245) { doc.addPage(); y = kop(doc); }
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text(judul, M, y); y += 5.5;
+        doc.setFont('helvetica', 'normal'); const lines = doc.splitTextToSize(isi, PW - 2 * M);
+        lines.forEach((ln) => { if (y > 275) { doc.addPage(); y = kop(doc); } doc.text(ln, M, y); y += 5; });
+        y += 3;
+      };
+      sec('I. Maksud dan Tujuan', m.maksud || `Melaksanakan tugas sebagai Pengawas Pusat pada Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan ${YEAR} di TUK ${r.tuk_name}.`);
+      sec('II. Kegiatan dan Hasil yang Dicapai', m.hasil || dots + dots + dots);
+      sec('III. Kendala dan Saran', m.kendala || dots + dots + dots);
+      sec('IV. Penutup', 'Demikian laporan perjalanan dinas ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.');
+      signBlock(doc, y + 4, pj.full_name, pp.full_name, 'Pelaksana perjalanan dinas,', 'Mengetahui (PJ Keuangan),');
+      footers(doc, c, 'Laporan Perjalanan Dinas'); return doc;
+    },
+  };
+
   // Satu berkas = satu jenis dokumen (honor, transport, dst), tidak digabung.
   function buildPart(comp, part, r, pj, pp) {
+    if (part.custom) return CUSTOM[part.custom](r, pj, pp);
     setYear(r);
     const c = ctx(r, pj, pp);
     const doc = newDoc();
@@ -552,5 +635,5 @@
     return list;
   }
 
-  window.UKOM = { actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
+  window.UKOM = { PP_FORM, actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
 })();

@@ -143,15 +143,37 @@
   /* ---------------- PP: nama petugas & rumah makan ---------------- */
   const STAFF_LABEL = [['co_cbt', 'Co CBT'], ['admin', 'Admin'], ['it_lokal', 'IT Lokal'], ['pl', 'Pengawas Lokal (PL)']];
   function ppFormHtml(r) {
-    const P = Object.assign({}, r.personnel || {}, r.petugas || {}), real = r.realisasi || {};
+    const P = Object.assign({}, r.personnel || {}, r.petugas || {}), real = r.realisasi || {}, pm = r.pp_mandiri || {};
     const nm = (k, i) => { const v = P[k]; const arr = Array.isArray(v) ? v : v ? [v] : []; return arr[i] || ''; };
     return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Jumlah sesuai hitungan PJ)</span></h3>
       ${STAFF_LABEL.map(([k, l]) => { const n = U.headcount(r, k); return `<div style="margin-bottom:10px"><strong style="font-size:14px">${l}</strong> <span class="muted" style="font-size:13px">(${n} orang)</span><div class="grid" data-grp="${k}" style="margin-top:6px">${Array.from({ length: n }, (_, i) => `<div><label>${l}${n > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')}</div></div>`; }).join('')}
       <div class="grid"><div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan nama petugas</button><span class="muted" style="font-size:13px">Setelah menambah nama, unduh ulang berkas komponen yang terkait.</span></div>
+      <h3 style="margin-top:20px">Dokumen mandiri PP <span class="muted" style="font-weight:400">(Laporan Perjalanan Dinas, Kuitansi Perjalanan Dinas, Kuitansi Biaya Operasional)</span></h3>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Dibuat sendiri oleh PP dengan nominal sesuai bukti pengeluaran (bisa kurang/lebih dari anggaran). Isi lalu simpan, kemudian unduh ketiga dokumen di folder <strong>5. PP</strong>.</p>
+      <div class="grid">
+        <div><label>Dasar penugasan (No./tgl Surat Tugas)</label><input data-pm="surat_tugas" value="${esc(pm.surat_tugas || '')}"></div>
+        <div><label>Kota asal</label><input data-pm="kota_asal" value="${esc(pm.kota_asal || '')}"></div>
+        <div><label>Moda transportasi</label><input data-pm="moda" placeholder="pesawat / kereta / bus" value="${esc(pm.moda || '')}"></div>
+        <div><label>Tanggal berangkat</label><input type="date" data-pm="tgl_berangkat" value="${esc(pm.tgl_berangkat || '')}"></div>
+        <div><label>Tanggal kembali</label><input type="date" data-pm="tgl_pulang" value="${esc(pm.tgl_pulang || '')}"></div>
+        <div><label>Tempat pembuatan kuitansi</label><input data-pm="tempat" value="${esc(pm.tempat || '')}"></div>
+        <div><label>Tiket PP luar kota (Rp)</label><input type="number" min="0" step="any" data-pm="tiket" data-num placeholder="${r.items.find((x) => x.key === 'tiket') ? r.items.find((x) => x.key === 'tiket').nilai : 0}" value="${pm.tiket ?? ''}"></div>
+        <div><label>Nama hotel</label><input data-pm="hotel_nama" value="${esc(pm.hotel_nama || '')}"></div>
+        <div><label>Jumlah malam</label><input type="number" min="0" data-pm="hotel_malam" data-num value="${pm.hotel_malam ?? ''}"></div>
+        <div><label>Hotel (Rp)</label><input type="number" min="0" step="any" data-pm="hotel" data-num value="${pm.hotel ?? ''}"></div>
+        <div><label>Biaya operasional PP (Rp)</label><input type="number" min="0" step="any" data-pm="ops_pp" data-num placeholder="${r.items.find((x) => x.key === 'ops_pp') ? r.items.find((x) => x.key === 'ops_pp').nilai : 0}" value="${pm.ops_pp ?? ''}"></div>
+        <div><label>Uraian biaya operasional</label><input data-pm="ops_uraian" value="${esc(pm.ops_uraian || '')}"></div>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr;margin-top:10px">
+        <div><label>Maksud dan tujuan (laporan perjalanan dinas)</label><textarea data-pm="maksud" rows="2">${esc(pm.maksud || '')}</textarea></div>
+        <div><label>Kegiatan dan hasil yang dicapai</label><textarea data-pm="hasil" rows="4">${esc(pm.hasil || '')}</textarea></div>
+        <div><label>Kendala dan saran</label><textarea data-pm="kendala" rows="3">${esc(pm.kendala || '')}</textarea></div>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepm>Simpan dokumen mandiri PP</button><span class="muted" style="font-size:13px">Tiket, hotel &amp; operasional otomatis masuk ke Lembar Kurang/Lebih.</span></div>
       <h3 style="margin-top:20px">Lembar Kurang/Lebih — realisasi pelaksanaan</h3>
-      <p class="muted" style="margin:0 0 6px;font-size:13px">Berdiri sendiri: tidak mengubah dokumen komponen uji di atas, jadi tidak perlu mengunduh ulang berkas lain. Kosongkan kolom bila realisasi sama dengan anggaran PJ. Honor bersifat tetap.</p>
-      <div class="tablewrap"><table><thead><tr><th>Komponen</th><th class="num">Anggaran PJ (Rp)</th><th>Realisasi (Rp)</th><th class="num">Selisih</th></tr></thead><tbody>${r.items.filter((it) => !String(it.key).startsWith('honor_')).map((it) => { const a = it.nilai * it.qty, v = real[it.key]; return `<tr${U.PP_OWN.includes(it.key) ? ' style="background:var(--chip)"' : ''}><td>${esc(it.label)}${U.PP_OWN.includes(it.key) ? ' <span class="chip">mandiri PP</span>' : ''}</td><td class="num">${U.NUM(a)}</td><td><input type="number" min="0" step="any" data-rl="${it.key}" data-a="${a}" placeholder="${a}" value="${v === undefined || v === null ? '' : v}"></td><td class="num" data-sel="${it.key}"></td></tr>`; }).join('')}</tbody></table></div>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Berdiri sendiri: tidak mengubah dokumen komponen uji di atas, jadi tidak perlu mengunduh ulang berkas lain. Kosongkan kolom bila realisasi sama dengan anggaran PJ. Honor bersifat tetap. Tiket, hotel &amp; biaya operasional PP diisi di atas (Dokumen mandiri PP).</p>
+      <div class="tablewrap"><table><thead><tr><th>Komponen</th><th class="num">Anggaran PJ (Rp)</th><th>Realisasi (Rp)</th><th class="num">Selisih</th></tr></thead><tbody>${r.items.filter((it) => !String(it.key).startsWith('honor_') && !U.PP_FORM.includes(it.key)).map((it) => { const a = it.nilai * it.qty, v = real[it.key]; return `<tr${U.PP_OWN.includes(it.key) ? ' style="background:var(--chip)"' : ''}><td>${esc(it.label)}${U.PP_OWN.includes(it.key) ? ' <span class="chip">mandiri PP</span>' : ''}</td><td class="num">${U.NUM(a)}</td><td><input type="number" min="0" step="any" data-rl="${it.key}" data-a="${a}" placeholder="${a}" value="${v === undefined || v === null ? '' : v}"></td><td class="num" data-sel="${it.key}"></td></tr>`; }).join('')}</tbody></table></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" data-saverl>Simpan &amp; unduh Lembar Kurang/Lebih</button></div>`;
   }
   function bindPPForm(root, r) {
@@ -164,6 +186,14 @@
       bn.disabled = true;
       try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, petugas_at: Date.now() }); r.petugas = petugas; toast('Nama tersimpan. Unduh ulang berkas komponen yang terkait.'); } catch (e) { toast(msgOf(e)); }
       bn.disabled = false;
+    };
+    const bm = root.querySelector('[data-savepm]');
+    if (bm) bm.onclick = async () => {
+      const pp_mandiri = {};
+      root.querySelectorAll('[data-pm]').forEach((el) => { const v = (el.value || '').trim(); if (v === '') return; pp_mandiri[el.dataset.pm] = el.hasAttribute('data-num') ? Math.max(0, Number(v) || 0) : v; });
+      bm.disabled = true;
+      try { await F.updateDoc(F.doc(db, 'reports', r.id), { pp_mandiri, petugas_at: Date.now() }); r.pp_mandiri = pp_mandiri; toast('Tersimpan. Unduh dokumen mandiri PP di folder 5. PP.'); } catch (e) { toast(msgOf(e)); }
+      bm.disabled = false;
     };
     br.onclick = async () => {
       const realisasi = {}; root.querySelectorAll('[data-rl]').forEach((el) => { if (el.value !== '') realisasi[el.dataset.rl] = Math.max(0, Number(el.value) || 0); });
@@ -259,7 +289,7 @@
       if (r.id) row.pj_id = r.pj_id || row.pj_id;
       try {
         let id = r.id;
-        if (id) await F.updateDoc(F.doc(db, 'reports', id), row); else id = (await F.addDoc(F.collection(db, 'reports'), { ...row, petugas: {}, realisasi: {} })).id;
+        if (id) await F.updateDoc(F.doc(db, 'reports', id), row); else id = (await F.addDoc(F.collection(db, 'reports'), { ...row, petugas: {}, realisasi: {}, pp_mandiri: {} })).id;
         toast(status === 'published' ? 'Tersimpan & terbit — PP dapat mengunduh dokumen' : 'Draft tersimpan');
         openEditor({ ...r, id, ...row }, pps);
       } catch (e) { $('#err').textContent = msgOf(e); }

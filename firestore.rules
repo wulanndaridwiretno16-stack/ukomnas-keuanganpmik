@@ -97,11 +97,12 @@ service cloud.firestore {
       // yang sudah terbit. Semua field buatan PJ (anggaran/biaya, TUK, tahun, dst) tidak dapat diubah PP.
       allow update: if signedIn() && resource.data.pp_id == request.auth.uid
         && resource.data.status == 'published'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['petugas','realisasi','petugas_at'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['petugas','realisasi','pp_mandiri','petugas_at'])
         && (!('petugas' in request.resource.data) || (request.resource.data.petugas is map
             && capOk(request.resource.data, resource.data, 'pl') && capOk(request.resource.data, resource.data, 'admin')
             && capOk(request.resource.data, resource.data, 'it_lokal') && capOk(request.resource.data, resource.data, 'co_cbt')))
-        && (!('realisasi' in request.resource.data) || request.resource.data.realisasi is map);
+        && (!('realisasi' in request.resource.data) || request.resource.data.realisasi is map)
+        && (!('pp_mandiri' in request.resource.data) || request.resource.data.pp_mandiri is map);
 
       allow delete: if isPJ() && (resource.data.pj_id == request.auth.uid || isAdmin());
     }

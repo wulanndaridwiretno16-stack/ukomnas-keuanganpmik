@@ -20,7 +20,7 @@
   store.pjCodes.ADMIN1 = { pj_id: 'u_admin' }; store.pjCodes.DEMOPJ = { pj_id: 'u_pj' };
   const items = U.defaultItems({ peserta: 44 });
   const now = Date.now();
-  store.reports.r_demo = { pj_id: 'u_pj', pp_id: 'u_pp1', tuk_name: 'STIKES Wira Medika Bali', pp_institusi: 'STIKES Wira Medika Bali', jumlah_sesi: 1, jumlah_hari: 1, jumlah_peserta: 44, tahun: '2026', items, total: U.totalOf(items), status: 'published', created_at: now, updated_at: now, published_at: now, personnel: { pp_name: store.users.u_pp1.full_name, pj_name: store.users.u_pj.full_name }, petugas: {}, realisasi: {} };
+  store.reports.r_demo = { pj_id: 'u_pj', pp_id: 'u_pp1', tuk_name: 'STIKES Wira Medika Bali', pp_institusi: 'STIKES Wira Medika Bali', jumlah_sesi: 1, jumlah_hari: 1, jumlah_peserta: 44, tahun: '2026', items, total: U.totalOf(items), status: 'published', created_at: now, updated_at: now, published_at: now, personnel: { pp_name: store.users.u_pp1.full_name, pj_name: store.users.u_pj.full_name }, petugas: {}, realisasi: {}, pp_mandiri: {} };
 
   // ---- Firestore tiruan ----
   const ref = (col, id) => ({ col, id });
