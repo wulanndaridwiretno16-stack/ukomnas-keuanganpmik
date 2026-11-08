@@ -36,6 +36,16 @@ const fs = require('fs');
   await t('PJ2 cannot update', assertFails(pj2.doc('reports/r1').update({tuk_name:'Hack'})));
   await t('PJ2 cannot delete', assertFails(pj2.doc('reports/r1').delete()));
   await t('admin reads all', assertSucceeds(adm.collection('reports').get()));
+  // PP hanya menambah nama petugas
+  await t('PP adds petugas names on own published', assertSucceeds(pp1.doc('reports/r1').update({petugas:{admin:['A','B']},petugas_at:1})));
+  await t('PP cannot edit other fields (realisasi)', assertFails(pp1.doc('reports/r1').update({realisasi:{hotel:1}})));
+  await t('PP cannot change items', assertFails(pp1.doc('reports/r1').update({items:[{key:'x',nilai:1,qty:1}]})));
+  await t('PP cannot change tuk_name', assertFails(pp1.doc('reports/r1').update({tuk_name:'X'})));
+  await t('PP cannot change total', assertFails(pp1.doc('reports/r1').update({total:1})));
+  await t('PP cannot mix petugas with total', assertFails(pp1.doc('reports/r1').update({petugas:{},total:1})));
+  await t('PP petugas must be map', assertFails(pp1.doc('reports/r1').update({petugas:'x'})));
+  await t('PP cannot update draft', assertFails(pp1.doc('reports/r2').update({petugas:{}})));
+  await t('other PP cannot update petugas', assertFails(pp2.doc('reports/r1').update({petugas:{}})));
   // users
   await t('PP reads self', assertSucceeds(pp1.doc('users/pp1').get()));
   await t('PP cannot read other', assertFails(pp1.doc('users/pp2').get()));

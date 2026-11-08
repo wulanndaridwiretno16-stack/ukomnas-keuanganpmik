@@ -138,6 +138,27 @@
     const z = root.querySelector('[data-zip]'); if (z) z.onclick = () => downloadZip(r, z);
   }
 
+  /* ---------------- PP: nama petugas & rumah makan ---------------- */
+  const STAFF_LABEL = [['co_cbt', 'Co CBT'], ['admin', 'Admin'], ['it_lokal', 'IT Lokal'], ['pl', 'Pengawas Lokal (PL)']];
+  function ppFormHtml(r) {
+    const P = Object.assign({}, r.personnel || {}, r.petugas || {});
+    const nm = (k, i) => { const v = P[k]; const arr = Array.isArray(v) ? v : v ? [v] : []; return arr[i] || ''; };
+    return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Biaya &amp; data lain hanya dapat diubah PJ)</span></h3>
+      <div class="grid">${STAFF_LABEL.map(([k, l]) => Array.from({ length: U.headcount(r, k) }, (_, i) => `<div><label>${l}${U.headcount(r, k) > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')).join('')}
+        <div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan nama petugas</button><span class="muted" style="font-size:13px">Setelah disimpan, unduh ulang dokumennya.</span></div>`;
+  }
+  function bindPPForm(root, r) {
+    const b = root.querySelector('[data-savepp]'); if (!b) return;
+    b.onclick = async () => {
+      const petugas = { rumah_makan: (root.querySelector('[data-rm]').value || '').trim() };
+      STAFF_LABEL.forEach(([k]) => { petugas[k] = Array.from({ length: U.headcount(r, k) }, (_, i) => (root.querySelector(`[data-pt="${k}"][data-n="${i}"]`).value || '').trim()); });
+      b.disabled = true;
+      try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, petugas_at: Date.now() }); r.petugas = petugas; toast('Tersimpan. Dokumen yang diunduh berikutnya memakai nama ini.'); } catch (e) { toast(msgOf(e)); }
+      b.disabled = false;
+    };
+  }
+
   /* ---------------- PP: berkas saya ---------------- */
   async function renderBerkas() {
     app.innerHTML = '<p class="muted center">Memuat…</p>';
@@ -145,8 +166,8 @@
     try { data = await DB.reports(F.where('pp_id', '==', me.id), F.where('status', '==', 'published')); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
     data.sort((a, b) => (b.published_at || 0) - (a.published_at || 0));
     if (!data.length) return (app.innerHTML = verifyBanner() + `<div class="card"><h2>Berkas Saya</h2><p class="muted">Belum ada dokumen. Dokumen akan tersedia setelah PJ Keuangan memasukkan nama TUK dan biaya komponen uji untuk Anda.</p>${me.pj_id ? '' : '<p class="err">Akun Anda belum terhubung ke PJ Keuangan. Minta PJ menambahkan email Anda di menu “PP Saya”.</p>'}</div>`) && bindBanner();
-    app.innerHTML = verifyBanner() + data.map((r, i) => `<div class="card" id="rep${i}"><div class="row between"><div><h2 style="margin:0">${esc(r.tuk_name)}</h2><span class="muted">Tahun ${esc(r.tahun || '')} · Sesi ${r.jumlah_sesi} · ${r.jumlah_hari} hari · terbit ${new Date(r.published_at).toLocaleDateString('id-ID')}</span></div><div><div class="total">${U.RP(r.total)}</div><button class="btn primary" data-zip>Unduh semua (ZIP)</button></div></div><h3 style="margin-top:14px">Dokumen per komponen uji</h3>${filesHtml(r)}</div>`).join('');
-    bindBanner(); data.forEach((r, i) => bindFiles($('#rep' + i), r));
+    app.innerHTML = verifyBanner() + data.map((r, i) => `<div class="card" id="rep${i}"><div class="row between"><div><h2 style="margin:0">${esc(r.tuk_name)}</h2><span class="muted">Tahun ${esc(r.tahun || '')} · Sesi ${r.jumlah_sesi} · ${r.jumlah_hari} hari · terbit ${new Date(r.published_at).toLocaleDateString('id-ID')}</span></div><div><div class="total">${U.RP(r.total)}</div><button class="btn primary" data-zip>Unduh semua (ZIP)</button></div></div>${ppFormHtml(r)}<h3 style="margin-top:16px">Dokumen per komponen uji</h3>${filesHtml(r)}</div>`).join('');
+    bindBanner(); data.forEach((r, i) => { bindFiles($('#rep' + i), r); bindPPForm($('#rep' + i), r); });
   }
 
   /* ---------------- PJ: laporan TUK ---------------- */
@@ -191,11 +212,9 @@
         <div><label>Jumlah hari</label><input id="hari" type="number" min="1" value="${r.jumlah_hari}"></div>
         <div><label>Jumlah peserta uji (→ Biaya Operasional CBT)</label><input id="peserta" type="number" min="0" value="${r.jumlah_peserta}"></div>
       </div>
-      <h3 style="margin-top:18px">Petugas TUK <span class="muted" style="font-weight:400">(opsional, untuk dokumen penerimaan)</span></h3>
+      <h3 style="margin-top:18px">Jumlah petugas TUK <span class="muted" style="font-weight:400">(boleh lebih dari 1; “Banyak” honor &amp; transport dihitung otomatis. Nama petugas &amp; rumah makan diisi oleh PP)</span></h3>
       <div class="grid">
-        <div><label>Co CBT</label><input data-p="co_cbt" value="${esc(p.co_cbt)}"></div><div><label>Admin</label><input data-p="admin" value="${esc(p.admin)}"></div>
-        <div><label>IT Lokal</label><input data-p="it_lokal" value="${esc(p.it_lokal)}"></div><div><label>Rumah makan (konsumsi)</label><input data-p="rumah_makan" value="${esc(p.rumah_makan)}"></div>
-        ${Array.from({ length: plN }, (_, i) => `<div><label>Pengawas Lokal ${i + 1}</label><input data-pl="${i}" value="${esc((p.pl || [])[i])}"></div>`).join('')}
+        ${[['pl', 'Pengawas Lokal (PL)'], ['admin', 'Admin'], ['it_lokal', 'IT Lokal'], ['co_cbt', 'Co CBT']].map(([k, l]) => `<div><label>${l}</label><input type="number" min="1" data-hc="${k}" value="${U.headcount(r, k)}"></div>`).join('')}
       </div>
       <h3 style="margin-top:18px">Rincian Operasional TUK</h3>
       <div class="tablewrap"><table><thead><tr><th>Komponen biaya</th><th>Nilai (Rp)</th><th>Banyak</th><th class="num">Jumlah netto</th><th>Keterangan</th></tr></thead><tbody>${rowsHtml('perjadin', 'MASUK KWITANSI PERJADIN')}${rowsHtml('sendiri', 'KUITANSI SENDIRI')}</tbody>
@@ -208,7 +227,10 @@
     app.querySelectorAll('[data-p]').forEach((el) => (el.oninput = () => (r.personnel[el.dataset.p] = el.value)));
     app.querySelectorAll('[data-pl]').forEach((el) => (el.oninput = () => { r.personnel.pl = r.personnel.pl || []; r.personnel.pl[+el.dataset.pl] = el.value; }));
     $('#pp').onchange = (e) => { r.pp_id = e.target.value; const x = pps.find((q) => q.id === r.pp_id); if (x && !$('#inst').value) $('#inst').value = x.institusi || ''; };
-    $('#peserta').oninput = (e) => { const it = r.items.find((i) => i.key === 'ops_cbt'); it.qty = Number(e.target.value) || 0; keepAndRender(pps); };
+    $('#peserta').oninput = (e) => { const it = r.items.find((i) => i.key === 'ops_cbt'); it.qty = Number(e.target.value) || 0; setTimeout(() => keepAndRender(pps), 0); };
+    app.querySelectorAll('[data-hc]').forEach((el) => (el.onchange = () => { collect(); U.applyHeadcount(r, el.dataset.hc, el.value); setTimeout(() => keepAndRender(pps, null), 0); }));
+    const recalcStaff = () => { const old = {}; ['pl', 'admin', 'it_lokal', 'co_cbt'].forEach((k) => (old[k] = U.headcount(r, k))); collect(); ['pl', 'admin', 'it_lokal', 'co_cbt'].forEach((k) => U.applyHeadcount(r, k, old[k])); setTimeout(() => keepAndRender(pps, null), 0); };
+    $('#sesi').onchange = recalcStaff; $('#hari').onchange = recalcStaff;
     $('#back').onclick = () => go('laporan');
     const save = async (status) => {
       r.pp_id = $('#pp').value; r.pp_institusi = $('#inst').value.trim(); r.tuk_name = $('#tuk').value.trim();
@@ -219,23 +241,27 @@
       if (status === 'published' && (!r.tuk_name || total <= 0)) { $('#err').textContent = 'Untuk menerbitkan, isi nama TUK dan biaya komponen (total harus > 0).'; return; }
       const personnel = { ...r.personnel, pp_name: (x && x.full_name) || r.personnel.pp_name || '', pj_name: me.role === 'admin' && x && x.pj_id !== me.id ? ((await DB.user(x.pj_id)) || {}).full_name || '' : me.full_name };
       const now = Date.now();
-      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, tahun: r.tahun, items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
+      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, tahun: r.tahun, jumlah_petugas: Object.fromEntries(['pl', 'admin', 'it_lokal', 'co_cbt'].map((k) => [k, U.headcount(r, k)])), items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
       if (r.id) row.pj_id = r.pj_id || row.pj_id;
       try {
         let id = r.id;
-        if (id) await F.setDoc(F.doc(db, 'reports', id), row); else id = (await F.addDoc(F.collection(db, 'reports'), row)).id;
+        if (id) await F.updateDoc(F.doc(db, 'reports', id), row); else id = (await F.addDoc(F.collection(db, 'reports'), { ...row, petugas: {} })).id;
         toast(status === 'published' ? 'Tersimpan & terbit — PP dapat mengunduh dokumen' : 'Draft tersimpan');
-        openEditor({ id, ...row }, pps);
+        openEditor({ ...r, id, ...row }, pps);
       } catch (e) { $('#err').textContent = msgOf(e); }
     };
     $('#draft').onclick = () => save('draft'); $('#pub').onclick = () => save('published');
     const u = $('#unpub'); if (u) u.onclick = () => save('draft');
     if (r.id) { $('#files').innerHTML = filesHtml(r); bindFiles(app, r); }
   }
-  function keepAndRender(pps) {
+  function collect() {
     const r = editing;
-    r.tuk_name = $('#tuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Number($('#sesi').value) || 1; r.jumlah_hari = Number($('#hari').value) || 1; r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value; r.tahun = $('#tahun').value;
-    const pos = $('#peserta').selectionStart; renderEditor(pps); const el = $('#peserta'); el.focus(); try { el.setSelectionRange(pos, pos); } catch (_) {}
+    r.tuk_name = $('#tuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value; r.tahun = $('#tahun').value;
+  }
+  function keepAndRender(pps, focusSel = '#peserta') {
+    collect();
+    const pos = focusSel ? $(focusSel).selectionStart : 0; renderEditor(pps);
+    if (focusSel) { const el = $(focusSel); el.focus(); try { el.setSelectionRange(pos, pos); } catch (_) {} }
   }
 
   /* ---------------- PJ: PP saya ---------------- */

@@ -14,11 +14,18 @@ Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk 
 |---|---|
 | **Admin** | Menetapkan PJ Keuangan, menghubungkan PP ↔ PJ, melihat semua laporan |
 | **PJ Keuangan** (boleh banyak orang) | Akun sendiri, mengampu beberapa PP, input TUK & biaya, terbitkan/tarik, unduh |
-| **Pengawas Pusat (PP)** | Hanya melihat & mengunduh laporan miliknya yang sudah diterbitkan |
+| **Pengawas Pusat (PP)** | Melihat & mengunduh laporan miliknya yang sudah diterbitkan, dan **hanya menambahkan nama** Co CBT, Admin, IT Lokal, PL & rumah makan. Biaya/data buatan PJ tidak dapat diubah PP (dijaga `firestore.rules`) |
+
+## Aturan dokumen
+- **Lembar Serah Terima** (rincian operasional TUK) diterbitkan **satu kali** sebagai file tersendiri; tidak disisipkan di berkas komponen uji.
+- **Honor sudah netto** (dipotong PPh 5%, tarif bisa diubah lewat field `pph`). SPBY, kuitansi, dan daftar penerimaan honor menampilkan Bruto, PPh 5%, dan Netto.
+- **Admin, IT Lokal, PL, Co CBT boleh lebih dari 1 orang**: PJ mengisi jumlah petugas; "Banyak" honor (× sesi) dan transport (× hari) dihitung otomatis. PP mengisi nama masing-masing.
+- **Tahun pelaksanaan** diisi manual per laporan (kop & nomor dokumen), sehingga dokumen dapat dipakai di tahun-tahun berikutnya.
+- **Lembar Kurang/Lebih** = checklist kelengkapan berkas (A–F) yang diisi PP setelah dicetak.
 
 ## Berkas yang dihasilkan (mengikuti folder Drive *MASTER TEMPLATE*)
 `Lembar Serah Terima` (rincian operasional TUK) + 6 berkas komponen: **1. Admin · 2. Co CBT · 3. IT Lokal · 4. PL · 5. PP · 6. CBT Center**. Isi: checklist, SPBY, kuitansi, daftar penerimaan, daftar hadir, SPTJM (CBT), rincian perjalanan dinas (PP).
-**Rincian Operasional TUK wajib ada di setiap berkas**: menjadi halaman terakhir tiap PDF, dan identitas TUK + total operasional dicetak di footer setiap halaman. Tersedia unduhan per berkas atau semua sekaligus (ZIP, susunan folder sama dengan Drive).
+Identitas TUK dan PP dicetak di footer setiap halaman. Tersedia unduhan per berkas atau semua sekaligus (ZIP, susunan folder sama dengan Drive).
 
 Tarif bawaan (dari Lembar Serah Terima Stikes Wira Medika Bali) dapat diubah per TUK di formulir: transport Rp170.000, honor briefing PP Rp332.500, honor pelaksanaan PP Rp451.250, konsumsi Rp71.000, operasional CBT Rp40.000/peserta, honor PL Rp275.500, Co CBT Rp380.000, Admin Rp185.250, IT Lokal Rp332.500; tiket/hotel/operasional PP *at cost*. Total contoh = **Rp6.874.500** (sama dengan dokumen asli).
 
@@ -54,7 +61,7 @@ git push -u origin main
 4. PP masuk → **Berkas Saya** → unduh per berkas atau ZIP.
 
 ## Keamanan
-`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (43 skenario).
+`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (52 skenario).
 
 ```bash
 npm i -D firebase-tools @firebase/rules-unit-testing
