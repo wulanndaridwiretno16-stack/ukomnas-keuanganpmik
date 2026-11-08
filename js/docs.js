@@ -74,11 +74,15 @@
     STAFF[key].trans.forEach(([k, m]) => set(k, m === 'once' ? n : n * hari));
     r.jumlah_petugas = Object.assign({}, r.jumlah_petugas, { [key]: n });
   }
+  // Jumlah petugas aktual = yang diisi PP (boleh bertambah dari hitungan PJ). Honor & transport mengikuti (tarif tetap).
+  const ITEM_STAFF = { honor_pl: 'pl', trans_briefing_pl: 'pl', trans_pelaksanaan_pl: 'pl', honor_admin: 'admin', trans_admin: 'admin', honor_it: 'it_lokal', trans_it: 'it_lokal', honor_cocbt: 'co_cbt', trans_cocbt: 'co_cbt' };
+  const actualCount = (r, k) => { const v = (r.petugas || {})[k]; return Math.max(headcount(r, k), Array.isArray(v) ? v.length : 0); };
+  const staffFactor = (r, itemKey) => { const s = ITEM_STAFF[itemKey]; return s ? actualCount(r, s) / headcount(r, s) : 1; };
   const names = (r, key) => {
     const p = Object.assign({}, r.personnel || {}, r.petugas || {});
     if (key === 'rumah_makan') return [p.rumah_makan || ''];
     const v = p[key], arr = Array.isArray(v) ? v : v ? [v] : [];
-    return Array.from({ length: headcount(r, key) }, (_, i) => arr[i] || '');
+    return Array.from({ length: actualCount(r, key) }, (_, i) => arr[i] || '');
   };
 
   const COMPONENTS = [
@@ -160,6 +164,8 @@
     const it = r.items.find((i) => i.key === key) || { nilai: 0, qty: 0, label: key };
     const v = r.realisasi && r.realisasi[key];
     if (PP_OWN.includes(key) && v !== undefined && v !== null && v !== '' && isFinite(Number(v))) return Object.assign({}, it, { nilai: Number(v), qty: 1 });
+    const f = staffFactor(r, key);
+    if (f > 1) return Object.assign({}, it, { qty: (Number(it.qty) || 0) * f });
     return it;
   };
 
@@ -446,9 +452,10 @@
     const body = r.items.map((i) => {
       const a = (Number(i.nilai) || 0) * (Number(i.qty) || 0);
       const v = real[i.key], has = !isHonorItem(i) && v !== undefined && v !== null && v !== '' && isFinite(Number(v));
-      const rl = has ? Number(v) : a, K = rl < a ? a - rl : 0, L = rl > a ? rl - a : 0;
+      const f = staffFactor(r, i.key), extra = f > 1;
+      const rl = has ? Number(v) : extra ? Math.round(a * f) : a, K = rl < a ? a - rl : 0, L = rl > a ? rl - a : 0;
       tA += a; tR += rl; tK += K; tL += L;
-      return [i.label, NUM(a), NUM(rl), K ? NUM(K) : '-', L ? NUM(L) : '-', PP_OWN.includes(i.key) ? 'dibuat mandiri PP' : ''];
+      return [i.label, NUM(a), NUM(rl), K ? NUM(K) : '-', L ? NUM(L) : '-', PP_OWN.includes(i.key) ? 'dibuat mandiri PP' : extra ? `petugas ${actualCount(r, ITEM_STAFF[i.key])} orang (anggaran ${headcount(r, ITEM_STAFF[i.key])})` : ''];
     });
     doc.autoTable({
       startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, lineColor: 0, lineWidth: 0.15, textColor: 0 },
@@ -522,5 +529,5 @@
     return list;
   }
 
-  window.UKOM = { PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
+  window.UKOM = { actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
 })();

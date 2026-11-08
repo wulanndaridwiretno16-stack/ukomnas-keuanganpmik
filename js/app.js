@@ -144,7 +144,9 @@
     const P = Object.assign({}, r.personnel || {}, r.petugas || {}), real = r.realisasi || {};
     const nm = (k, i) => { const v = P[k]; const arr = Array.isArray(v) ? v : v ? [v] : []; return arr[i] || ''; };
     return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Anggaran buatan PJ tidak dapat diubah PP)</span></h3>
-      <div class="grid">${STAFF_LABEL.map(([k, l]) => Array.from({ length: U.headcount(r, k) }, (_, i) => `<div><label>${l}${U.headcount(r, k) > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')).join('')}
+      ${STAFF_LABEL.map(([k, l]) => { const n = U.actualCount(r, k), base = U.headcount(r, k); return `<div style="margin-bottom:10px"><div class="row between"><strong style="font-size:14px">${l}</strong><button class="btn sm" data-add="${k}" data-label="${l}">+ Tambah ${l}</button></div><div class="grid" data-grp="${k}" style="margin-top:6px">${Array.from({ length: n }, (_, i) => `<div><label>${l} ${i + 1}${i >= base ? ' (tambahan)' : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')}</div></div>`; }).join('')}
+      <p class="muted" style="margin:0 0 8px;font-size:13px">Jumlah petugas boleh ditambah sesuai pelaksanaan. Honor &amp; transport tambahan dihitung otomatis dengan tarif tetap dan tampil sebagai “Lebih” di Lembar Kurang/Lebih.</p>
+      <div class="grid">
         <div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
       <h3 style="margin-top:16px">Realisasi pelaksanaan <span class="muted" style="font-weight:400">(Lembar Kurang/Lebih; kosongkan jika sama dengan anggaran PJ)</span></h3>
       <p class="muted" style="margin:0 0 6px;font-size:13px">Nominal transport &amp; biaya operasional PP dibuat mandiri oleh PP dan dipakai pada kuitansinya (bisa kurang/lebih). Honor bersifat tetap.</p>
@@ -155,9 +157,18 @@
     const b = root.querySelector('[data-savepp]'); if (!b) return;
     const diff = (el) => { const cell = root.querySelector(`[data-sel="${el.dataset.rl}"]`); if (!cell) return; if (el.value === '') { cell.textContent = ''; return; } const d = Number(el.value) - Number(el.dataset.a); cell.textContent = d === 0 ? 'pas' : d < 0 ? 'kurang ' + U.NUM(-d) : 'lebih ' + U.NUM(d); };
     root.querySelectorAll('[data-rl]').forEach((el) => { diff(el); el.oninput = () => diff(el); });
+    root.querySelectorAll('[data-add]').forEach((btn) => (btn.onclick = () => {
+      const k = btn.dataset.add, grp = root.querySelector(`[data-grp="${k}"]`), idx = grp.querySelectorAll('input').length, base = U.headcount(r, k);
+      const div = document.createElement('div'); div.innerHTML = `<label>${esc(btn.dataset.label)} ${idx + 1}${idx >= base ? ' (tambahan)' : ''}</label><input data-pt="${k}" data-n="${idx}">`;
+      grp.appendChild(div); div.querySelector('input').focus();
+    }));
     b.onclick = async () => {
       const petugas = { rumah_makan: (root.querySelector('[data-rm]').value || '').trim() };
-      STAFF_LABEL.forEach(([k]) => { petugas[k] = Array.from({ length: U.headcount(r, k) }, (_, i) => (root.querySelector(`[data-pt="${k}"][data-n="${i}"]`).value || '').trim()); });
+      STAFF_LABEL.forEach(([k]) => {
+        const arr = Array.from(root.querySelectorAll(`[data-pt="${k}"]`)).map((el) => (el.value || '').trim()), base = U.headcount(r, k);
+        while (arr.length > base && !arr[arr.length - 1]) arr.pop();
+        petugas[k] = arr;
+      });
       const realisasi = {}; root.querySelectorAll('[data-rl]').forEach((el) => { if (el.value !== '') realisasi[el.dataset.rl] = Math.max(0, Number(el.value) || 0); });
       b.disabled = true;
       try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, realisasi, petugas_at: Date.now() }); r.petugas = petugas; r.realisasi = realisasi; toast('Tersimpan. Dokumen yang diunduh berikutnya memakai data ini.'); } catch (e) { toast(msgOf(e)); }
