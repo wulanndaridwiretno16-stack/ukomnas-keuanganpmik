@@ -354,7 +354,7 @@
       startY: y, theme: 'grid', styles: { fontSize: 8.5, minCellHeight: 11, valign: 'middle', cellPadding: 1.3, lineColor: 0, lineWidth: 0.15, textColor: 0 },
       headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' },
       head, body, foot, footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
-      columnStyles: honor ? { 0: { cellWidth: 8, halign: 'center' }, 2: { cellWidth: 10, halign: 'center' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' }, 8: { cellWidth: 24 } } : { 0: { cellWidth: 8, halign: 'center' }, 2: { cellWidth: 10, halign: 'center' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { cellWidth: 30 } },
+      tableWidth: PW - 2 * M, columnStyles: honor ? { 0: { cellWidth: 8, halign: 'center' }, 1: { cellWidth: 40 }, 2: { cellWidth: 9, halign: 'center' }, 3: { cellWidth: 15 }, 4: { cellWidth: 21, halign: 'right' }, 5: { cellWidth: 21, halign: 'right' }, 6: { cellWidth: 20, halign: 'right' }, 7: { cellWidth: 21, halign: 'right' }, 8: { cellWidth: 25 } } : { 0: { cellWidth: 8, halign: 'center' }, 1: { cellWidth: 50 }, 2: { cellWidth: 10, halign: 'center' }, 3: { cellWidth: 20 }, 4: { cellWidth: 28, halign: 'right' }, 5: { cellWidth: 28, halign: 'right' }, 6: { cellWidth: 36 } },
     });
     y = at(doc) + 6; fontN(doc, 9.5); doc.text('Terbilang', M, y); doc.text(': ' + cap(terbilang(total)) + ' Rupiah', M + 22, y);
     if (honor) { doc.setFontSize(8.5); doc.text(`Honorarium telah dipotong PPh 21 ${taxLabel(r).replace('PPh ', '')}; jumlah diterima adalah netto.`, M, y + 5.5); }
