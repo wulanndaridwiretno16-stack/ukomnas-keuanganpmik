@@ -68,6 +68,11 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/users/$(d.pp_id)).data.role == 'pp'
           && get(/databases/$(database)/documents/users/$(d.pp_id)).data.pj_id == d.pj_id;
       }
+      // Jumlah nama yang diisi PP tidak boleh melebihi jumlah petugas buatan PJ (jumlah_petugas).
+      function capOk(d, old, k) {
+        return !(k in d.petugas) || !('jumlah_petugas' in old) || !(k in old.jumlah_petugas)
+          || (d.petugas[k] is list && d.petugas[k].size() <= old.jumlah_petugas[k]);
+      }
       function valid(d) {
         return d.status in ['draft','published']
           && d.tuk_name is string && d.items is list && d.total is number
@@ -93,7 +98,9 @@ service cloud.firestore {
       allow update: if signedIn() && resource.data.pp_id == request.auth.uid
         && resource.data.status == 'published'
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['petugas','realisasi','petugas_at'])
-        && (!('petugas' in request.resource.data) || request.resource.data.petugas is map)
+        && (!('petugas' in request.resource.data) || (request.resource.data.petugas is map
+            && capOk(request.resource.data, resource.data, 'pl') && capOk(request.resource.data, resource.data, 'admin')
+            && capOk(request.resource.data, resource.data, 'it_lokal') && capOk(request.resource.data, resource.data, 'co_cbt')))
         && (!('realisasi' in request.resource.data) || request.resource.data.realisasi is map);
 
       allow delete: if isPJ() && (resource.data.pj_id == request.auth.uid || isAdmin());

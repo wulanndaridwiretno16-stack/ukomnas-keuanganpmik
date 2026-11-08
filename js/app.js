@@ -143,36 +143,31 @@
   function ppFormHtml(r) {
     const P = Object.assign({}, r.personnel || {}, r.petugas || {}), real = r.realisasi || {};
     const nm = (k, i) => { const v = P[k]; const arr = Array.isArray(v) ? v : v ? [v] : []; return arr[i] || ''; };
-    return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Anggaran buatan PJ tidak dapat diubah PP)</span></h3>
-      ${STAFF_LABEL.map(([k, l]) => { const n = U.actualCount(r, k), base = U.headcount(r, k); return `<div style="margin-bottom:10px"><div class="row between"><strong style="font-size:14px">${l}</strong><button class="btn sm" data-add="${k}" data-label="${l}">+ Tambah ${l}</button></div><div class="grid" data-grp="${k}" style="margin-top:6px">${Array.from({ length: n }, (_, i) => `<div><label>${l} ${i + 1}${i >= base ? ' (tambahan)' : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')}</div></div>`; }).join('')}
-      <p class="muted" style="margin:0 0 8px;font-size:13px">Jumlah petugas boleh ditambah sesuai pelaksanaan. Honor &amp; transport tambahan dihitung otomatis dengan tarif tetap dan tampil sebagai “Lebih” di Lembar Kurang/Lebih.</p>
-      <div class="grid">
-        <div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
-      <h3 style="margin-top:16px">Realisasi pelaksanaan <span class="muted" style="font-weight:400">(Lembar Kurang/Lebih; kosongkan jika sama dengan anggaran PJ)</span></h3>
-      <p class="muted" style="margin:0 0 6px;font-size:13px">Nominal transport &amp; biaya operasional PP dibuat mandiri oleh PP dan dipakai pada kuitansinya (bisa kurang/lebih). Honor bersifat tetap.</p>
+    return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Jumlah sesuai hitungan PJ)</span></h3>
+      ${STAFF_LABEL.map(([k, l]) => { const n = U.headcount(r, k); return `<div style="margin-bottom:10px"><strong style="font-size:14px">${l}</strong> <span class="muted" style="font-size:13px">(${n} orang)</span><div class="grid" data-grp="${k}" style="margin-top:6px">${Array.from({ length: n }, (_, i) => `<div><label>${l}${n > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')}</div></div>`; }).join('')}
+      <div class="grid"><div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan nama petugas</button><span class="muted" style="font-size:13px">Setelah menambah nama, unduh ulang berkas komponen yang terkait.</span></div>
+      <h3 style="margin-top:20px">Lembar Kurang/Lebih — realisasi pelaksanaan</h3>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Berdiri sendiri: tidak mengubah dokumen komponen uji di atas, jadi tidak perlu mengunduh ulang berkas lain. Kosongkan kolom bila realisasi sama dengan anggaran PJ. Honor bersifat tetap.</p>
       <div class="tablewrap"><table><thead><tr><th>Komponen</th><th class="num">Anggaran PJ (Rp)</th><th>Realisasi (Rp)</th><th class="num">Selisih</th></tr></thead><tbody>${r.items.filter((it) => !String(it.key).startsWith('honor_')).map((it) => { const a = it.nilai * it.qty, v = real[it.key]; return `<tr${U.PP_OWN.includes(it.key) ? ' style="background:var(--chip)"' : ''}><td>${esc(it.label)}${U.PP_OWN.includes(it.key) ? ' <span class="chip">mandiri PP</span>' : ''}</td><td class="num">${U.NUM(a)}</td><td><input type="number" min="0" step="any" data-rl="${it.key}" data-a="${a}" placeholder="${a}" value="${v === undefined || v === null ? '' : v}"></td><td class="num" data-sel="${it.key}"></td></tr>`; }).join('')}</tbody></table></div>
-      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan</button><span class="muted" style="font-size:13px">Setelah disimpan, unduh ulang dokumennya.</span></div>`;
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-saverl>Simpan &amp; unduh Lembar Kurang/Lebih</button></div>`;
   }
   function bindPPForm(root, r) {
-    const b = root.querySelector('[data-savepp]'); if (!b) return;
+    const bn = root.querySelector('[data-savepp]'), br = root.querySelector('[data-saverl]'); if (!bn) return;
     const diff = (el) => { const cell = root.querySelector(`[data-sel="${el.dataset.rl}"]`); if (!cell) return; if (el.value === '') { cell.textContent = ''; return; } const d = Number(el.value) - Number(el.dataset.a); cell.textContent = d === 0 ? 'pas' : d < 0 ? 'kurang ' + U.NUM(-d) : 'lebih ' + U.NUM(d); };
     root.querySelectorAll('[data-rl]').forEach((el) => { diff(el); el.oninput = () => diff(el); });
-    root.querySelectorAll('[data-add]').forEach((btn) => (btn.onclick = () => {
-      const k = btn.dataset.add, grp = root.querySelector(`[data-grp="${k}"]`), idx = grp.querySelectorAll('input').length, base = U.headcount(r, k);
-      const div = document.createElement('div'); div.innerHTML = `<label>${esc(btn.dataset.label)} ${idx + 1}${idx >= base ? ' (tambahan)' : ''}</label><input data-pt="${k}" data-n="${idx}">`;
-      grp.appendChild(div); div.querySelector('input').focus();
-    }));
-    b.onclick = async () => {
+    bn.onclick = async () => {
       const petugas = { rumah_makan: (root.querySelector('[data-rm]').value || '').trim() };
-      STAFF_LABEL.forEach(([k]) => {
-        const arr = Array.from(root.querySelectorAll(`[data-pt="${k}"]`)).map((el) => (el.value || '').trim()), base = U.headcount(r, k);
-        while (arr.length > base && !arr[arr.length - 1]) arr.pop();
-        petugas[k] = arr;
-      });
+      STAFF_LABEL.forEach(([k]) => { petugas[k] = Array.from(root.querySelectorAll(`[data-pt="${k}"]`)).slice(0, U.headcount(r, k)).map((el) => (el.value || '').trim()); });
+      bn.disabled = true;
+      try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, petugas_at: Date.now() }); r.petugas = petugas; toast('Nama tersimpan. Unduh ulang berkas komponen yang terkait.'); } catch (e) { toast(msgOf(e)); }
+      bn.disabled = false;
+    };
+    br.onclick = async () => {
       const realisasi = {}; root.querySelectorAll('[data-rl]').forEach((el) => { if (el.value !== '') realisasi[el.dataset.rl] = Math.max(0, Number(el.value) || 0); });
-      b.disabled = true;
-      try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, realisasi, petugas_at: Date.now() }); r.petugas = petugas; r.realisasi = realisasi; toast('Tersimpan. Dokumen yang diunduh berikutnya memakai data ini.'); } catch (e) { toast(msgOf(e)); }
-      b.disabled = false;
+      br.disabled = true;
+      try { await F.updateDoc(F.doc(db, 'reports', r.id), { realisasi, petugas_at: Date.now() }); r.realisasi = realisasi; downloadOne(r, 'kl'); toast('Realisasi tersimpan; Lembar Kurang/Lebih diunduh.'); } catch (e) { toast(msgOf(e)); }
+      br.disabled = false;
     };
   }
 

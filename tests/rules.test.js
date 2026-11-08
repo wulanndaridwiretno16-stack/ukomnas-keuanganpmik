@@ -13,6 +13,7 @@ const fs = require('fs');
     await d.doc('users/pp3').set({email:'pp3@x',role:'pp',pj_id:null,full_name:'PP3'});
     await d.doc('pjCodes/PJ1C').set({pj_id:'pj1'});
     await d.doc('reports/r1').set({pj_id:'pj1',pp_id:'pp1',tuk_name:'T',items:[],total:100,status:'published'});
+    await d.doc('reports/r3').set({pj_id:'pj1',pp_id:'pp1',tuk_name:'T3',items:[],total:100,status:'published',jumlah_petugas:{admin:1,pl:2,it_lokal:1,co_cbt:1}});
     await d.doc('reports/r2').set({pj_id:'pj1',pp_id:'pp1',tuk_name:'T2',items:[],total:100,status:'draft'});
   });
   const as=(uid,email,v=true)=>env.authenticatedContext(uid,{email,email_verified:v}).firestore();
@@ -48,6 +49,12 @@ const fs = require('fs');
   await t('PP petugas must be map', assertFails(pp1.doc('reports/r1').update({petugas:'x'})));
   await t('PP cannot update draft', assertFails(pp1.doc('reports/r2').update({petugas:{}})));
   await t('other PP cannot update petugas', assertFails(pp2.doc('reports/r1').update({petugas:{}})));
+  // jumlah nama petugas dibatasi oleh hitungan PJ
+  await t('PP: admin 1 of 1 ok', assertSucceeds(pp1.doc('reports/r3').update({petugas:{admin:['A']},petugas_at:1})));
+  await t('PP: admin 2 of 1 denied', assertFails(pp1.doc('reports/r3').update({petugas:{admin:['A','B']},petugas_at:1})));
+  await t('PP: pl 2 of 2 ok', assertSucceeds(pp1.doc('reports/r3').update({petugas:{pl:['A','B']},petugas_at:1})));
+  await t('PP: pl 3 of 2 denied', assertFails(pp1.doc('reports/r3').update({petugas:{pl:['A','B','C']},petugas_at:1})));
+  await t('PP: rumah makan free text ok', assertSucceeds(pp1.doc('reports/r3').update({petugas:{rumah_makan:'RM'},petugas_at:2})));
   // users
   await t('PP reads self', assertSucceeds(pp1.doc('users/pp1').get()));
   await t('PP cannot read other', assertFails(pp1.doc('users/pp2').get()));

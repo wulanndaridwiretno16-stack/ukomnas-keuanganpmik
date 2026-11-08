@@ -74,9 +74,9 @@
     STAFF[key].trans.forEach(([k, m]) => set(k, m === 'once' ? n : n * hari));
     r.jumlah_petugas = Object.assign({}, r.jumlah_petugas, { [key]: n });
   }
-  // Jumlah petugas aktual = yang diisi PP (boleh bertambah dari hitungan PJ). Honor & transport mengikuti (tarif tetap).
+  // Jumlah petugas mengikuti hitungan PJ; PP hanya mengisi nama sebanyak jumlah itu.
   const ITEM_STAFF = { honor_pl: 'pl', trans_briefing_pl: 'pl', trans_pelaksanaan_pl: 'pl', honor_admin: 'admin', trans_admin: 'admin', honor_it: 'it_lokal', trans_it: 'it_lokal', honor_cocbt: 'co_cbt', trans_cocbt: 'co_cbt' };
-  const actualCount = (r, k) => { const v = (r.petugas || {})[k]; return Math.max(headcount(r, k), Array.isArray(v) ? v.length : 0); };
+  const actualCount = (r, k) => headcount(r, k);   // jumlah petugas mengikuti hitungan PJ (PP tidak dapat menambah)
   const staffFactor = (r, itemKey) => { const s = ITEM_STAFF[itemKey]; return s ? actualCount(r, s) / headcount(r, s) : 1; };
   const names = (r, key) => {
     const p = Object.assign({}, r.personnel || {}, r.petugas || {});
@@ -154,12 +154,11 @@
   let YEAR = new Date().getFullYear();   // diisi dari r.tahun saat berkas dibuat
   const setYear = (r) => { YEAR = String((r && r.tahun) || new Date().getFullYear()); };
   const ctx = (r, pj, pp) => ({ r, pj, pp });
-  // Komponen milik PP yang dibuat mandiri oleh PP: nominal bisa kurang/lebih dari hitungan PJ.
+  // Komponen milik PP: nominal realisasinya diisi mandiri oleh PP, hanya tampil di Lembar Kurang/Lebih
+  // (dokumen komponen tetap memakai hitungan PJ).
   const PP_OWN = ['tiket', 'hotel', 'trans_dalam_kota', 'trans_briefing_pp', 'ops_pp'];
   const itm = (r, key) => {
     const it = r.items.find((i) => i.key === key) || { nilai: 0, qty: 0, label: key };
-    const v = r.realisasi && r.realisasi[key];
-    if (PP_OWN.includes(key) && v !== undefined && v !== null && v !== '' && isFinite(Number(v))) return Object.assign({}, it, { nilai: Number(v), qty: 1 });
     const f = staffFactor(r, key);
     if (f > 1) return Object.assign({}, it, { qty: (Number(it.qty) || 0) * f });
     return it;
