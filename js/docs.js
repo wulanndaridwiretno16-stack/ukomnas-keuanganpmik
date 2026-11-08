@@ -251,6 +251,8 @@
      SPb (Surat Perintah Bayar), Kwitansi, Daftar Penerimaan, Daftar Hadir,
      Rincian Biaya Perjalanan Dinas, Daftar Pengeluaran Riil, Form Kurleb, Laporan Hasil Perjalanan Dinas.
      ===================================================================== */
+  // Kop berlogo (sama dengan Lembar Serah Terima) lalu y awal halaman digeser di bawah kop
+  const top = (doc, y0) => { kop(doc); return y0 + 19; };
   const PPK = () => (window.APP_CONFIG && window.APP_CONFIG.PPK_NAME) || 'Dr. Tedy Hidayat, S.ST.RMIK., M.MRS';
   const PROGRAM = 'Mahasiswa D-3 RMIK /S.Tr MIK';
   const periodeStr = (r) => `Periode ${r.periode || '......'} Tahun ${YEAR} Tanggal ${fmtDate(r.tgl_pelaksanaan)}`;
@@ -287,7 +289,7 @@
   }
 
   function pageSPb(doc, c, o) {
-    const { r, pj } = c; let y = 20;
+    const { r, pj } = c; let y = top(doc, 20);
     fontB(doc, 13); doc.text('SURAT PERINTAH BAYAR', PW / 2, y, { align: 'center' });
     fontN(doc); doc.text('Tanggal : ' + dots, 128, y + 9); doc.text('Nomor   : ' + dots, 128, y + 15);
     y += 28;
@@ -308,7 +310,7 @@
   }
 
   function pageKwitansi(doc, c, o) {
-    const { r, pj } = c; let y = 20;
+    const { r, pj } = c; let y = top(doc, 20);
     fontN(doc); doc.text('Tahun Anggaran : ' + YEAR, 128, y); doc.text('Nomor Bukti     : ' + dots, 128, y + 5.5); doc.text('Mata Anggaran   : ' + dots, 128, y + 11);
     fontB(doc, 13); doc.text('KWITANSI BUKTI / PEMBAYARAN', PW / 2, y + 26, { align: 'center' });
     const w = doc.getTextWidth('KWITANSI BUKTI / PEMBAYARAN'); doc.setLineWidth(0.3); doc.line(PW / 2 - w / 2, y + 27.5, PW / 2 + w / 2, y + 27.5);
@@ -338,7 +340,7 @@
     const net = (Number(it.nilai) || 0) * vol, brUnit = brutoOf(r, it.nilai), br = Math.round(brUnit * vol), pph = br - net;
     fontB(doc, 11);
     const ttl = `Daftar Penerimaan ${k === 'honor' ? 'Honorarium' : 'Transport Lokal'} sebagai ${g.sebagai || g.role} dalam rangka Uji Kompetensi ${PROGRAM.replace('/S.Tr', '/ S.Tr')}`;
-    let y = 18; splitLines(doc, ttl, PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5.5; });
+    let y = top(doc, 18); splitLines(doc, ttl, PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5.5; });
     fontN(doc); doc.text(periodeStr(r), M, y); y += 6; doc.text('TUK', M, y); doc.text(': ' + r.tuk_name, M + 14, y); y += 5;
     const names = who.length ? who : [''];
     const honor = k === 'honor';
@@ -394,18 +396,18 @@
   // h = { title: 'DAFTAR HADIR ADMIN', who: [...], mode: 'both'|'briefing'|'pelaksanaan' }
   function pageDaftarHadir(doc, c, h) {
     const { r, pp } = c, names = (typeof h.who === 'function' ? h.who(r, c) : h.who) || [], n = Math.max(names.length, 3), sesi = Math.max(1, Number(r.jumlah_sesi) || 1);
-    const head = (y) => { fontB(doc, 13); doc.text(h.title, PW / 2, y, { align: 'center' }); return y + 10; };
+    const head = () => { const y = top(doc, 18); fontB(doc, 13); doc.text(h.title, PW / 2, y, { align: 'center' }); return y + 10; };
     let first = true;
     if (h.mode !== 'pelaksanaan') {
-      let y = head(18); y = hadirBlock(doc, y, 'Pelaksanaan Uji Kompetensi H-1 (Briefing)', Math.max(n, 6), names);
+      let y = head(); y = hadirBlock(doc, y, 'Pelaksanaan Uji Kompetensi H-1 (Briefing)', Math.max(n, 6), names);
       first = false;
       if (h.mode === 'both') { /* briefing halaman sendiri */ }
     }
     if (h.mode !== 'briefing') {
       if (!first) doc.addPage();
-      let y = head(18), perPage = 0;
+      let y = head(), perPage = 0;
       for (let s = 1; s <= sesi; s++) {
-        if (perPage === 3) { doc.addPage(); y = head(18); perPage = 0; }
+        if (perPage === 3) { doc.addPage(); y = head(); perPage = 0; }
         y = hadirBlock(doc, y, `Pelaksanaan Uji Kompetensi Sesi ${s}`, n, names); perPage++;
       }
       fontN(doc); doc.text('Mengetahui', 145, Math.min(y + 4, 262)); doc.text('Pengawas Pusat', 145, Math.min(y + 9, 267));
@@ -414,8 +416,8 @@
   }
   function pageNotaHadirKonsumsi(doc, c, g) {
     const { r } = c, it = itm(r, g.items[0]);
-    fontB(doc, 12); doc.text('DAFTAR HADIR KONSUMSI PELAKSANAAN UJI KOMPETENSI', PW / 2, 18, { align: 'center' });
-    fontN(doc, 10); let y = 30;
+    const yy = top(doc, 18); fontB(doc, 12); doc.text('DAFTAR HADIR KONSUMSI PELAKSANAAN UJI KOMPETENSI', PW / 2, yy, { align: 'center' });
+    fontN(doc, 10); let y = yy + 12;
     [['Kegiatan', g.kegiatan || g.untuk], ['Tanggal', fmtDate(r.tgl_pelaksanaan)], ['Pukul', dots], ['Tempat', r.tuk_name]].forEach(([l, v]) => { doc.text(l, M, y); doc.text(': ' + v, M + 26, y); y += 6; });
     const rows = Math.max(1, Number(it.qty) || 1);
     doc.autoTable({
@@ -490,11 +492,11 @@
 
   // 5. Rincian biaya perjalanan dinas
   function pageRincianPerjadin(doc, c) {
-    const { r, pj, pp } = c, m = PM(r), total = perjadinTotal(r);
-    fontB(doc, 13); doc.text('RINCIAN BIAYA PERJALANAN DINAS', PW / 2, 20, { align: 'center' });
-    fontN(doc); doc.text('Lampiran SPD Nomor : ' + (m.spd_nomor || dots), M, 32); doc.text('Tanggal : ' + (m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots), M, 38);
+    const { r, pj, pp } = c, m = PM(r), total = perjadinTotal(r), K = top(doc, 0);
+    fontB(doc, 13); doc.text('RINCIAN BIAYA PERJALANAN DINAS', PW / 2, 20 + K, { align: 'center' });
+    fontN(doc); doc.text('Lampiran SPD Nomor : ' + (m.spd_nomor || dots), M, 32 + K); doc.text('Tanggal : ' + (m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots), M, 38 + K);
     doc.autoTable({
-      startY: 43, theme: 'grid', styles: { fontSize: 9.5, cellPadding: 1.8, lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      startY: 43 + K, theme: 'grid', styles: { fontSize: 9.5, cellPadding: 1.8, lineColor: 0, lineWidth: 0.15, textColor: 0 },
       headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['NO', 'PERINCIAN BIAYA', 'JUMLAH', 'KETERANGAN']],
       body: PP_ROWS.map(([k, l], i) => [i + 1, l, ppAmt(r, k) ? RP(ppAmt(r, k)) : 'Rp -', k === 'hotel' && m.hotel_nama ? `${m.hotel_nama}${m.hotel_malam ? ', ' + m.hotel_malam + ' malam' : ''}` : k === 'tiket' && m.moda ? m.moda : '']),
       foot: [[{ content: 'Jumlah', colSpan: 2, styles: { halign: 'right' } }, RP(total), '']], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
@@ -513,8 +515,9 @@
   // Daftar Pengeluaran Riil
   function pageRiil(doc, c) {
     const { r, pp } = c, m = PM(r), rows = [['Transport darat', ppAmt(r, 'transport_darat')], ['Taksi Asal', ppAmt(r, 'taksi_asal')], ['Taksi Tujuan', ppAmt(r, 'taksi_tujuan')]], total = rows.reduce((s, x) => s + x[1], 0);
-    fontB(doc, 13); doc.text('DAFTAR PENGELUARAN RIIL', PW / 2, 20, { align: 'center' });
-    fontN(doc); let y = 32; doc.text('Yang bertanda tangan di bawah ini, atas nama Kuasa Pengguna Anggaran :', M, y); y += 8;
+    const K = top(doc, 0);
+    fontB(doc, 13); doc.text('DAFTAR PENGELUARAN RIIL', PW / 2, 20 + K, { align: 'center' });
+    fontN(doc); let y = 32 + K; doc.text('Yang bertanda tangan di bawah ini, atas nama Kuasa Pengguna Anggaran :', M, y); y += 8;
     [['Nama', PPK()], ['Jabatan', 'Pejabat Pembuat Komitmen']].forEach(([l, v]) => { doc.text(l, M, y); doc.text(': ' + v, M + 22, y); y += 5.5; });
     y += 3; doc.text('Berdasarkan Surat Perjalanan Dinas (SPD) :', M, y); y += 6;
     doc.text('Nomor', M, y); doc.text(': ' + (m.spd_nomor || dots), M + 22, y); y += 5.5; doc.text('Tanggal', M, y); doc.text(': ' + (m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots), M + 22, y); y += 8;
@@ -556,15 +559,16 @@
     // FORM LAPORAN PERJALANAN DINAS PP
     laporan(r, pj, pp) {
       setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r), lama = lamaHari(m.tgl_berangkat, m.tgl_pulang);
-      fontB(doc, 13); doc.text('LAPORAN HASIL PERJALANAN DINAS', PW / 2, 22, { align: 'center' });
-      fontN(doc, 10.5); let y = 36;
+      const K = top(doc, 0);
+      fontB(doc, 13); doc.text('LAPORAN HASIL PERJALANAN DINAS', PW / 2, 22 + K, { align: 'center' });
+      fontN(doc, 10.5); let y = 36 + K;
       const row = (l, v) => { doc.text(l, M, y); doc.text(':', M + 42, y); fontB(doc, 10.5); const ls = splitLines(doc, v || dots, PW - M - (M + 46)); ls.forEach((ln) => { doc.text(ln, M + 46, y); y += 5.6; }); fontN(doc, 10.5); y += 1.5; };
-      const para = (l, v) => { doc.text(l, M, y); doc.text(':', M + 42, y); const ls = splitLines(doc, v || dots + dots + dots, PW - M - (M + 46)); ls.forEach((ln) => { if (y > 265) { doc.addPage(); y = 22; } doc.text(ln, M + 46, y); y += 5.6; }); y += 4; };
+      const para = (l, v) => { doc.text(l, M, y); doc.text(':', M + 42, y); const ls = splitLines(doc, v || dots + dots + dots, PW - M - (M + 46)); ls.forEach((ln) => { if (y > 265) { doc.addPage(); y = top(doc, 22); } doc.text(ln, M + 46, y); y += 5.6; }); y += 4; };
       row('Nama', pp.full_name); row('Golongan', m.golongan); row('Asal Instansi', r.pp_institusi); row('Tempat Tujuan', r.tuk_name);
       para('Tujuan Perjalanan', m.maksud || `Melaksanakan tugas sebagai Pengawas Pusat pada Uji Kompetensi ${PROGRAM} ${periodeStr(r)} di ${r.tuk_name}.`);
       row('Lama Perjalanan Dinas', lama ? `${lama} hari (${fmtDate(m.tgl_berangkat)} s.d. ${fmtDate(m.tgl_pulang)})` : '');
       para('Hasil Kegiatan', m.hasil); para('Tindak Lanjut', m.kendala);
-      y += 6; if (y > 240) { doc.addPage(); y = 22; }
+      y += 6; if (y > 240) { doc.addPage(); y = top(doc, 22); }
       doc.text((m.tempat || '(Nama Kota CBT)') + ', ' + fmtDate(m.tgl_pulang || r.tgl_pelaksanaan), 128, y); doc.text('Yang Melaporkan', 128, y + 6);
       fontB(doc, 10.5); splitLines(doc, pp.full_name || '', 70).forEach((ln, j) => doc.text(ln, 128, y + 32 + j * 5)); fontN(doc);
       footers(doc, c, 'Laporan Perjalanan Dinas'); return doc;
@@ -587,7 +591,8 @@
       ['Honor IT Lokal', ['honor_it']], ['Transport Lokal IT Lokal ', ['trans_it'], () => real.trans_it],
       ['Taksi Asal', [], () => pmAmt(r, 'taksi_asal')], ['Taksi TUK', [], () => pmAmt(r, 'taksi_tujuan')], ['Pesawat', [], () => pmAmt(r, 'tiket')], ['Transport (dalam kota)', [], () => pmAmt(r, 'transport_darat')], ['Transport (luar kota)', []], ['', []], ['', []], ['', []],
     ];
-    fontB(doc, 11); doc.text('Nama (PP) : ' + (pp.full_name || ''), M, 20); doc.text('TUK : ' + (r.tuk_name || ''), M, 27); doc.text('No Hp : ' + (m.no_hp || ''), M, 34); fontN(doc);
+    const K = top(doc, 0) + 1;
+    fontB(doc, 11); doc.text('Nama (PP) : ' + (pp.full_name || ''), M, 20 + K); doc.text('TUK : ' + (r.tuk_name || ''), M, 26 + K); doc.text('No Hp : ' + (m.no_hp || ''), M, 32 + K); fontN(doc);
     let tg = 0, td = 0, tk = 0, tl = 0;
     const body = rows.map(([label, ks, fn], i) => {
       const g = given(ks), v = fn ? fn() : undefined, has = v !== undefined && v !== null && v !== '' && isFinite(Number(v)), out = has ? Number(v) : g;
@@ -596,7 +601,7 @@
       return [i + 1, label, show(g), has || g ? show(out) : '', K ? NUM(K) : '', L ? NUM(L) : ''];
     });
     doc.autoTable({
-      startY: 40, theme: 'grid', styles: { fontSize: 9, cellPadding: 1.4, minCellHeight: 7, lineColor: 0, lineWidth: 0.2, textColor: 0 },
+      startY: 37 + K, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.2, minCellHeight: 6.2, lineColor: 0, lineWidth: 0.2, textColor: 0 },
       headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No.', 'Uang', 'Yang diberikan', 'Yang dikeluarkan', 'Kurang', 'Lebih']],
       body, foot: [[{ content: 'Jumlah', colSpan: 2 }, NUM(tg), NUM(td), NUM(tk), NUM(tl)]], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
       columnStyles: { 0: { cellWidth: 11, halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
@@ -604,7 +609,7 @@
     let y = at(doc) + 9; fontN(doc, 10);
     const net = tg - td;
     doc.text('Jumlah yang diterima/dikembalikan  ' + (net === 0 ? '-' : (net > 0 ? 'dikembalikan ' : 'diterima ') + RP(Math.abs(net))), M, y);
-    if (y > 250) { doc.addPage(); y = 22; }
+    if (y > 240) { doc.addPage(); y = top(doc, 22); }
     doc.text('Pengawas Pusat', 140, y + 10); fontB(doc, 10); splitLines(doc, '( ' + (pp.full_name || '') + ' )', 60).forEach((ln, j) => doc.text(ln, 140, y + 34 + j * 5)); fontN(doc);
     footers(doc, c, 'Form Kurleb');
     return doc;
