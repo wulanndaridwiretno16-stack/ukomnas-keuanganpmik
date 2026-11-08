@@ -287,7 +287,7 @@
   const rincianKonsumsi = (r, g) => { const i = itm(r, g.items[0]); return `Rincian : ${NUM(i.qty)} orang x ${RP(i.nilai)} = ${RP(i.nilai * i.qty)}`; };
 
   function signCols(doc, y, cols) {
-    const W = 48, xs = [M, M + 76, M + 132];
+    const W = 48, xs = cols.length === 2 ? [M, PW - M - W] : [M, M + 76, M + 132];   // 2 kolom: Bendahara rata ke margin kanan
     cols.forEach((col, i) => {
       fontN(doc, 9.5); doc.text(col[0], xs[i], y); doc.text(col[1], xs[i], y + 5);
       signName(doc, xs[i], y + 28, col[2] || '', W);
