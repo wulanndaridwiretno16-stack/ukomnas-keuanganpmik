@@ -88,12 +88,13 @@ service cloud.firestore {
         && request.resource.data.pj_id == resource.data.pj_id
         && ppBelongsToPj(request.resource.data);
 
-      // PP hanya boleh menambahkan nama petugas TUK & rumah makan pada laporan miliknya yang sudah terbit.
-      // Semua field buatan PJ (biaya, TUK, tahun, dst) tidak dapat diubah PP.
+      // PP hanya boleh mengisi nama petugas/rumah makan dan realisasi pelaksanaan pada laporan miliknya
+      // yang sudah terbit. Semua field buatan PJ (anggaran/biaya, TUK, tahun, dst) tidak dapat diubah PP.
       allow update: if signedIn() && resource.data.pp_id == request.auth.uid
         && resource.data.status == 'published'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['petugas','petugas_at'])
-        && (!('petugas' in request.resource.data) || request.resource.data.petugas is map);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['petugas','realisasi','petugas_at'])
+        && (!('petugas' in request.resource.data) || request.resource.data.petugas is map)
+        && (!('realisasi' in request.resource.data) || request.resource.data.realisasi is map);
 
       allow delete: if isPJ() && (resource.data.pj_id == request.auth.uid || isAdmin());
     }

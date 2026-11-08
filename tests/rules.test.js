@@ -38,7 +38,9 @@ const fs = require('fs');
   await t('admin reads all', assertSucceeds(adm.collection('reports').get()));
   // PP hanya menambah nama petugas
   await t('PP adds petugas names on own published', assertSucceeds(pp1.doc('reports/r1').update({petugas:{admin:['A','B']},petugas_at:1})));
-  await t('PP cannot edit other fields (realisasi)', assertFails(pp1.doc('reports/r1').update({realisasi:{hotel:1}})));
+  await t('PP writes realisasi', assertSucceeds(pp1.doc('reports/r1').update({realisasi:{hotel:1}})));
+  await t('realisasi must be map', assertFails(pp1.doc('reports/r1').update({realisasi:5})));
+  await t('PP cannot write unknown field', assertFails(pp1.doc('reports/r1').update({hack:1})));
   await t('PP cannot change items', assertFails(pp1.doc('reports/r1').update({items:[{key:'x',nilai:1,qty:1}]})));
   await t('PP cannot change tuk_name', assertFails(pp1.doc('reports/r1').update({tuk_name:'X'})));
   await t('PP cannot change total', assertFails(pp1.doc('reports/r1').update({total:1})));

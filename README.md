@@ -14,14 +14,14 @@ Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk 
 |---|---|
 | **Admin** | Menetapkan PJ Keuangan, menghubungkan PP ↔ PJ, melihat semua laporan |
 | **PJ Keuangan** (boleh banyak orang) | Akun sendiri, mengampu beberapa PP, input TUK & biaya, terbitkan/tarik, unduh |
-| **Pengawas Pusat (PP)** | Melihat & mengunduh laporan miliknya yang sudah diterbitkan, dan **hanya menambahkan nama** Co CBT, Admin, IT Lokal, PL & rumah makan. Biaya/data buatan PJ tidak dapat diubah PP (dijaga `firestore.rules`) |
+| **Pengawas Pusat (PP)** | Melihat & mengunduh laporan miliknya yang sudah diterbitkan; menambahkan nama Co CBT, Admin, IT Lokal, PL & rumah makan; mengisi realisasi pelaksanaan (Lembar Kurang/Lebih) dan membuat mandiri transport & biaya operasional PP. Anggaran buatan PJ tidak dapat diubah PP (dijaga `firestore.rules`) |
 
 ## Aturan dokumen
 - **Lembar Serah Terima** (rincian operasional TUK) diterbitkan **satu kali** sebagai file tersendiri; tidak disisipkan di berkas komponen uji.
 - **Honor sudah netto** (dipotong PPh 5%, tarif bisa diubah lewat field `pph`). SPBY, kuitansi, dan daftar penerimaan honor menampilkan Bruto, PPh 5%, dan Netto.
 - **Admin, IT Lokal, PL, Co CBT boleh lebih dari 1 orang**: PJ mengisi jumlah petugas; "Banyak" honor (× sesi) dan transport (× hari) dihitung otomatis. PP mengisi nama masing-masing.
 - **Tahun pelaksanaan** diisi manual per laporan (kop & nomor dokumen), sehingga dokumen dapat dipakai di tahun-tahun berikutnya.
-- **Lembar Kurang/Lebih** = checklist kelengkapan berkas (A–F) yang diisi PP setelah dicetak.
+- **Lembar Kurang/Lebih** = realisasi pelaksanaan vs anggaran hitungan PJ (Kurang = realisasi di bawah anggaran, Lebih = di atas). PP mengisi realisasi; honor bersifat tetap. Transport & biaya operasional PP (tiket, hotel, transport, operasional) dibuat mandiri oleh PP dan nominalnya dipakai pada kuitansi PP.
 
 ## Berkas yang dihasilkan (mengikuti folder Drive *MASTER TEMPLATE*)
 `Lembar Serah Terima` (rincian operasional TUK) + 6 berkas komponen: **1. Admin · 2. Co CBT · 3. IT Lokal · 4. PL · 5. PP · 6. CBT Center**. Isi: checklist, SPBY, kuitansi, daftar penerimaan, daftar hadir, SPTJM (CBT), rincian perjalanan dinas (PP).
@@ -61,7 +61,7 @@ git push -u origin main
 4. PP masuk → **Berkas Saya** → unduh per berkas atau ZIP.
 
 ## Keamanan
-`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (52 skenario).
+`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (54 skenario).
 
 ```bash
 npm i -D firebase-tools @firebase/rules-unit-testing

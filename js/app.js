@@ -141,20 +141,26 @@
   /* ---------------- PP: nama petugas & rumah makan ---------------- */
   const STAFF_LABEL = [['co_cbt', 'Co CBT'], ['admin', 'Admin'], ['it_lokal', 'IT Lokal'], ['pl', 'Pengawas Lokal (PL)']];
   function ppFormHtml(r) {
-    const P = Object.assign({}, r.personnel || {}, r.petugas || {});
+    const P = Object.assign({}, r.personnel || {}, r.petugas || {}), real = r.realisasi || {};
     const nm = (k, i) => { const v = P[k]; const arr = Array.isArray(v) ? v : v ? [v] : []; return arr[i] || ''; };
-    return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Biaya &amp; data lain hanya dapat diubah PJ)</span></h3>
+    return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Anggaran buatan PJ tidak dapat diubah PP)</span></h3>
       <div class="grid">${STAFF_LABEL.map(([k, l]) => Array.from({ length: U.headcount(r, k) }, (_, i) => `<div><label>${l}${U.headcount(r, k) > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')).join('')}
         <div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
-      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan nama petugas</button><span class="muted" style="font-size:13px">Setelah disimpan, unduh ulang dokumennya.</span></div>`;
+      <h3 style="margin-top:16px">Realisasi pelaksanaan <span class="muted" style="font-weight:400">(Lembar Kurang/Lebih; kosongkan jika sama dengan anggaran PJ)</span></h3>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Nominal transport &amp; biaya operasional PP dibuat mandiri oleh PP dan dipakai pada kuitansinya (bisa kurang/lebih). Honor bersifat tetap.</p>
+      <div class="tablewrap"><table><thead><tr><th>Komponen</th><th class="num">Anggaran PJ (Rp)</th><th>Realisasi (Rp)</th><th class="num">Selisih</th></tr></thead><tbody>${r.items.filter((it) => !String(it.key).startsWith('honor_')).map((it) => { const a = it.nilai * it.qty, v = real[it.key]; return `<tr${U.PP_OWN.includes(it.key) ? ' style="background:var(--chip)"' : ''}><td>${esc(it.label)}${U.PP_OWN.includes(it.key) ? ' <span class="chip">mandiri PP</span>' : ''}</td><td class="num">${U.NUM(a)}</td><td><input type="number" min="0" step="any" data-rl="${it.key}" data-a="${a}" placeholder="${a}" value="${v === undefined || v === null ? '' : v}"></td><td class="num" data-sel="${it.key}"></td></tr>`; }).join('')}</tbody></table></div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan</button><span class="muted" style="font-size:13px">Setelah disimpan, unduh ulang dokumennya.</span></div>`;
   }
   function bindPPForm(root, r) {
     const b = root.querySelector('[data-savepp]'); if (!b) return;
+    const diff = (el) => { const cell = root.querySelector(`[data-sel="${el.dataset.rl}"]`); if (!cell) return; if (el.value === '') { cell.textContent = ''; return; } const d = Number(el.value) - Number(el.dataset.a); cell.textContent = d === 0 ? 'pas' : d < 0 ? 'kurang ' + U.NUM(-d) : 'lebih ' + U.NUM(d); };
+    root.querySelectorAll('[data-rl]').forEach((el) => { diff(el); el.oninput = () => diff(el); });
     b.onclick = async () => {
       const petugas = { rumah_makan: (root.querySelector('[data-rm]').value || '').trim() };
       STAFF_LABEL.forEach(([k]) => { petugas[k] = Array.from({ length: U.headcount(r, k) }, (_, i) => (root.querySelector(`[data-pt="${k}"][data-n="${i}"]`).value || '').trim()); });
+      const realisasi = {}; root.querySelectorAll('[data-rl]').forEach((el) => { if (el.value !== '') realisasi[el.dataset.rl] = Math.max(0, Number(el.value) || 0); });
       b.disabled = true;
-      try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, petugas_at: Date.now() }); r.petugas = petugas; toast('Tersimpan. Dokumen yang diunduh berikutnya memakai nama ini.'); } catch (e) { toast(msgOf(e)); }
+      try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, realisasi, petugas_at: Date.now() }); r.petugas = petugas; r.realisasi = realisasi; toast('Tersimpan. Dokumen yang diunduh berikutnya memakai data ini.'); } catch (e) { toast(msgOf(e)); }
       b.disabled = false;
     };
   }
@@ -245,7 +251,7 @@
       if (r.id) row.pj_id = r.pj_id || row.pj_id;
       try {
         let id = r.id;
-        if (id) await F.updateDoc(F.doc(db, 'reports', id), row); else id = (await F.addDoc(F.collection(db, 'reports'), { ...row, petugas: {} })).id;
+        if (id) await F.updateDoc(F.doc(db, 'reports', id), row); else id = (await F.addDoc(F.collection(db, 'reports'), { ...row, petugas: {}, realisasi: {} })).id;
         toast(status === 'published' ? 'Tersimpan & terbit — PP dapat mengunduh dokumen' : 'Draft tersimpan');
         openEditor({ ...r, id, ...row }, pps);
       } catch (e) { $('#err').textContent = msgOf(e); }

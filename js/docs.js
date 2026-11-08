@@ -154,7 +154,14 @@
   let YEAR = new Date().getFullYear();   // diisi dari r.tahun saat berkas dibuat
   const setYear = (r) => { YEAR = String((r && r.tahun) || new Date().getFullYear()); };
   const ctx = (r, pj, pp) => ({ r, pj, pp });
-  const itm = (r, key) => r.items.find((i) => i.key === key) || { nilai: 0, qty: 0, label: key };
+  // Komponen milik PP yang dibuat mandiri oleh PP: nominal bisa kurang/lebih dari hitungan PJ.
+  const PP_OWN = ['tiket', 'hotel', 'trans_dalam_kota', 'trans_briefing_pp', 'ops_pp'];
+  const itm = (r, key) => {
+    const it = r.items.find((i) => i.key === key) || { nilai: 0, qty: 0, label: key };
+    const v = r.realisasi && r.realisasi[key];
+    if (PP_OWN.includes(key) && v !== undefined && v !== null && v !== '' && isFinite(Number(v))) return Object.assign({}, it, { nilai: Number(v), qty: 1 });
+    return it;
+  };
 
   function newDoc() {
     const { jsPDF } = window.jspdf;
@@ -429,30 +436,33 @@
     signBlock(doc, at(doc) + 10, pj.full_name, pp.full_name);
   }
 
-  /* ---------- Lembar Kurang / Lebih = checklist kelengkapan berkas (diisi PP setelah dicetak) ---------- */
+  /* ---------- Lembar Kurang / Lebih = realisasi pelaksanaan vs anggaran (hitungan PJ) ---------- */
   function buildKurangLebih(r, pj, pp) {
     setYear(r);
-    const c = ctx(r, pj, pp), doc = newDoc();
-    let y = title(doc, kop(doc), 'LEMBAR KURANG / LEBIH', 'Checklist Keuangan UKOMNAS ' + YEAR);
-    y = infoBlock(doc, y, [['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', r.tuk_name]]);
-    const order = [['A', 'pp', 'BERKAS PENGAWAS PUSAT'], ['B', 'cbt', 'BERKAS CBT CENTER'], ['C', 'cocbt', 'BERKAS CO CBT'], ['D', 'admin', 'BERKAS ADMIN'], ['E', 'it', 'BERKAS IT LOKAL'], ['F', 'pl', 'BERKAS PENGAWAS LOKAL']];
-    const body = [];
-    order.forEach(([L, key, label]) => {
-      const comp = COMPONENTS.find((x) => x.key === key);
-      body.push([{ content: `${L}. ${label}`, colSpan: 5, styles: { fillColor: [190, 245, 225], fontStyle: 'bold' } }]);
-      comp.checklist.forEach((t, i) => body.push([i + 1, t, '', '', '']));
+    const c = ctx(r, pj, pp), doc = newDoc(), real = r.realisasi || {};
+    let y = title(doc, kop(doc), 'LEMBAR KURANG / LEBIH', 'Realisasi pelaksanaan terhadap anggaran (hitungan PJ Keuangan)');
+    y = infoBlock(doc, y, [['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', r.tuk_name], ['Jumlah Sesi / Hari', `${r.jumlah_sesi} / ${r.jumlah_hari}`]]);
+    let tA = 0, tR = 0, tK = 0, tL = 0;
+    const body = r.items.map((i) => {
+      const a = (Number(i.nilai) || 0) * (Number(i.qty) || 0);
+      const v = real[i.key], has = !isHonorItem(i) && v !== undefined && v !== null && v !== '' && isFinite(Number(v));
+      const rl = has ? Number(v) : a, K = rl < a ? a - rl : 0, L = rl > a ? rl - a : 0;
+      tA += a; tR += rl; tK += K; tL += L;
+      return [i.label, NUM(a), NUM(rl), K ? NUM(K) : '-', L ? NUM(L) : '-', PP_OWN.includes(i.key) ? 'dibuat mandiri PP' : ''];
     });
     doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, minCellHeight: 6.5, valign: 'middle', lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, lineColor: 0, lineWidth: 0.15, textColor: 0 },
       headStyles: { fillColor: [245, 205, 250], textColor: 0, halign: 'center' },
-      head: [['No', 'Dokumen / Form', 'Checklist', 'Kurang', 'Lebih']],
+      head: [['Komponen Biaya', 'Anggaran PJ (Rp)', 'Realisasi (Rp)', 'Kurang (Rp)', 'Lebih (Rp)', 'Keterangan']],
       body,
-      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 22 }, 3: { cellWidth: 22 }, 4: { cellWidth: 22 } },
+      foot: [['TOTAL', NUM(tA), NUM(tR), NUM(tK), NUM(tL), '']],
+      footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' } },
     });
     doc.setFontSize(8.5); doc.setTextColor(60);
-    doc.text('Diisi PP setelah dicetak: beri tanda pada Checklist bila berkas lengkap; isi jumlah/keterangan pada Kurang atau Lebih bila ada selisih.', M, at(doc) + 5);
+    doc.text(doc.splitTextToSize('Kurang = realisasi di bawah anggaran. Lebih = realisasi melebihi anggaran. Honor bersifat tetap (netto, PPh 5%). Transport dan biaya operasional PP diisi mandiri oleh PP sesuai bukti pengeluaran.', PW - 2 * M), M, at(doc) + 5);
     doc.setTextColor(0); doc.setFontSize(10);
-    signBlock(doc, at(doc) + 12, pj.full_name, pp.full_name, 'Yang memeriksa (PP),', 'Mengetahui (PJ Keuangan),');
+    signBlock(doc, at(doc) + 14, pj.full_name, pp.full_name, 'Yang membuat (PP),', 'Mengetahui (PJ Keuangan),');
     footers(doc, c, 'Lembar Kurang Lebih');
     return doc;
   }
@@ -504,7 +514,7 @@
   function fileList(r, pj, pp) {
     const base = safe(r.tuk_name);
     const list = [{ id: 'serah', folder: '', name: `Lembar Serah Terima - ${base}.pdf`, label: 'Lembar Serah Terima (Rincian Operasional TUK)', build: () => buildSerahTerima(r, pj, pp) }];
-    list.push({ id: 'kl', folder: '', name: `Lembar Kurang Lebih - ${base}.pdf`, label: 'Lembar Kurang / Lebih (checklist berkas, diisi PP)', build: () => buildKurangLebih(r, pj, pp) });
+    list.push({ id: 'kl', folder: '', name: `Lembar Kurang Lebih - ${base}.pdf`, label: 'Lembar Kurang / Lebih (realisasi pelaksanaan)', build: () => buildKurangLebih(r, pj, pp) });
     COMPONENTS.forEach((comp) => list.push({
       id: comp.key, folder: comp.folder, name: `${comp.label} - ${base}.pdf`, label: comp.label,
       build: () => buildComponent(comp, r, pj, pp),
@@ -512,5 +522,5 @@
     return list;
   }
 
-  window.UKOM = { headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
+  window.UKOM = { PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
 })();
