@@ -19,6 +19,7 @@ Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk 
 ## Aturan dokumen
 - **Lembar Serah Terima** (rincian operasional TUK) diterbitkan **satu kali** sebagai file tersendiri; tidak disisipkan di berkas komponen uji.
 - **Honor sudah netto** (dipotong PPh 5%, tarif bisa diubah lewat field `pph`). SPBY, kuitansi, dan daftar penerimaan honor menampilkan Bruto, PPh 5%, dan Netto.
+- **Honor + transport Admin, IT Lokal, PL, Co CBT: 1 SPBY, 1 kuitansi, 1 daftar penerimaan** per komponen, dengan rincian tarif × jumlah orang (honor dipisah bruto/PPh/netto, transport tanpa pajak).
 - **Admin, IT Lokal, PL, Co CBT boleh lebih dari 1 orang**: PJ mengisi jumlah petugas; "Banyak" honor (× sesi) dan transport (× hari) dihitung otomatis. PP mengisi nama masing-masing dan bisa menekan **+ Tambah** bila petugas di lapangan lebih banyak; honor & transport tambahan dihitung otomatis (tarif tetap) dan muncul sebagai "Lebih" di Lembar Kurang/Lebih, sedangkan Lembar Serah Terima tetap angka PJ.
 - **Tahun pelaksanaan** diisi manual per laporan (kop & nomor dokumen), sehingga dokumen dapat dipakai di tahun-tahun berikutnya.
 - **Lembar Kurang/Lebih** = realisasi pelaksanaan vs anggaran hitungan PJ (Kurang = realisasi di bawah anggaran, Lebih = di atas). PP mengisi realisasi; honor bersifat tetap. Transport & biaya operasional PP (tiket, hotel, transport, operasional) dibuat mandiri oleh PP dan nominalnya dipakai pada kuitansi PP.

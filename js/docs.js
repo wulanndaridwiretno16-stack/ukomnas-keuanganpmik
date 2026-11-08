@@ -89,41 +89,37 @@
     {
       key: 'admin', no: 1, folder: '1. ADMIN', label: 'Berkas Admin', role: 'Teknisi (Admin)',
       groups: [
-        { title: 'Honorarium Teknisi (Admin)', items: ['honor_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true },
-        { title: 'Transport Lokal Admin', items: ['trans_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true },
+        { title: 'Honorarium & Transport Lokal Teknisi (Admin)', items: ['honor_admin', 'trans_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true },
       ],
       hadir: [{ title: 'Daftar Hadir Pelaksanaan Admin', who: (r) => names(r, 'admin') }],
-      checklist: ['SPBY Honorarium Teknisi (Admin)', 'Kuitansi Honorarium Teknisi (Admin)', 'Daftar Penerimaan Honorarium Teknisi (Admin)', 'Daftar Hadir Pelaksanaan Admin', 'Surat Tugas Admin', 'SPBY Transport Lokal Admin', 'Kuitansi Transport Lokal Admin', 'Daftar Penerimaan Transport Lokal Admin'],
+      checklist: ['SPBY Honorarium & Transport Lokal Admin', 'Kuitansi Honorarium & Transport Lokal Admin', 'Daftar Penerimaan Honorarium & Transport Admin', 'Daftar Hadir Pelaksanaan Admin', 'Surat Tugas Admin'],
     },
     {
       key: 'cocbt', no: 2, folder: '2. Co CBT', label: 'Berkas Co CBT', role: 'Co CBT',
       groups: [
-        { title: 'Honorarium Co CBT', items: ['honor_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true },
-        { title: 'Transport Lokal Co CBT', items: ['trans_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true },
+        { title: 'Honorarium & Transport Lokal Co CBT', items: ['honor_cocbt', 'trans_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true },
       ],
       hadir: [{ title: 'Daftar Hadir Co CBT', who: (r) => names(r, 'co_cbt') }],
-      checklist: ['SPBY Honorarium Co CBT', 'Kuitansi Honorarium Co CBT', 'Daftar Penerimaan Honorarium Co CBT', 'Daftar Hadir Co CBT', 'Surat Tugas Co CBT', 'SPBY Transport Lokal Co CBT', 'Kuitansi Transport Lokal Co CBT', 'Daftar Penerimaan Transport Lokal Co CBT'],
+      checklist: ['SPBY Honorarium & Transport Lokal Co CBT', 'Kuitansi Honorarium & Transport Lokal Co CBT', 'Daftar Penerimaan Honorarium & Transport Co CBT', 'Daftar Hadir Co CBT', 'Surat Tugas Co CBT'],
     },
     {
       key: 'it', no: 3, folder: '3. IT Lokal', label: 'Berkas IT Lokal', role: 'IT Lokal',
       groups: [
-        { title: 'Honorarium IT Lokal', items: ['honor_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true },
-        { title: 'Transport Lokal IT Lokal', items: ['trans_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true },
+        { title: 'Honorarium & Transport Lokal IT Lokal', items: ['honor_it', 'trans_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true },
       ],
       hadir: [{ title: 'Daftar Hadir IT Lokal', who: (r) => names(r, 'it_lokal') }],
-      checklist: ['SPBY Honorarium IT Lokal', 'Kuitansi Honorarium IT Lokal', 'Daftar Penerimaan Honorarium IT Lokal', 'Daftar Hadir IT Lokal', 'Surat Tugas IT Lokal', 'SPBY Transport Lokal IT Lokal', 'Kuitansi Transport Lokal IT Lokal', 'Daftar Penerimaan Transport Lokal IT Lokal'],
+      checklist: ['SPBY Honorarium & Transport Lokal IT Lokal', 'Kuitansi Honorarium & Transport Lokal IT Lokal', 'Daftar Penerimaan Honorarium & Transport IT Lokal', 'Daftar Hadir IT Lokal', 'Surat Tugas IT Lokal'],
     },
     {
       key: 'pl', no: 4, folder: '4. PL', label: 'Berkas Pengawas Lokal', role: 'Pengawas Lokal',
       groups: [
-        { title: 'Honorarium Pengawas Lokal', items: ['honor_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true },
-        { title: 'Transport Lokal Pengawas Lokal', items: ['trans_briefing_pl', 'trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true },
+        { title: 'Honorarium & Transport Lokal Pengawas Lokal', items: ['honor_pl', 'trans_briefing_pl', 'trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true },
       ],
       hadir: [
         { title: 'Daftar Hadir Pengawas Lokal - Briefing', who: (r) => names(r, 'pl') },
         { title: 'Daftar Hadir Pengawas Lokal - Pelaksanaan', who: (r) => names(r, 'pl') },
       ],
-      checklist: ['SPBY Honorarium Pengawas Lokal', 'Kuitansi Honorarium Pengawas Lokal', 'Daftar Penerimaan Honorarium Pengawas Lokal', 'Daftar Hadir Pengawas Lokal Briefing', 'Daftar Hadir Pengawas Lokal Pelaksanaan', 'Surat Tugas Pengawas Lokal', 'SPBY Transport Lokal Pengawas Lokal', 'Kuitansi Transport Lokal Pengawas Lokal', 'Daftar Penerimaan Transport Pengawas Lokal'],
+      checklist: ['SPBY Honorarium & Transport Lokal Pengawas Lokal', 'Kuitansi Honorarium & Transport Lokal Pengawas Lokal', 'Daftar Penerimaan Honorarium & Transport Pengawas Lokal', 'Daftar Hadir Pengawas Lokal Briefing', 'Daftar Hadir Pengawas Lokal Pelaksanaan', 'Surat Tugas Pengawas Lokal'],
     },
     {
       key: 'pp', no: 5, folder: '5. PP', label: 'Berkas Pengawas Pusat', role: 'Pengawas Pusat',
@@ -236,10 +232,15 @@
   const taxRate = (r) => (r.pph == null ? 5 : Number(r.pph)) / 100;
   const isHonorItem = (i) => String(i.key).startsWith('honor_');
   const brutoOf = (r, net) => Math.round(net / (1 - taxRate(r)));
-  const isHonorGroup = (g) => g.items.every((k) => k.startsWith('honor_'));
+  const isHonorGroup = (g) => g.items.some((k) => k.startsWith('honor_'));   // grup berisi honor (boleh bercampur transport)
   const taxLabel = (r) => 'PPh ' + (taxRate(r) * 100).toString().replace('.', ',') + '%';
   const taxNote = (r) => `Honorarium telah dipotong pajak ${taxLabel(r)}; jumlah yang dibayarkan adalah netto.`;
-  const taxSum = (r, g) => { const net = groupTotal(r, g), br = brutoOf(r, net); return { net, br, pph: br - net }; };
+  // Pajak hanya atas honor; transport/biaya lain tidak dipotong. total = honor netto + non-honor.
+  const taxSum = (r, g) => {
+    const its = groupItems(r, g), hn = totalOf(its.filter(isHonorItem)), tr = totalOf(its.filter((i) => !isHonorItem(i)));
+    const br = brutoOf(r, hn);
+    return { hn, br, pph: br - hn, tr, net: hn + tr, brTotal: br + tr };
+  };
 
   function groupItems(r, g) { return g.items.map((k) => itm(r, k)); }
   const groupTotal = (r, g) => totalOf(groupItems(r, g));
@@ -256,14 +257,18 @@
       ['Keperluan', g.title],
       ['Jumlah Dibayarkan', RP(groupTotal(r, g)) + ' (' + cap(terbilang(groupTotal(r, g))) + ' rupiah)'],
     ]);
-    if (isHonorGroup(g)) {
-      const s = taxSum(r, g);
+    const honor = isHonorGroup(g);
+    if (honor) {
+      const s = taxSum(r, g), B = { fontStyle: 'bold' };
       doc.autoTable({
-        startY: y + 2, theme: 'grid', styles: { fontSize: 9 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-        head: [['Uraian', 'Banyak', 'Bruto', taxLabel(r), 'Netto']],
-        body: groupItems(r, g).map((i) => { const net = i.nilai * i.qty, br = brutoOf(r, net); return [i.label + (i.ket ? ` (${i.ket})` : ''), NUM(i.qty), RP(br), RP(br - net), RP(net)]; })
-          .concat([[{ content: 'TOTAL', colSpan: 2, styles: { fontStyle: 'bold' } }, { content: RP(s.br), styles: { fontStyle: 'bold' } }, { content: RP(s.pph), styles: { fontStyle: 'bold' } }, { content: RP(s.net), styles: { fontStyle: 'bold' } }]]),
-        columnStyles: { 1: { halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' } },
+        startY: y + 2, theme: 'grid', styles: { fontSize: 8.5 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
+        head: [['Uraian', 'Banyak', 'Satuan (Rp)', 'Bruto', taxLabel(r), 'Jumlah netto']],
+        body: groupItems(r, g).map((i) => {
+          const net = i.nilai * i.qty;
+          if (isHonorItem(i)) { const br = brutoOf(r, net); return [i.label + (i.ket ? ` (${i.ket})` : ''), NUM(i.qty), RP(i.nilai), RP(br), RP(br - net), RP(net)]; }
+          return [i.label + (i.ket ? ` (${i.ket})` : ''), NUM(i.qty), RP(i.nilai), RP(net), '-', RP(net)];
+        }).concat([[{ content: 'TOTAL', colSpan: 3, styles: B }, { content: RP(s.brTotal), styles: B }, { content: RP(s.pph), styles: B }, { content: RP(s.net), styles: B }]]),
+        columnStyles: { 1: { halign: 'center', cellWidth: 16 }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
       });
       doc.setFontSize(9); doc.text(taxNote(r), M, at(doc) + 6);
     } else {
@@ -276,20 +281,21 @@
       });
     }
     doc.setFontSize(10);
-    doc.text('Mohon dibayarkan sesuai rincian di atas. Bukti pendukung terlampir.', M, at(doc) + (isHonorGroup(g) ? 12 : 8));
-    signBlock(doc, at(doc) + (isHonorGroup(g) ? 20 : 16), '', pj.full_name, 'Yang meminta (PJ Keuangan),', 'Menyetujui,');
+    doc.text('Mohon dibayarkan sesuai rincian di atas. Bukti pendukung terlampir.', M, at(doc) + (honor ? 12 : 8));
+    signBlock(doc, at(doc) + (honor ? 20 : 16), '', pj.full_name, 'Yang meminta (PJ Keuangan),', 'Menyetujui,');
   }
 
   function pageKuitansi(doc, c, comp, g, who, amount, forText) {
     const { r, pj } = c;
     let y = title(doc, kop(doc), 'KUITANSI', 'Nomor: ........ / KWT / UKOMNAS-PMIK / ' + YEAR);
+    const pajak = () => { const s = taxSum(r, g); return `Honor bruto ${RP(s.br)} - ${taxLabel(r)} ${RP(s.pph)} = honor netto ${RP(s.hn)}` + (s.tr ? `; ditambah transport ${RP(s.tr)}; total diterima ${RP(s.net)}` : ''); };
     y = infoBlock(doc, y, [
       ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS PMIK ' + YEAR + ' (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
       ['Uang sejumlah', RP(amount)],
       ['Terbilang', cap(terbilang(amount)) + ' rupiah'],
       ['Untuk pembayaran', forText || g.title + ' - TUK ' + r.tuk_name],
       ['Rincian', uraian(r, g)],
-    ].concat(isHonorGroup(g) ? [['Pajak', (() => { const s = taxSum(r, g); return `Bruto ${RP(s.br)} - ${taxLabel(r)} ${RP(s.pph)} = netto ${RP(s.net)}`; })()]] : []));
+    ].concat(isHonorGroup(g) ? [['Pajak', pajak()]] : []));
     doc.setFontSize(10);
     doc.text('Tempat/Tanggal: ............................., ............................. ' + YEAR, M, y + 4);
     signBlock(doc, y + 14, pj.full_name, who || '(................................)', 'Yang menerima,');
@@ -303,15 +309,15 @@
     const who = g.who(r, c);
     const per = g.perPerson ? groupTotal(r, g) / who.length : groupTotal(r, g);
     if (isHonorGroup(g)) {
-      const s = taxSum(r, g), n = Math.max(1, who.length), br = s.br / n, pj_ = s.pph / n;
-      const rowsT = (who.length ? who : ['']).map((nm, i) => [i + 1, nm || '', g.role, RP(br), RP(pj_), RP(per), '']);
+      const s = taxSum(r, g), n = Math.max(1, who.length), P = (x) => RP(x / n);
+      const rowsT = (who.length ? who : ['']).map((nm, i) => [i + 1, nm || '', P(s.br), P(s.pph), P(s.hn), s.tr ? P(s.tr) : '-', P(s.net), '']);
       doc.autoTable({
-        startY: y, theme: 'grid', styles: { fontSize: 9, minCellHeight: 12, valign: 'middle' }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-        head: [['No', 'Nama', 'Jabatan', 'Bruto', taxLabel(r), 'Netto diterima', 'Tanda Tangan']],
+        startY: y, theme: 'grid', styles: { fontSize: 8, minCellHeight: 12, valign: 'middle', cellPadding: 1.2 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
+        head: [['No', 'Nama (' + g.role + ')', 'Honor bruto', taxLabel(r), 'Honor netto', 'Transport', 'Total diterima', 'Tanda Tangan']],
         body: rowsT,
-        foot: [[{ content: 'TOTAL', colSpan: 3, styles: { halign: 'right' } }, RP(s.br), RP(s.pph), RP(s.net), '']],
+        foot: [[{ content: 'TOTAL', colSpan: 2, styles: { halign: 'right' } }, RP(s.br), RP(s.pph), RP(s.hn), s.tr ? RP(s.tr) : '-', RP(s.net), '']],
         footStyles: { fillColor: [235, 235, 235], textColor: 0 },
-        columnStyles: { 0: { cellWidth: 9, halign: 'center' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { cellWidth: 30 } },
+        columnStyles: { 0: { cellWidth: 8, halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right' }, 7: { cellWidth: 24 } },
       });
       doc.setFontSize(8.5); doc.text(taxNote(r), M, at(doc) + 6);
       signBlock(doc, at(doc) + 14, pj.full_name, '', 'Mengetahui,');
