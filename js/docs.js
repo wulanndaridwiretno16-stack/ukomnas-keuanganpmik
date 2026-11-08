@@ -78,6 +78,7 @@
   const ITEM_STAFF = { honor_pl: 'pl', trans_briefing_pl: 'pl', trans_pelaksanaan_pl: 'pl', honor_admin: 'admin', trans_admin: 'admin', honor_it: 'it_lokal', trans_it: 'it_lokal', honor_cocbt: 'co_cbt', trans_cocbt: 'co_cbt' };
   const actualCount = (r, k) => headcount(r, k);   // jumlah petugas mengikuti hitungan PJ (PP tidak dapat menambah)
   const staffFactor = (r, itemKey) => { const s = ITEM_STAFF[itemKey]; return s ? actualCount(r, s) / headcount(r, s) : 1; };
+  const golList = (r, key) => { const v = (r.petugas || {})[key + '_gol']; const a = Array.isArray(v) ? v : []; return Array.from({ length: actualCount(r, key) }, (_, i) => String(a[i] || '').trim()); };
   const names = (r, key) => {
     const p = Object.assign({}, r.personnel || {}, r.petugas || {});
     if (key === 'rumah_makan') return [p.rumah_makan || ''];
@@ -89,43 +90,43 @@
     {
       key: 'admin', no: 1, folder: '1. ADMIN', label: 'Berkas Admin', role: 'Admin',
       parts: [
-        { key: 'honor', label: 'Honor Admin', groups: [{ title: 'Honorarium Admin', items: ['honor_admin'], who: (r) => names(r, 'admin'), role: 'Admin', untuk: 'Honorarium Admin', sebagai: 'Admin', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR ADMIN', who: (r) => names(r, 'admin'), mode: 'both' }] },
-        { key: 'transport', label: 'Transport Admin', groups: [{ title: 'Transport Lokal Admin', items: ['trans_admin'], who: (r) => names(r, 'admin'), role: 'Admin', untuk: 'Transport Lokal Admin', sebagai: 'Admin', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor Admin', groups: [{ title: 'Honorarium Admin', items: ['honor_admin'], who: (r) => names(r, 'admin'), gol: (r) => golList(r, 'admin'), role: 'Admin', untuk: 'Honorarium Admin', sebagai: 'Admin', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR ADMIN', who: (r) => names(r, 'admin'), mode: 'both' }] },
+        { key: 'transport', label: 'Transport Admin', groups: [{ title: 'Transport Lokal Admin', items: ['trans_admin'], who: (r) => names(r, 'admin'), gol: (r) => golList(r, 'admin'), role: 'Admin', untuk: 'Transport Lokal Admin', sebagai: 'Admin', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium Teknisi (Admin)', 'Kuitansi Honorarium Teknisi (Admin)', 'Daftar Penerimaan Honorarium Teknisi (Admin)', 'Daftar Hadir Pelaksanaan Admin', 'Surat Tugas Admin', 'SPBY Transport Lokal Admin', 'Kuitansi Transport Lokal Admin', 'Daftar Penerimaan Transport Lokal Admin'],
     },
     {
       key: 'cocbt', no: 2, folder: '2. Co CBT', label: 'Berkas Co CBT', role: 'Co CBT',
       parts: [
-        { key: 'honor', label: 'Honor Co CBT', groups: [{ title: 'Honorarium Co CBT', items: ['honor_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', untuk: 'Honorarium Co CBT', sebagai: 'Co CBT', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR KOORDINATOR CBT', who: (r) => names(r, 'co_cbt'), mode: 'both' }] },
-        { key: 'transport', label: 'Transport Co CBT', groups: [{ title: 'Transport Lokal Co CBT', items: ['trans_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', untuk: 'Transport Lokal Co CBT', sebagai: 'Co CBT', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor Co CBT', groups: [{ title: 'Honorarium Co CBT', items: ['honor_cocbt'], who: (r) => names(r, 'co_cbt'), gol: (r) => golList(r, 'co_cbt'), role: 'Co CBT', untuk: 'Honorarium Co CBT', sebagai: 'Co CBT', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR KOORDINATOR CBT', who: (r) => names(r, 'co_cbt'), mode: 'both' }] },
+        { key: 'transport', label: 'Transport Co CBT', groups: [{ title: 'Transport Lokal Co CBT', items: ['trans_cocbt'], who: (r) => names(r, 'co_cbt'), gol: (r) => golList(r, 'co_cbt'), role: 'Co CBT', untuk: 'Transport Lokal Co CBT', sebagai: 'Co CBT', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium Co CBT', 'Kuitansi Honorarium Co CBT', 'Daftar Penerimaan Honorarium Co CBT', 'Daftar Hadir Co CBT', 'Surat Tugas Co CBT', 'SPBY Transport Lokal Co CBT', 'Kuitansi Transport Lokal Co CBT', 'Daftar Penerimaan Transport Lokal Co CBT'],
     },
     {
       key: 'it', no: 3, folder: '3. IT Lokal', label: 'Berkas IT Lokal', role: 'IT Lokal',
       parts: [
-        { key: 'honor', label: 'Honor IT Lokal', groups: [{ title: 'Honorarium IT Lokal', items: ['honor_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', untuk: 'Honorarium IT Lokal', sebagai: 'IT Lokal', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR IT LOKAL', who: (r) => names(r, 'it_lokal'), mode: 'both' }] },
-        { key: 'transport', label: 'Transport IT Lokal', groups: [{ title: 'Transport Lokal IT Lokal', items: ['trans_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', untuk: 'Transport Lokal IT Lokal', sebagai: 'IT Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor IT Lokal', groups: [{ title: 'Honorarium IT Lokal', items: ['honor_it'], who: (r) => names(r, 'it_lokal'), gol: (r) => golList(r, 'it_lokal'), role: 'IT Lokal', untuk: 'Honorarium IT Lokal', sebagai: 'IT Lokal', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR IT LOKAL', who: (r) => names(r, 'it_lokal'), mode: 'both' }] },
+        { key: 'transport', label: 'Transport IT Lokal', groups: [{ title: 'Transport Lokal IT Lokal', items: ['trans_it'], who: (r) => names(r, 'it_lokal'), gol: (r) => golList(r, 'it_lokal'), role: 'IT Lokal', untuk: 'Transport Lokal IT Lokal', sebagai: 'IT Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium IT Lokal', 'Kuitansi Honorarium IT Lokal', 'Daftar Penerimaan Honorarium IT Lokal', 'Daftar Hadir IT Lokal', 'Surat Tugas IT Lokal', 'SPBY Transport Lokal IT Lokal', 'Kuitansi Transport Lokal IT Lokal', 'Daftar Penerimaan Transport Lokal IT Lokal'],
     },
     {
       key: 'pl', no: 4, folder: '4. PL', label: 'Berkas Pengawas Lokal', role: 'Pengawas Lokal',
       parts: [
-        { key: 'honor', label: 'Honor Pengawas Lokal', groups: [{ title: 'Honorarium Pengawas Lokal', items: ['honor_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Honorarium Pengawas Lokal', sebagai: 'Pengawas Lokal', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR BRIEFING PENGAWAS LOKAL', who: (r) => names(r, 'pl'), mode: 'briefing' }, { title: 'DAFTAR HADIR PELAKSANAAN PENGAWAS LOKAL', who: (r) => names(r, 'pl'), mode: 'pelaksanaan' }] },
-        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal (Briefing)', items: ['trans_briefing_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Transport Lokal Pengawas Lokal (Briefing)', sebagai: 'Pengawas Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
-        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal (Pelaksanaan)', items: ['trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Transport Lokal Pengawas Lokal (Pelaksanaan)', sebagai: 'Pengawas Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor Pengawas Lokal', groups: [{ title: 'Honorarium Pengawas Lokal', items: ['honor_pl'], who: (r) => names(r, 'pl'), gol: (r) => golList(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Honorarium Pengawas Lokal', sebagai: 'Pengawas Lokal', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR BRIEFING PENGAWAS LOKAL', who: (r) => names(r, 'pl'), mode: 'briefing' }, { title: 'DAFTAR HADIR PELAKSANAAN PENGAWAS LOKAL', who: (r) => names(r, 'pl'), mode: 'pelaksanaan' }] },
+        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal (Briefing)', items: ['trans_briefing_pl'], who: (r) => names(r, 'pl'), gol: (r) => golList(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Transport Lokal Pengawas Lokal (Briefing)', sebagai: 'Pengawas Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal (Pelaksanaan)', items: ['trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), gol: (r) => golList(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Transport Lokal Pengawas Lokal (Pelaksanaan)', sebagai: 'Pengawas Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium Pengawas Lokal', 'Kuitansi Honorarium Pengawas Lokal', 'Daftar Penerimaan Honorarium Pengawas Lokal', 'Daftar Hadir Pengawas Lokal Briefing', 'Daftar Hadir Pengawas Lokal Pelaksanaan', 'Surat Tugas Pengawas Lokal', 'SPBY Transport Lokal Pengawas Lokal', 'Kuitansi Transport Lokal Pengawas Lokal', 'Daftar Penerimaan Transport Pengawas Lokal'],
     },
     {
       key: 'pp', no: 5, folder: '5. PP', label: 'Berkas Pengawas Pusat', role: 'Pengawas Pusat',
       parts: [
-        { key: 'honor-briefing', label: 'Honor Briefing Pengawas Pusat', groups: [{ title: 'Honorarium Briefing Pengawas Pusat', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Honorarium Briefing Pengawas Pusat', unit: 'hari', daftar: true }], hadir: [{ title: 'DAFTAR HADIR PENGAWAS PUSAT', who: (r, c) => [c.pp.full_name], mode: 'briefing', kegiatan: 'Briefing Peserta dan Panitia Lokal H-1 Kegiatan Uji Kompetensi Mahasiswa Bidang Kesehatan' }] },
-        { key: 'honor-pelaksanaan', label: 'Honor Pelaksanaan Pengawas Pusat', groups: [{ title: 'Honorarium Pelaksanaan Pengawas Pusat', items: ['honor_pelaksanaan_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Honorarium Pelaksanaan Pengawas Pusat', unit: 'sesi', daftar: true }], hadir: [{ title: 'DAFTAR HADIR PELAKSANAAN PENGAWAS PUSAT', who: (r, c) => [c.pp.full_name], mode: 'pelaksanaan' }] },
-        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Pusat', groups: [{ title: 'Transport Lokal Pengawas Pusat (Briefing)', items: ['trans_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Transport Lokal Pengawas Pusat (Briefing)', unit: 'hari', daftar: true }], hadir: [] },
-        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Pusat', groups: [{ title: 'Transport Lokal Pengawas Pusat (Pelaksanaan)', items: ['trans_dalam_kota'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Transport Lokal Pengawas Pusat (Pelaksanaan)', unit: 'hari', daftar: true }], hadir: [] },
+        { key: 'honor-briefing', label: 'Honor Briefing Pengawas Pusat', groups: [{ title: 'Honorarium Briefing Pengawas Pusat', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], gol: (r) => [(r.pp_mandiri || {}).golongan || ''], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Honorarium Briefing Pengawas Pusat', unit: 'hari', daftar: true }], hadir: [{ title: 'DAFTAR HADIR PENGAWAS PUSAT', who: (r, c) => [c.pp.full_name], mode: 'briefing', kegiatan: 'Briefing Peserta dan Panitia Lokal H-1 Kegiatan Uji Kompetensi Mahasiswa Bidang Kesehatan' }] },
+        { key: 'honor-pelaksanaan', label: 'Honor Pelaksanaan Pengawas Pusat', groups: [{ title: 'Honorarium Pelaksanaan Pengawas Pusat', items: ['honor_pelaksanaan_pp'], who: (r, c) => [c.pp.full_name], gol: (r) => [(r.pp_mandiri || {}).golongan || ''], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Honorarium Pelaksanaan Pengawas Pusat', unit: 'sesi', daftar: true }], hadir: [{ title: 'DAFTAR HADIR PELAKSANAAN PENGAWAS PUSAT', who: (r, c) => [c.pp.full_name], mode: 'pelaksanaan' }] },
+        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Pusat', groups: [{ title: 'Transport Lokal Pengawas Pusat (Briefing)', items: ['trans_briefing_pp'], who: (r, c) => [c.pp.full_name], gol: (r) => [(r.pp_mandiri || {}).golongan || ''], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Transport Lokal Pengawas Pusat (Briefing)', unit: 'hari', daftar: true }], hadir: [] },
+        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Pusat', groups: [{ title: 'Transport Lokal Pengawas Pusat (Pelaksanaan)', items: ['trans_dalam_kota'], who: (r, c) => [c.pp.full_name], gol: (r) => [(r.pp_mandiri || {}).golongan || ''], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Transport Lokal Pengawas Pusat (Pelaksanaan)', unit: 'hari', daftar: true }], hadir: [] },
         { key: 'laporan', label: 'Laporan Perjalanan Dinas (dibuat PP)', custom: 'laporan', groups: [], hadir: [] },
         { key: 'kperjadin', label: 'Kwitansi Perjalanan Dinas (dibuat PP)', custom: 'kperjadin', groups: [], hadir: [] },
         { key: 'kops', label: 'Kwitansi Biaya Operasional PP (dibuat PP)', custom: 'kops', groups: [], hadir: [] },
@@ -136,7 +137,7 @@
       key: 'cbt', no: 6, folder: '6. CBT', label: 'Berkas CBT Center', role: 'CBT Center',
       parts: [
         { key: 'operasional', label: 'Biaya Operasional CBT', groups: [
-          { title: 'Biaya Operasional CBT', items: ['ops_cbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT / CBT Center', untuk: 'Biaya Operasional', daftar: false },
+          { title: 'Biaya Operasional CBT', items: ['ops_cbt'], who: (r) => names(r, 'co_cbt'), gol: (r) => golList(r, 'co_cbt'), role: 'Co CBT / CBT Center', untuk: 'Biaya Operasional', daftar: false },
         ], hadir: [] },
         { key: 'konsumsi', label: 'Konsumsi', groups: [
           { title: 'Biaya Konsumsi Pelaksanaan Briefing', items: ['konsumsi_briefing'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', untuk: 'Biaya Konsumsi Pelaksanaan Briefing', kegiatan: 'Briefing H-1 Pelaksanaan Uji Kompetensi', daftar: false, nota: true },
@@ -349,12 +350,12 @@
     const ttl = `Daftar Penerimaan ${k === 'honor' ? 'Honorarium' : 'Transport Lokal'} sebagai ${g.sebagai || g.role} dalam rangka Uji Kompetensi ${PROGRAM.replace('/S.Tr', '/ S.Tr')}`;
     let y = top(doc, 18); splitLines(doc, ttl, PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5.5; });
     fontN(doc); doc.text(periodeStr(r), M, y); y += 6; doc.text('TUK', M, y); doc.text(': ' + tukLabel(r), M + 14, y); y += 5;
-    const names = who.length ? who : [''];
+    const names = who.length ? who : [''], gols = g.gol ? g.gol(r, c) : [];
     const honor = k === 'honor';
     const head = honor
       ? [[{ content: 'No', rowSpan: 2 }, { content: 'Nama', rowSpan: 2 }, { content: 'Gol', rowSpan: 2 }, { content: 'Jumlah Penerimaan', colSpan: 5 }, { content: 'Tanda Tangan', rowSpan: 2 }], ['Vol', 'Satuan', 'Honorium', 'PPh Pasal 21', 'Diterima']]
       : [[{ content: 'No', rowSpan: 2 }, { content: 'Nama', rowSpan: 2 }, { content: 'Gol', rowSpan: 2 }, { content: 'Jumlah Penerimaan', colSpan: 3 }, { content: 'Tanda Tangan', rowSpan: 2 }], ['Vol', 'Satuan', 'Diterima']];
-    const body = names.map((nm, i) => honor ? [i + 1, nm || '', 'III', volTxt, RP(brUnit), RP(br), RP(pph), RP(net), ''] : [i + 1, nm || '', 'III', volTxt, RP(it.nilai), RP(net), '']);
+    const body = names.map((nm, i) => honor ? [i + 1, nm || '', gols[i] || '', volTxt, RP(brUnit), RP(br), RP(pph), RP(net), ''] : [i + 1, nm || '', gols[i] || '', volTxt, RP(it.nilai), RP(net), '']);
     const foot = honor ? [[{ content: 'Jumlah', colSpan: 4, styles: { halign: 'right' } }, '=', RP(br * n), RP(pph * n), RP(net * n), '']] : [[{ content: 'Jumlah', colSpan: 4, styles: { halign: 'right' } }, '=', RP(net * n), '']];
     // transport: kolom 'Satuan' (tarif) dan 'Diterima'
     if (!honor) foot[0] = [{ content: 'Jumlah', colSpan: 4, styles: { halign: 'right' } }, '=', RP(net * n), ''];

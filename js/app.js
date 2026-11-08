@@ -147,8 +147,9 @@
   function ppFormHtml(r) {
     const P = Object.assign({}, r.personnel || {}, r.petugas || {}), real = r.realisasi || {}, pm = r.pp_mandiri || {};
     const nm = (k, i) => { const v = P[k]; const arr = Array.isArray(v) ? v : v ? [v] : []; return arr[i] || ''; };
-    return `<h3 style="margin-top:16px">Nama petugas TUK &amp; rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Jumlah sesuai hitungan PJ)</span></h3>
-      ${STAFF_LABEL.map(([k, l]) => { const n = U.headcount(r, k); return `<div style="margin-bottom:10px"><strong style="font-size:14px">${l}</strong> <span class="muted" style="font-size:13px">(${n} orang)</span><div class="grid" data-grp="${k}" style="margin-top:6px">${Array.from({ length: n }, (_, i) => `<div><label>${l}${n > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')}</div></div>`; }).join('')}
+    const gl = (k, i) => { const v = P[k + '_gol']; return (Array.isArray(v) ? v[i] : '') || ''; };
+    return `<h3 style="margin-top:16px">Nama &amp; golongan petugas TUK, rumah makan <span class="muted" style="font-weight:400">(diisi oleh PP; tercetak di kuitansi &amp; daftar penerimaan. Jumlah sesuai hitungan PJ; golongan dikosongkan bila bukan ASN)</span></h3>
+      ${STAFF_LABEL.map(([k, l]) => { const n = U.headcount(r, k); return `<div style="margin-bottom:10px"><strong style="font-size:14px">${l}</strong> <span class="muted" style="font-size:13px">(${n} orang)</span><div class="grid" data-grp="${k}" style="margin-top:6px">${Array.from({ length: n }, (_, i) => `<div><label>${l}${n > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div><div><label>Golongan${n > 1 ? ' ' + (i + 1) : ''} <span class="muted">(kosongkan jika bukan ASN)</span></label><input data-pg="${k}" data-n="${i}" placeholder="mis. III/b" value="${esc(gl(k, i))}"></div>`).join('')}</div></div>`; }).join('')}
       <div class="grid"><div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan nama petugas</button><span class="muted" style="font-size:13px">Setelah menambah nama, unduh ulang berkas komponen yang terkait.</span></div>
       <h3 style="margin-top:20px">Dokumen mandiri PP <span class="muted" style="font-weight:400">(Laporan Perjalanan Dinas, Kwitansi Perjalanan Dinas, Kwitansi Biaya Operasional)</span></h3>
@@ -187,7 +188,7 @@
     root.querySelectorAll('[data-rl]').forEach((el) => { diff(el); el.oninput = () => diff(el); });
     bn.onclick = async () => {
       const petugas = { rumah_makan: (root.querySelector('[data-rm]').value || '').trim() };
-      STAFF_LABEL.forEach(([k]) => { petugas[k] = Array.from(root.querySelectorAll(`[data-pt="${k}"]`)).slice(0, U.headcount(r, k)).map((el) => (el.value || '').trim()); });
+      STAFF_LABEL.forEach(([k]) => { petugas[k] = Array.from(root.querySelectorAll(`[data-pt="${k}"]`)).slice(0, U.headcount(r, k)).map((el) => (el.value || '').trim()); petugas[k + '_gol'] = Array.from(root.querySelectorAll(`[data-pg="${k}"]`)).slice(0, U.headcount(r, k)).map((el) => (el.value || '').trim()); });
       bn.disabled = true;
       try { await F.updateDoc(F.doc(db, 'reports', r.id), { petugas, petugas_at: Date.now() }); r.petugas = petugas; toast('Nama tersimpan. Unduh ulang berkas komponen yang terkait.'); } catch (e) { toast(msgOf(e)); }
       bn.disabled = false;
