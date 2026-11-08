@@ -224,14 +224,17 @@
   }
 
   /* ---------------- PJ: laporan TUK ---------------- */
+  let adminAll = false;
   async function renderLaporan() {
     app.innerHTML = '<p class="muted center">Memuat…</p>';
     let data;
-    try { data = me.role === 'admin' ? await DB.reports() : await DB.reports(F.where('pj_id', '==', me.id)); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
+    try { data = me.role === 'admin' && adminAll ? await DB.reports() : await DB.reports(F.where('pj_id', '==', me.id)); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
     data.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
     app.innerHTML = `<div class="card"><div class="row between"><h2 style="margin:0">Laporan TUK</h2><button class="btn primary" id="new">+ Tambah TUK</button></div>
+      ${me.role === 'admin' ? `<div class="row" style="margin-bottom:10px"><span class="muted" style="font-size:13px">Tampilkan:</span><button class="btn sm ${adminAll ? '' : 'primary'}" id="fmine">Milik saya (sebagai PJ)</button><button class="btn sm ${adminAll ? 'primary' : ''}" id="fall">Semua PJ</button></div>` : ''}
       ${data.length ? `<div class="tablewrap"><table><thead><tr><th>No. TUK</th><th>TUK</th><th>PP</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>${data.map((r) => `<tr><td>${esc(r.nomor_tuk || '')}</td><td>${esc(r.tuk_name || '(tanpa nama)')}</td><td>${esc((r.personnel || {}).pp_name)}</td><td class="num">${U.RP(r.total)}</td><td><span class="chip ${r.status === 'published' ? 'ok' : 'warn'}">${r.status === 'published' ? 'Terbit' : 'Draft'}</span></td><td class="num"><button class="btn sm" data-e="${r.id}">Ubah / Unduh</button> <button class="btn sm danger" data-d="${r.id}">Hapus</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Belum ada laporan. Tambahkan PP di menu “PP Saya”, lalu klik “Tambah TUK”.</p>'}</div>`;
     $('#new').onclick = newReport;
+    if (me.role === 'admin') { $('#fmine').onclick = () => { adminAll = false; renderLaporan(); }; $('#fall').onclick = () => { adminAll = true; renderLaporan(); }; }
     app.querySelectorAll('[data-e]').forEach((b) => (b.onclick = () => openEditor(data.find((r) => r.id === b.dataset.e))));
     app.querySelectorAll('[data-d]').forEach((b) => (b.onclick = async () => {
       if (!confirm('Hapus laporan ini? PP tidak akan bisa mengunduhnya lagi.')) return;
@@ -240,7 +243,7 @@
   }
   async function myPPs() {
     const list = me.role === 'admin' ? (await DB.users(F.where('role', '==', 'pp'))).filter((p) => p.pj_id) : await DB.users(F.where('pj_id', '==', me.id));
-    return list.filter((p) => p.role === 'pp').sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+    return list.filter((p) => p.role === 'pp').sort((a, b) => ((b.pj_id === me.id) - (a.pj_id === me.id)) || (a.full_name || '').localeCompare(b.full_name || ''));
   }
   async function newReport() {
     let pps; try { pps = await myPPs(); } catch (e) { return toast(msgOf(e)); }
@@ -257,7 +260,7 @@
     const rowsHtml = (sec, label) => `<tr class="sec"><td colspan="5">${label}</td></tr>` + r.items.map((it, idx) => it.sec !== sec ? '' : `<tr><td>${esc(it.label)}</td><td><input type="number" min="0" step="any" data-i="${idx}" data-f="nilai" value="${it.nilai}"></td><td><input type="number" min="0" step="any" data-i="${idx}" data-f="qty" value="${it.qty}" style="width:80px"></td><td class="num" id="sum${idx}">${U.NUM(it.nilai * it.qty)}</td><td><input data-i="${idx}" data-f="ket" value="${esc(it.ket)}"></td></tr>`).join('');
     app.innerHTML = `<div class="card"><div class="row between"><h2 style="margin:0">${r.id ? 'Ubah' : 'Tambah'} Laporan TUK</h2><button class="btn" id="back">← Kembali</button></div>
       <div class="grid" style="margin-top:12px">
-        <div><label>Pengawas Pusat (PP)</label><select id="pp">${pps.map((x) => `<option value="${x.id}" ${x.id === r.pp_id ? 'selected' : ''}>${esc(x.full_name || x.email)}</option>`).join('')}</select></div>
+        <div><label>Pengawas Pusat (PP)</label><select id="pp">${(me.role === 'admin' ? [['PP saya', pps.filter((x) => x.pj_id === me.id)], ['PP milik PJ lain', pps.filter((x) => x.pj_id !== me.id)]] : [['', pps]]).filter((g) => g[1].length).map(([lbl, list]) => (lbl ? `<optgroup label="${lbl}">` : '') + list.map((x) => `<option value="${x.id}" ${x.id === r.pp_id ? 'selected' : ''}>${esc(x.full_name || x.email)}</option>`).join('') + (lbl ? '</optgroup>' : '')).join('')}</select></div>
         <div><label>Asal institusi PP</label><input id="inst" value="${esc(r.pp_institusi)}"></div>
         <div><label>Nomor TUK</label><input id="notuk" value="${esc(r.nomor_tuk || '')}" placeholder="mis. 001"></div>
         <div><label>Nama TUK *</label><input id="tuk" value="${esc(r.tuk_name)}" placeholder="mis. STIKES Wira Medika Bali"></div>
@@ -327,7 +330,8 @@
     app.innerHTML = `<div class="card"><h2>PP yang saya ampu</h2>
       <p>Kode PJ Anda: <strong style="font-size:18px;letter-spacing:.1em">${esc(me.kode_pj || '-')}</strong> <span class="muted">— bagikan ke PP saat mendaftar agar otomatis terhubung.</span></p>
       <div class="row"><input id="em" type="email" placeholder="Email PP yang sudah mendaftar" style="max-width:340px"><button class="btn primary" id="add">Tambahkan PP</button></div><div class="err" id="err"></div></div>
-      <div class="card"><div class="tablewrap"><table><thead><tr><th>Nama</th><th>Institusi</th><th>Email</th><th></th></tr></thead><tbody>${pps.map((p) => `<tr><td>${esc(p.full_name)}</td><td>${esc(p.institusi)}</td><td>${esc(p.email)}</td><td class="num"><button class="btn sm danger" data-r="${p.id}">Lepas</button></td></tr>`).join('') || '<tr><td colspan="4" class="muted">Belum ada PP.</td></tr>'}</tbody></table></div></div>`;
+      <div class="card"><div class="tablewrap"><table><thead><tr><th>Nama</th><th>Institusi</th><th>Email</th><th></th></tr></thead><tbody>${pps.filter((p) => p.pj_id === me.id).map((p) => `<tr><td>${esc(p.full_name)}</td><td>${esc(p.institusi)}</td><td>${esc(p.email)}</td><td class="num"><button class="btn sm danger" data-r="${p.id}">Lepas</button></td></tr>`).join('') || '<tr><td colspan="4" class="muted">Belum ada PP.</td></tr>'}</tbody></table></div></div>
+      ${me.role === 'admin' && pps.some((p) => p.pj_id !== me.id) ? `<div class="card"><h3>PP milik PJ lain <span class="muted" style="font-weight:400">(hanya Admin; pindahkan lewat menu Pengguna)</span></h3><div class="tablewrap"><table><thead><tr><th>Nama</th><th>Institusi</th><th>Email</th></tr></thead><tbody>${pps.filter((p) => p.pj_id !== me.id).map((p) => `<tr><td>${esc(p.full_name)}</td><td>${esc(p.institusi)}</td><td>${esc(p.email)}</td></tr>`).join('')}</tbody></table></div></div>` : ''}`;
     $('#add').onclick = async () => {
       const em = $('#em').value.trim().toLowerCase(); if (!em) return;
       try {

@@ -17,7 +17,7 @@ Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk 
 ## Peran
 | Peran | Bisa apa |
 |---|---|
-| **Admin** | Menetapkan PJ Keuangan, menghubungkan PP ↔ PJ, melihat semua laporan |
+| **Admin** | Menetapkan PJ Keuangan, menghubungkan PP ↔ PJ, melihat semua laporan. **Admin juga berfungsi sebagai PJ**: punya Kode PJ, PP, dan laporan sendiri (filter “Milik saya / Semua PJ”) |
 | **PJ Keuangan** (boleh banyak orang) | Akun sendiri, mengampu beberapa PP, input TUK & biaya, terbitkan/tarik, unduh |
 | **Pengawas Pusat (PP)** | Melihat & mengunduh laporan miliknya yang sudah diterbitkan; menambahkan nama Co CBT, Admin, IT Lokal, PL & rumah makan; mengisi realisasi pelaksanaan (Lembar Kurang/Lebih) dan membuat mandiri transport & biaya operasional PP. Anggaran buatan PJ tidak dapat diubah PP (dijaga `firestore.rules`) |
 
