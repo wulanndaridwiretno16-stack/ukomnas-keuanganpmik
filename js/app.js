@@ -116,22 +116,22 @@
   /* ---------------- Unduhan ---------------- */
   const people = (r) => ({ pj: { full_name: (r.personnel || {}).pj_name || '' }, pp: { full_name: (r.personnel || {}).pp_name || '' } });
   function saveBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
-  function downloadOne(r, id) {
+  async function downloadOne(r, id) {
     const { pj, pp } = people(r); const f = U.fileList(r, pj, pp).find((x) => x.id === id);
-    try { saveBlob(f.build().output('blob'), f.name); } catch (e) { toast('Gagal membuat PDF: ' + msgOf(e)); }
+    try { saveBlob(await f.make('blob'), f.name); } catch (e) { toast('Gagal membuat berkas: ' + msgOf(e)); }
   }
   async function downloadZip(r, btn) {
     btn.disabled = true; const t = btn.textContent; btn.textContent = 'Menyiapkan…';
     try {
       const { pj, pp } = people(r); const zip = new JSZip();
-      U.fileList(r, pj, pp).forEach((f) => (f.folder ? zip.folder(f.folder) : zip).file(f.name, f.build().output('arraybuffer')));
+      for (const f of U.fileList(r, pj, pp)) (f.folder ? zip.folder(f.folder) : zip).file(f.name, await f.make('arraybuffer'));
       saveBlob(await zip.generateAsync({ type: 'blob' }), `Keuangan UKOMNAS - ${U.safe(r.tuk_name)}.zip`);
     } catch (e) { toast('Gagal membuat ZIP: ' + msgOf(e)); }
     btn.disabled = false; btn.textContent = t;
   }
   function filesHtml(r) {
     const { pj, pp } = people(r);
-    const files = U.fileList(r, pj, pp), one = (f) => `<div class="file"><div>${esc(f.label)}<small>${esc(f.folder || 'Satu file untuk seluruh TUK')}</small></div><button class="btn sm primary" data-dl="${f.id}">Unduh PDF</button></div>`;
+    const files = U.fileList(r, pj, pp), one = (f) => `<div class="file"><div>${esc(f.label)}<small>${esc(f.folder || 'Satu file untuk seluruh TUK')}</small></div><button class="btn sm primary" data-dl="${f.id}">Unduh ${f.ext === 'docx' ? 'Word' : 'PDF'}</button></div>`;
     const top = files.filter((f) => !f.group), groups = [...new Set(files.filter((f) => f.group).map((f) => f.group))];
     return `<div class="files">${top.map(one).join('')}</div>` + groups.map((g) => `<h4 style="margin:14px 0 6px">${esc(files.find((f) => f.group === g).folder)} — ${esc(g)}</h4><div class="files">${files.filter((f) => f.group === g).map(one).join('')}</div>`).join('');
   }
@@ -149,32 +149,35 @@
       ${STAFF_LABEL.map(([k, l]) => { const n = U.headcount(r, k); return `<div style="margin-bottom:10px"><strong style="font-size:14px">${l}</strong> <span class="muted" style="font-size:13px">(${n} orang)</span><div class="grid" data-grp="${k}" style="margin-top:6px">${Array.from({ length: n }, (_, i) => `<div><label>${l}${n > 1 ? ' ' + (i + 1) : ''}</label><input data-pt="${k}" data-n="${i}" value="${esc(nm(k, i))}"></div>`).join('')}</div></div>`; }).join('')}
       <div class="grid"><div><label>Nama rumah makan (konsumsi)</label><input data-rm value="${esc(P.rumah_makan || '')}"></div></div>
       <div class="row" style="margin-top:10px"><button class="btn primary" data-savepp>Simpan nama petugas</button><span class="muted" style="font-size:13px">Setelah menambah nama, unduh ulang berkas komponen yang terkait.</span></div>
-      <h3 style="margin-top:20px">Dokumen mandiri PP <span class="muted" style="font-weight:400">(Laporan Perjalanan Dinas, Kuitansi Perjalanan Dinas, Kuitansi Biaya Operasional)</span></h3>
-      <p class="muted" style="margin:0 0 6px;font-size:13px">Dibuat sendiri oleh PP dengan nominal sesuai bukti pengeluaran (bisa kurang/lebih dari anggaran). Isi lalu simpan, kemudian unduh ketiga dokumen di folder <strong>5. PP</strong>.</p>
+      <h3 style="margin-top:20px">Dokumen mandiri PP <span class="muted" style="font-weight:400">(Laporan Perjalanan Dinas, Kwitansi Perjalanan Dinas, Kwitansi Biaya Operasional)</span></h3>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Dibuat sendiri oleh PP dengan nominal sesuai bukti pengeluaran (bisa kurang/lebih dari anggaran). Isi lalu simpan, kemudian unduh dokumen di folder <strong>5. PP</strong>. Nominal juga masuk ke Form Kurleb.</p>
       <div class="grid">
-        <div><label>Dasar penugasan (No./tgl Surat Tugas)</label><input data-pm="surat_tugas" value="${esc(pm.surat_tugas || '')}"></div>
+        <div><label>Golongan</label><input data-pm="golongan" value="${esc(pm.golongan || '')}"></div>
+        <div><label>No HP</label><input data-pm="no_hp" value="${esc(pm.no_hp || '')}"></div>
+        <div><label>Dasar penugasan (No. Surat Penugasan)</label><input data-pm="surat_tugas" value="${esc(pm.surat_tugas || '')}"></div>
+        <div><label>Nomor SPD</label><input data-pm="spd_nomor" value="${esc(pm.spd_nomor || '')}"></div>
+        <div><label>Tanggal SPD</label><input type="date" data-pm="spd_tanggal" value="${esc(pm.spd_tanggal || '')}"></div>
         <div><label>Kota asal</label><input data-pm="kota_asal" value="${esc(pm.kota_asal || '')}"></div>
+        <div><label>Kota CBT / tempat pembuatan</label><input data-pm="tempat" value="${esc(pm.tempat || '')}"></div>
         <div><label>Moda transportasi</label><input data-pm="moda" placeholder="pesawat / kereta / bus" value="${esc(pm.moda || '')}"></div>
         <div><label>Tanggal berangkat</label><input type="date" data-pm="tgl_berangkat" value="${esc(pm.tgl_berangkat || '')}"></div>
         <div><label>Tanggal kembali</label><input type="date" data-pm="tgl_pulang" value="${esc(pm.tgl_pulang || '')}"></div>
-        <div><label>Tempat pembuatan kuitansi</label><input data-pm="tempat" value="${esc(pm.tempat || '')}"></div>
-        <div><label>Tiket PP luar kota (Rp)</label><input type="number" min="0" step="any" data-pm="tiket" data-num placeholder="${r.items.find((x) => x.key === 'tiket') ? r.items.find((x) => x.key === 'tiket').nilai : 0}" value="${pm.tiket ?? ''}"></div>
         <div><label>Nama hotel</label><input data-pm="hotel_nama" value="${esc(pm.hotel_nama || '')}"></div>
         <div><label>Jumlah malam</label><input type="number" min="0" data-pm="hotel_malam" data-num value="${pm.hotel_malam ?? ''}"></div>
-        <div><label>Hotel (Rp)</label><input type="number" min="0" step="any" data-pm="hotel" data-num value="${pm.hotel ?? ''}"></div>
-        <div><label>Biaya operasional PP (Rp)</label><input type="number" min="0" step="any" data-pm="ops_pp" data-num placeholder="${r.items.find((x) => x.key === 'ops_pp') ? r.items.find((x) => x.key === 'ops_pp').nilai : 0}" value="${pm.ops_pp ?? ''}"></div>
+        ${[['uang_harian', 'Uang harian'], ['hotel', 'Hotel/penginapan'], ['travel_lain', 'Travel/transport lain'], ['transport_darat', 'Transport darat'], ['tiket', 'Tiket PP'], ['taksi_asal', 'Taksi asal'], ['taksi_tujuan', 'Taksi tujuan']].map(([k, l]) => `<div><label>${l} (Rp)</label><input type="number" min="0" step="any" data-pm="${k}" data-num value="${pm[k] ?? ''}"></div>`).join('')}
+        <div><label>Biaya operasional PP (Rp)</label><input type="number" min="0" step="any" data-pm="ops_pp" data-num placeholder="${(r.items.find((x) => x.key === 'ops_pp') || {}).nilai || 0}" value="${pm.ops_pp ?? ''}"></div>
         <div><label>Uraian biaya operasional</label><input data-pm="ops_uraian" value="${esc(pm.ops_uraian || '')}"></div>
       </div>
       <div class="grid" style="grid-template-columns:1fr;margin-top:10px">
-        <div><label>Maksud dan tujuan (laporan perjalanan dinas)</label><textarea data-pm="maksud" rows="2">${esc(pm.maksud || '')}</textarea></div>
-        <div><label>Kegiatan dan hasil yang dicapai</label><textarea data-pm="hasil" rows="4">${esc(pm.hasil || '')}</textarea></div>
-        <div><label>Kendala dan saran</label><textarea data-pm="kendala" rows="3">${esc(pm.kendala || '')}</textarea></div>
+        <div><label>Tujuan perjalanan (laporan)</label><textarea data-pm="maksud" rows="2">${esc(pm.maksud || '')}</textarea></div>
+        <div><label>Hasil kegiatan</label><textarea data-pm="hasil" rows="4">${esc(pm.hasil || '')}</textarea></div>
+        <div><label>Tindak lanjut</label><textarea data-pm="kendala" rows="3">${esc(pm.kendala || '')}</textarea></div>
       </div>
-      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepm>Simpan dokumen mandiri PP</button><span class="muted" style="font-size:13px">Tiket, hotel &amp; operasional otomatis masuk ke Lembar Kurang/Lebih.</span></div>
-      <h3 style="margin-top:20px">Lembar Kurang/Lebih — realisasi pelaksanaan</h3>
-      <p class="muted" style="margin:0 0 6px;font-size:13px">Berdiri sendiri: tidak mengubah dokumen komponen uji di atas, jadi tidak perlu mengunduh ulang berkas lain. Kosongkan kolom bila realisasi sama dengan anggaran PJ. Honor bersifat tetap. Tiket, hotel &amp; biaya operasional PP diisi di atas (Dokumen mandiri PP).</p>
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-savepm>Simpan dokumen mandiri PP</button><span class="muted" style="font-size:13px">Setelah disimpan, unduh di folder 5. PP.</span></div>
+      <h3 style="margin-top:20px">Form Kurleb — realisasi pelaksanaan</h3>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">Berdiri sendiri: tidak mengubah dokumen komponen uji di atas, jadi tidak perlu mengunduh ulang berkas lain. Kosongkan kolom bila realisasi sama dengan anggaran PJ. Honor bersifat tetap. Tiket, hotel, taksi &amp; biaya operasional PP diisi di atas (Dokumen mandiri PP).</p>
       <div class="tablewrap"><table><thead><tr><th>Komponen</th><th class="num">Anggaran PJ (Rp)</th><th>Realisasi (Rp)</th><th class="num">Selisih</th></tr></thead><tbody>${r.items.filter((it) => !String(it.key).startsWith('honor_') && !U.PP_FORM.includes(it.key)).map((it) => { const a = it.nilai * it.qty, v = real[it.key]; return `<tr${U.PP_OWN.includes(it.key) ? ' style="background:var(--chip)"' : ''}><td>${esc(it.label)}${U.PP_OWN.includes(it.key) ? ' <span class="chip">mandiri PP</span>' : ''}</td><td class="num">${U.NUM(a)}</td><td><input type="number" min="0" step="any" data-rl="${it.key}" data-a="${a}" placeholder="${a}" value="${v === undefined || v === null ? '' : v}"></td><td class="num" data-sel="${it.key}"></td></tr>`; }).join('')}</tbody></table></div>
-      <div class="row" style="margin-top:10px"><button class="btn primary" data-saverl>Simpan &amp; unduh Lembar Kurang/Lebih</button></div>`;
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-saverl>Simpan &amp; unduh Form Kurleb</button></div>`;
   }
   function bindPPForm(root, r) {
     const bn = root.querySelector('[data-savepp]'), br = root.querySelector('[data-saverl]'); if (!bn) return;
@@ -198,7 +201,7 @@
     br.onclick = async () => {
       const realisasi = {}; root.querySelectorAll('[data-rl]').forEach((el) => { if (el.value !== '') realisasi[el.dataset.rl] = Math.max(0, Number(el.value) || 0); });
       br.disabled = true;
-      try { await F.updateDoc(F.doc(db, 'reports', r.id), { realisasi, petugas_at: Date.now() }); r.realisasi = realisasi; downloadOne(r, 'kl'); toast('Realisasi tersimpan; Lembar Kurang/Lebih diunduh.'); } catch (e) { toast(msgOf(e)); }
+      try { await F.updateDoc(F.doc(db, 'reports', r.id), { realisasi, petugas_at: Date.now() }); r.realisasi = realisasi; downloadOne(r, 'kl'); toast('Realisasi tersimpan; Form Kurleb diunduh.'); } catch (e) { toast(msgOf(e)); }
       br.disabled = false;
     };
   }
@@ -252,6 +255,8 @@
         <div><label>Asal institusi PP</label><input id="inst" value="${esc(r.pp_institusi)}"></div>
         <div><label>Nama TUK *</label><input id="tuk" value="${esc(r.tuk_name)}" placeholder="mis. STIKES Wira Medika Bali"></div>
         <div><label>Tahun pelaksanaan * (tercetak di kop & nomor dokumen)</label><input id="tahun" type="number" min="2000" max="2200" value="${esc(r.tahun || new Date().getFullYear())}"></div>
+        <div><label>Periode (mis. I / II)</label><input id="periode" value="${esc(r.periode || '')}"></div>
+        <div><label>Tanggal pelaksanaan</label><input id="tglpel" type="date" value="${esc(r.tgl_pelaksanaan || '')}"></div>
         <div><label>Jumlah sesi</label><input id="sesi" type="number" min="1" value="${r.jumlah_sesi}"></div>
         <div><label>Jumlah hari</label><input id="hari" type="number" min="1" value="${r.jumlah_hari}"></div>
         <div><label>Jumlah peserta uji (→ Biaya Operasional CBT)</label><input id="peserta" type="number" min="0" value="${r.jumlah_peserta}"></div>
@@ -279,13 +284,13 @@
     const save = async (status) => {
       r.pp_id = $('#pp').value; r.pp_institusi = $('#inst').value.trim(); r.tuk_name = $('#tuk').value.trim();
       r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Math.max(0, Number($('#peserta').value) || 0);
-      r.tahun = String($('#tahun').value || '').trim();
+      r.tahun = String($('#tahun').value || '').trim(); r.periode = ($('#periode').value || '').trim(); r.tgl_pelaksanaan = $('#tglpel').value || '';
       if (!/^\d{4}$/.test(r.tahun)) { $('#err').textContent = 'Isi tahun pelaksanaan dengan 4 angka, mis. 2026.'; return; }
       const x = pps.find((q) => q.id === r.pp_id); const total = U.totalOf(r.items);
       if (status === 'published' && (!r.tuk_name || total <= 0)) { $('#err').textContent = 'Untuk menerbitkan, isi nama TUK dan biaya komponen (total harus > 0).'; return; }
       const personnel = { ...r.personnel, pp_name: (x && x.full_name) || r.personnel.pp_name || '', pj_name: me.role === 'admin' && x && x.pj_id !== me.id ? ((await DB.user(x.pj_id)) || {}).full_name || '' : me.full_name };
       const now = Date.now();
-      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, tahun: r.tahun, jumlah_petugas: Object.fromEntries(['pl', 'admin', 'it_lokal', 'co_cbt'].map((k) => [k, U.headcount(r, k)])), items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
+      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, tahun: r.tahun, periode: r.periode || '', tgl_pelaksanaan: r.tgl_pelaksanaan || '', jumlah_petugas: Object.fromEntries(['pl', 'admin', 'it_lokal', 'co_cbt'].map((k) => [k, U.headcount(r, k)])), items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
       if (r.id) row.pj_id = r.pj_id || row.pj_id;
       try {
         let id = r.id;
@@ -300,7 +305,7 @@
   }
   function collect() {
     const r = editing;
-    r.tuk_name = $('#tuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value; r.tahun = $('#tahun').value;
+    r.tuk_name = $('#tuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value; r.tahun = $('#tahun').value; r.periode = $('#periode').value; r.tgl_pelaksanaan = $('#tglpel').value;
   }
   function keepAndRender(pps, focusSel = '#peserta') {
     collect();

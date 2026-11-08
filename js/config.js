@@ -8,5 +8,7 @@ window.APP_CONFIG = {
     appId: '1:991315847396:web:c088a44e87a8799cc824f1',
   },
   // Email yang otomatis menjadi Admin (harus sama dengan di firestore.rules)
+  // Nama Pejabat Pembuat Komitmen pada Surat Perintah Bayar & kwitansi
+  PPK_NAME: 'Dr. Tedy Hidayat, S.ST.RMIK., M.MRS',
   ADMIN_EMAIL: 'wulanndari.dwiretno16@gmail.com',
 };

@@ -24,6 +24,9 @@ Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk 
 - **Tahun pelaksanaan** diisi manual per laporan (kop & nomor dokumen), sehingga dokumen dapat dipakai di tahun-tahun berikutnya.
 - **Lembar Kurang/Lebih** = realisasi pelaksanaan vs anggaran hitungan PJ (Kurang = realisasi di bawah anggaran, Lebih = di atas). PP mengisi realisasi; honor bersifat tetap. Lembar ini **berdiri sendiri**: realisasi (termasuk transport & biaya operasional PP yang diisi mandiri oleh PP) hanya muncul di lembar ini dan tidak mengubah dokumen komponen uji.
 
+## Format dokumen = template Drive "MASTER TEMPLATE"
+Seluruh dokumen mengikuti bentuk template: **Surat Perintah Bayar (SPb)** dengan PPK & Bendahara Pengeluaran, **Kwitansi Bukti/Pembayaran** (honor: Bruto, PPh 21, Netto), **Daftar Penerimaan** (Gol, Vol, Satuan, Honorium, PPh Pasal 21, Diterima), **Daftar Hadir** (briefing H-1 dan per sesi pelaksanaan), **Form Kurleb**, **Rincian Biaya Perjalanan Dinas + Daftar Pengeluaran Riil**, dan **Laporan Hasil Perjalanan Dinas**. Nama PPK diatur di `js/config.js` (`PPK_NAME`); Bendahara = nama PJ Keuangan pada laporan. **SPTJM Biaya Operasional CBT** berupa file **Word contoh** (tanpa kop UKOMNAS; TUK menempelkan kop suratnya sendiri).
+
 ## Berkas yang dihasilkan (mengikuti folder Drive *MASTER TEMPLATE*)
 `Lembar Serah Terima` (rincian operasional TUK) + 6 berkas komponen: **1. Admin · 2. Co CBT · 3. IT Lokal · 4. PL · 5. PP · 6. CBT Center**. Isi: checklist, SPBY, kuitansi, daftar penerimaan, daftar hadir, SPTJM (CBT), rincian perjalanan dinas (PP).
 Identitas TUK dan PP dicetak di footer setiap halaman. Tersedia unduhan per berkas atau semua sekaligus (ZIP, susunan folder sama dengan Drive).

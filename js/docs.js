@@ -89,68 +89,61 @@
     {
       key: 'admin', no: 1, folder: '1. ADMIN', label: 'Berkas Admin', role: 'Admin',
       parts: [
-        { key: 'honor', label: 'Honor Admin', groups: [{ title: 'Honorarium Admin', items: ['honor_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir Pelaksanaan Admin', who: (r) => names(r, 'admin') }] },
-        { key: 'transport', label: 'Transport Admin', groups: [{ title: 'Transport Lokal Admin', items: ['trans_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor Admin', groups: [{ title: 'Honorarium Admin', items: ['honor_admin'], who: (r) => names(r, 'admin'), role: 'Admin', untuk: 'Honorarium Admin', sebagai: 'Admin', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR ADMIN', who: (r) => names(r, 'admin'), mode: 'both' }] },
+        { key: 'transport', label: 'Transport Admin', groups: [{ title: 'Transport Lokal Admin', items: ['trans_admin'], who: (r) => names(r, 'admin'), role: 'Admin', untuk: 'Transport Lokal Admin', sebagai: 'Admin', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium Teknisi (Admin)', 'Kuitansi Honorarium Teknisi (Admin)', 'Daftar Penerimaan Honorarium Teknisi (Admin)', 'Daftar Hadir Pelaksanaan Admin', 'Surat Tugas Admin', 'SPBY Transport Lokal Admin', 'Kuitansi Transport Lokal Admin', 'Daftar Penerimaan Transport Lokal Admin'],
     },
     {
       key: 'cocbt', no: 2, folder: '2. Co CBT', label: 'Berkas Co CBT', role: 'Co CBT',
       parts: [
-        { key: 'honor', label: 'Honor Co CBT', groups: [{ title: 'Honorarium Co CBT', items: ['honor_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir Co CBT', who: (r) => names(r, 'co_cbt') }] },
-        { key: 'transport', label: 'Transport Co CBT', groups: [{ title: 'Transport Lokal Co CBT', items: ['trans_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor Co CBT', groups: [{ title: 'Honorarium Co CBT', items: ['honor_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', untuk: 'Honorarium Co CBT', sebagai: 'Co CBT', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR KOORDINATOR CBT', who: (r) => names(r, 'co_cbt'), mode: 'both' }] },
+        { key: 'transport', label: 'Transport Co CBT', groups: [{ title: 'Transport Lokal Co CBT', items: ['trans_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', untuk: 'Transport Lokal Co CBT', sebagai: 'Co CBT', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium Co CBT', 'Kuitansi Honorarium Co CBT', 'Daftar Penerimaan Honorarium Co CBT', 'Daftar Hadir Co CBT', 'Surat Tugas Co CBT', 'SPBY Transport Lokal Co CBT', 'Kuitansi Transport Lokal Co CBT', 'Daftar Penerimaan Transport Lokal Co CBT'],
     },
     {
       key: 'it', no: 3, folder: '3. IT Lokal', label: 'Berkas IT Lokal', role: 'IT Lokal',
       parts: [
-        { key: 'honor', label: 'Honor IT Lokal', groups: [{ title: 'Honorarium IT Lokal', items: ['honor_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir IT Lokal', who: (r) => names(r, 'it_lokal') }] },
-        { key: 'transport', label: 'Transport IT Lokal', groups: [{ title: 'Transport Lokal IT Lokal', items: ['trans_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor IT Lokal', groups: [{ title: 'Honorarium IT Lokal', items: ['honor_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', untuk: 'Honorarium IT Lokal', sebagai: 'IT Lokal', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR IT LOKAL', who: (r) => names(r, 'it_lokal'), mode: 'both' }] },
+        { key: 'transport', label: 'Transport IT Lokal', groups: [{ title: 'Transport Lokal IT Lokal', items: ['trans_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', untuk: 'Transport Lokal IT Lokal', sebagai: 'IT Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium IT Lokal', 'Kuitansi Honorarium IT Lokal', 'Daftar Penerimaan Honorarium IT Lokal', 'Daftar Hadir IT Lokal', 'Surat Tugas IT Lokal', 'SPBY Transport Lokal IT Lokal', 'Kuitansi Transport Lokal IT Lokal', 'Daftar Penerimaan Transport Lokal IT Lokal'],
     },
     {
       key: 'pl', no: 4, folder: '4. PL', label: 'Berkas Pengawas Lokal', role: 'Pengawas Lokal',
       parts: [
-        { key: 'honor', label: 'Honor Pengawas Lokal', groups: [{ title: 'Honorarium Pengawas Lokal', items: ['honor_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir Pengawas Lokal - Briefing', who: (r) => names(r, 'pl') }, { title: 'Daftar Hadir Pengawas Lokal - Pelaksanaan', who: (r) => names(r, 'pl') }] },
-        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal - Briefing', items: ['trans_briefing_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [] },
-        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal - Pelaksanaan', items: ['trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'honor', label: 'Honor Pengawas Lokal', groups: [{ title: 'Honorarium Pengawas Lokal', items: ['honor_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Honorarium Pengawas Lokal', sebagai: 'Pengawas Lokal', unit: 'sesi', daftar: true, perPerson: true }], hadir: [{ title: 'DAFTAR HADIR BRIEFING PENGAWAS LOKAL', who: (r) => names(r, 'pl'), mode: 'briefing' }, { title: 'DAFTAR HADIR PELAKSANAAN PENGAWAS LOKAL', who: (r) => names(r, 'pl'), mode: 'pelaksanaan' }] },
+        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal (Briefing)', items: ['trans_briefing_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Transport Lokal Pengawas Lokal (Briefing)', sebagai: 'Pengawas Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
+        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal (Pelaksanaan)', items: ['trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', untuk: 'Transport Lokal Pengawas Lokal (Pelaksanaan)', sebagai: 'Pengawas Lokal', unit: 'hari', daftar: true, perPerson: true }], hadir: [] },
       ],
       checklist: ['SPBY Honorarium Pengawas Lokal', 'Kuitansi Honorarium Pengawas Lokal', 'Daftar Penerimaan Honorarium Pengawas Lokal', 'Daftar Hadir Pengawas Lokal Briefing', 'Daftar Hadir Pengawas Lokal Pelaksanaan', 'Surat Tugas Pengawas Lokal', 'SPBY Transport Lokal Pengawas Lokal', 'Kuitansi Transport Lokal Pengawas Lokal', 'Daftar Penerimaan Transport Pengawas Lokal'],
     },
     {
       key: 'pp', no: 5, folder: '5. PP', label: 'Berkas Pengawas Pusat', role: 'Pengawas Pusat',
       parts: [
-        { key: 'honor-briefing', label: 'Honor Briefing Pengawas Pusat', groups: [
-          { title: 'Honorarium Bimtek Komponen Uji (Briefing)', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
-        ], hadir: [{ title: 'Daftar Hadir H-1 Pengawas Pusat (Briefing)', who: (r, c) => [c.pp.full_name] }] },
-        { key: 'honor-pelaksanaan', label: 'Honor Pelaksanaan Pengawas Pusat', groups: [
-          { title: 'Honorarium Bimtek Peserta Uji (Pelaksanaan)', items: ['honor_pelaksanaan_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
-        ], hadir: [{ title: 'Daftar Hadir Pelaksanaan Pengawas Pusat', who: (r, c) => [c.pp.full_name] }] },
-        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Pusat', groups: [
-          { title: 'Transport Lokal Pengawas Pusat - Briefing', items: ['trans_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
-        ], hadir: [] },
-        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Pusat', groups: [
-          { title: 'Transport Lokal Pengawas Pusat - Pelaksanaan (Dalam Kota)', items: ['trans_dalam_kota'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
-        ], hadir: [] },
+        { key: 'honor-briefing', label: 'Honor Briefing Pengawas Pusat', groups: [{ title: 'Honorarium Briefing Pengawas Pusat', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Honorarium Briefing Pengawas Pusat', unit: 'hari', daftar: true }], hadir: [{ title: 'DAFTAR HADIR PENGAWAS PUSAT', who: (r, c) => [c.pp.full_name], mode: 'briefing', kegiatan: 'Briefing Peserta dan Panitia Lokal H-1 Kegiatan Uji Kompetensi Mahasiswa Bidang Kesehatan' }] },
+        { key: 'honor-pelaksanaan', label: 'Honor Pelaksanaan Pengawas Pusat', groups: [{ title: 'Honorarium Pelaksanaan Pengawas Pusat', items: ['honor_pelaksanaan_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Honorarium Pelaksanaan Pengawas Pusat', unit: 'sesi', daftar: true }], hadir: [{ title: 'DAFTAR HADIR PELAKSANAAN PENGAWAS PUSAT', who: (r, c) => [c.pp.full_name], mode: 'pelaksanaan' }] },
+        { key: 'transport-briefing', label: 'Transport Briefing Pengawas Pusat', groups: [{ title: 'Transport Lokal Pengawas Pusat (Briefing)', items: ['trans_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Transport Lokal Pengawas Pusat (Briefing)', unit: 'hari', daftar: true }], hadir: [] },
+        { key: 'transport-pelaksanaan', label: 'Transport Pelaksanaan Pengawas Pusat', groups: [{ title: 'Transport Lokal Pengawas Pusat (Pelaksanaan)', items: ['trans_dalam_kota'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', sebagai: 'Pengawas Pusat', untuk: 'Transport Lokal Pengawas Pusat (Pelaksanaan)', unit: 'hari', daftar: true }], hadir: [] },
         { key: 'laporan', label: 'Laporan Perjalanan Dinas (dibuat PP)', custom: 'laporan', groups: [], hadir: [] },
-        { key: 'kperjadin', label: 'Kuitansi Perjalanan Dinas (dibuat PP)', custom: 'kperjadin', groups: [], hadir: [] },
-        { key: 'kops', label: 'Kuitansi Biaya Operasional PP (dibuat PP)', custom: 'kops', groups: [], hadir: [] },
+        { key: 'kperjadin', label: 'Kwitansi Perjalanan Dinas (dibuat PP)', custom: 'kperjadin', groups: [], hadir: [] },
+        { key: 'kops', label: 'Kwitansi Biaya Operasional PP (dibuat PP)', custom: 'kops', groups: [], hadir: [] },
       ],
       checklist: ['SPBY Perjalanan Dinas Pengawas Pusat', 'Kuitansi Perjalanan Dinas (luar kota & dalam kota)', 'Rincian Perjalanan Dinas', 'Daftar Pengeluaran Riil', 'SPPD Pelaksanaan (stempel CBT)', 'Invoice Hotel dan/atau Tiket Travel', 'Boarding Pass PP (luar kota)', 'Laporan Perjalanan Dinas', 'SPBY & Kuitansi Honorarium Briefing', 'Daftar Hadir H-1', 'SPBY & Kuitansi Honorarium Pelaksanaan', 'Daftar Penerimaan Pelaksanaan', 'Daftar Hadir Pelaksanaan', 'Surat Tugas PP (dari institusi)', 'SPBY, Kuitansi & Daftar Penerimaan Transport Lokal', 'SPBY, Kuitansi & Nota Biaya Operasional PP'],
     },
     {
       key: 'cbt', no: 6, folder: '6. CBT', label: 'Berkas CBT Center', role: 'CBT Center',
       parts: [
-        { key: 'operasional', label: 'Biaya Operasional CBT Center', groups: [
-          { title: 'Biaya Operasional CBT Center (Rp 40.000 per peserta)', items: ['ops_cbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT / CBT Center', daftar: false, sptjm: true },
+        { key: 'operasional', label: 'Biaya Operasional CBT', groups: [
+          { title: 'Biaya Operasional CBT', items: ['ops_cbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT / CBT Center', untuk: 'Biaya Operasional', daftar: false },
         ], hadir: [] },
         { key: 'konsumsi', label: 'Konsumsi', groups: [
-          { title: 'Biaya Konsumsi Hari Briefing', items: ['konsumsi_briefing'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true },
-          { title: 'Biaya Konsumsi Hari 1 Pelaksanaan', items: ['konsumsi_h1'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true },
-          { title: 'Biaya Konsumsi Hari 2 Pelaksanaan', items: ['konsumsi_h2'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true, skipIfZero: true },
+          { title: 'Biaya Konsumsi Pelaksanaan Briefing', items: ['konsumsi_briefing'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', untuk: 'Biaya Konsumsi Pelaksanaan Briefing', kegiatan: 'Briefing H-1 Pelaksanaan Uji Kompetensi', daftar: false, nota: true },
+          { title: 'Biaya Konsumsi Pelaksanaan Hari 1', items: ['konsumsi_h1'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', untuk: 'Biaya Konsumsi Pelaksanaan', kegiatan: 'Pelaksanaan Uji Kompetensi Hari 1', daftar: false, nota: true },
+          { title: 'Biaya Konsumsi Pelaksanaan Hari 2', items: ['konsumsi_h2'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', untuk: 'Biaya Konsumsi Pelaksanaan', kegiatan: 'Pelaksanaan Uji Kompetensi Hari 2', daftar: false, nota: true, skipIfZero: true },
         ], hadir: [] },
+        { key: 'sptjm', label: 'SPTJM Biaya Operasional (contoh Word - gunakan kop surat TUK)', docx: true, groups: [], hadir: [] },
       ],
       checklist: ['SPBY Biaya Operasional CBT Center', 'Kuitansi Biaya Operasional CBT', 'SPTJM (surat laporan, rincian, pernyataan)', 'SPBY/Kuitansi/Nota/Daftar Hadir Konsumsi Briefing', 'SPBY/Kuitansi/Nota/Daftar Hadir Konsumsi Hari 1', 'SPBY/Kuitansi/Nota/Daftar Hadir Konsumsi Hari 2'],
     },
@@ -253,158 +246,183 @@
   const uraian = (r, g) =>
     groupItems(r, g).map((i) => `${i.label} (${NUM(i.qty)} x ${RP(i.nilai)})`).join('; ');
 
-  function pageSPBY(doc, c, comp, g) {
-    const { r, pj, pp } = c;
-    let y = title(doc, kop(doc), 'SURAT PERMINTAAN BAYAR (SPBY)', 'Nomor: ........ / SPBY / UKOMNAS-PMIK / ' + YEAR);
-    y = infoBlock(doc, y, [
-      ['Kegiatan', 'Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan ' + YEAR],
-      ['Tempat Uji Kompetensi', r.tuk_name],
-      ['Pengawas Pusat', pp.full_name],
-      ['Keperluan', g.title],
-      ['Jumlah Dibayarkan', RP(groupTotal(r, g)) + ' (' + cap(terbilang(groupTotal(r, g))) + ' rupiah)'],
-    ]);
-    const honor = isHonorGroup(g);
-    if (honor) {
-      const s = taxSum(r, g), B = { fontStyle: 'bold' };
-      doc.autoTable({
-        startY: y + 2, theme: 'grid', styles: { fontSize: 8.5 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-        head: [['Uraian', 'Banyak', 'Satuan (Rp)', 'Bruto', taxLabel(r), 'Jumlah netto']],
-        body: groupItems(r, g).map((i) => {
-          const net = i.nilai * i.qty;
-          if (isHonorItem(i)) { const br = brutoOf(r, net); return [i.label + (i.ket ? ` (${i.ket})` : ''), NUM(i.qty), RP(i.nilai), RP(br), RP(br - net), RP(net)]; }
-          return [i.label + (i.ket ? ` (${i.ket})` : ''), NUM(i.qty), RP(i.nilai), RP(net), '-', RP(net)];
-        }).concat([[{ content: 'TOTAL', colSpan: 3, styles: B }, { content: RP(s.brTotal), styles: B }, { content: RP(s.pph), styles: B }, { content: RP(s.net), styles: B }]]),
-        columnStyles: { 1: { halign: 'center', cellWidth: 16 }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
-      });
-      doc.setFontSize(9); doc.text(taxNote(r), M, at(doc) + 6);
-    } else {
-      doc.autoTable({
-        startY: y + 2, theme: 'grid', styles: { fontSize: 9 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-        head: [['Uraian', 'Nilai', 'Banyak', 'Jumlah']],
-        body: groupItems(r, g).map((i) => [i.label + (i.ket ? ` (${i.ket})` : ''), RP(i.nilai), NUM(i.qty), RP(i.nilai * i.qty)])
-          .concat([[{ content: 'TOTAL', colSpan: 3, styles: { fontStyle: 'bold' } }, { content: RP(groupTotal(r, g)), styles: { fontStyle: 'bold' } }]]),
-        columnStyles: { 1: { halign: 'right' }, 2: { halign: 'center' }, 3: { halign: 'right' } },
-      });
+  /* =====================================================================
+     Halaman dokumen mengikuti template Drive "MASTER TEMPLATE":
+     SPb (Surat Perintah Bayar), Kwitansi, Daftar Penerimaan, Daftar Hadir,
+     Rincian Biaya Perjalanan Dinas, Daftar Pengeluaran Riil, Form Kurleb, Laporan Hasil Perjalanan Dinas.
+     ===================================================================== */
+  const PPK = () => (window.APP_CONFIG && window.APP_CONFIG.PPK_NAME) || 'Dr. Tedy Hidayat, S.ST.RMIK., M.MRS';
+  const PROGRAM = 'Mahasiswa D-3 RMIK /S.Tr MIK';
+  const periodeStr = (r) => `Periode ${r.periode || '......'} Tahun ${YEAR} Tanggal ${fmtDate(r.tgl_pelaksanaan)}`;
+  const kindOf = (g) => (g.items[0].startsWith('honor_') ? 'honor' : g.items[0].startsWith('trans') ? 'transport' : g.items[0].startsWith('konsumsi') ? 'konsumsi' : 'ops');
+  const unitOf = (g) => g.unit || (kindOf(g) === 'honor' ? 'sesi' : 'hari');
+  const fontN = (doc, s = 10) => { doc.setFont('helvetica', 'normal'); doc.setFontSize(s); };
+  const fontB = (doc, s = 10) => { doc.setFont('helvetica', 'bold'); doc.setFontSize(s); };
+
+  // baris "label : isi" (isi bisa array baris)
+  function kv(doc, y, label, val, o = {}) {
+    const x = o.x || M, lw = o.lw || 34, vw = (o.w || PW - M) - (x + lw + 4);
+    fontN(doc, o.size || 10); doc.text(label, x, y); doc.text(':', x + lw, y);
+    fontB(doc, o.size || 10);
+    (Array.isArray(val) ? val : [val]).forEach((v) => { splitLines(doc, String(v == null || v === '' ? dots : v), vw).forEach((ln) => { doc.text(ln, x + lw + 4, y); y += 5.2; }); });
+    fontN(doc, o.size || 10);
+    return y + 0.8;
+  }
+  const splitLines = (doc, t, w) => doc.splitTextToSize(t, w);
+
+  function untukLines(r, g, extra) {
+    const k = kindOf(g);
+    const head = k === 'konsumsi' ? `${g.untuk} kegiatan Uji Kompetensi ${PROGRAM}` : k === 'ops' ? `Biaya Operasional kegiatan Uji Kompetensi ${PROGRAM}` : `${g.untuk} dalam rangka kegiatan Uji Kompetensi ${PROGRAM}`;
+    return [head, periodeStr(r), 'Di ' + r.tuk_name].concat(extra || []);
+  }
+  const rincianKonsumsi = (r, g) => { const i = itm(r, g.items[0]); return `Rincian : ${NUM(i.qty)} orang x ${RP(i.nilai)} = ${RP(i.nilai * i.qty)}`; };
+
+  function signCols(doc, y, cols) {
+    const W = 58, xs = [M, M + 62, M + 124];
+    cols.forEach((col, i) => {
+      fontN(doc, 9.5); doc.text(col[0], xs[i], y); doc.text(col[1], xs[i], y + 5);
+      fontB(doc, 9.5); splitLines(doc, col[2] || '(................................)', W).forEach((ln, j) => doc.text(ln, xs[i], y + 28 + j * 4.6));
+    });
+    fontN(doc); return y + 40;
+  }
+
+  function pageSPb(doc, c, o) {
+    const { r, pj } = c; let y = 20;
+    fontB(doc, 13); doc.text('SURAT PERINTAH BAYAR', PW / 2, y, { align: 'center' });
+    fontN(doc); doc.text('Tanggal : ' + dots, 128, y + 9); doc.text('Nomor   : ' + dots, 128, y + 15);
+    y += 28;
+    doc.text('Saya yang bertanda tangan di bawah ini selaku Pejabat Pembuatan Komitmen memerintahkan', M, y);
+    doc.text('Bendahara Pengeluaran Pembantu agar melakukan Pembayaran sejumlah', M, y + 5.6); y += 12;
+    doc.setLineWidth(0.3); doc.rect(M + 36, y, 70, 9); fontB(doc, 11); doc.text(RP(o.amount), M + 71, y + 6.3, { align: 'center' }); fontN(doc); y += 16;
+    y = kv(doc, y, 'Terbilang', cap(terbilang(o.amount)) + ' Rupiah');
+    y = kv(doc, y, 'Kepada', o.kepada);
+    y = kv(doc, y, 'Untuk Pembayaran', o.untuk);
+    y += 2; doc.text('atas dasar', M, y); y += 5.5;
+    doc.text('1.', M + 6, y); doc.text('Kwitansi/bukti pembelian', M + 12, y); doc.text(': terlampir', M + 80, y); y += 5.2;
+    doc.text('2.', M + 6, y); doc.text('Nota/bukti penerimaan barang/jasa', M + 12, y); doc.text(': terlampir', M + 80, y); y += 5.2;
+    doc.text('(bukti lainnya)', M + 12, y); y += 7;
+    doc.text('diberikan pada', M, y); y += 5.5;
+    doc.text('Kegiatan/output/MAK', M, y); doc.text(': ' + dots, M + 40, y); y += 5.5;
+    doc.text('Kode', M, y); doc.text(': ' + dots, M + 40, y); y += 10;
+    signCols(doc, y, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name], ['diterima tanggal ' + dots, 'penerima uang/uang Muka kerja', o.penerima || '']]);
+  }
+
+  function pageKwitansi(doc, c, o) {
+    const { r, pj } = c; let y = 20;
+    fontN(doc); doc.text('Tahun Anggaran : ' + YEAR, 128, y); doc.text('Nomor Bukti     : ' + dots, 128, y + 5.5); doc.text('Mata Anggaran   : ' + dots, 128, y + 11);
+    fontB(doc, 13); doc.text('KWITANSI BUKTI / PEMBAYARAN', PW / 2, y + 26, { align: 'center' });
+    const w = doc.getTextWidth('KWITANSI BUKTI / PEMBAYARAN'); doc.setLineWidth(0.3); doc.line(PW / 2 - w / 2, y + 27.5, PW / 2 + w / 2, y + 27.5);
+    y += 38;
+    y = kv(doc, y, 'Sudah terima dari', ['Pejabat Pembuatan Komitmen', 'Ad Hoc Rekam Medis dan Manajemen Informasi Kesehatan'], { lw: 32 });
+    y = kv(doc, y, 'Jumlah uang', RP(o.amount), { lw: 32 });
+    y = kv(doc, y, 'Terbilang', cap(terbilang(o.amount)) + ' Rupiah', { lw: 32 });
+    y = kv(doc, y, 'Untuk membayar', o.untuk, { lw: 32 });
+    if (o.pajak) {
+      fontN(doc); [['Bruto', o.pajak.br], ['PPh 21', o.pajak.pph], ['Netto', o.pajak.net]].forEach(([l, v]) => { doc.text(l, M + 36, y); doc.text(': ' + RP(v), M + 60, y); y += 5.2; });
+    } else if (o.pajakNol) {
+      fontN(doc); [['Bruto', o.amount], ['Pajak', 0], ['Netto', o.amount]].forEach(([l, v]) => { doc.text(l, M + 36, y); doc.text(': ' + (v ? RP(v) : 'Rp -'), M + 60, y); y += 5.2; });
     }
-    doc.setFontSize(10);
-    doc.text('Mohon dibayarkan sesuai rincian di atas. Bukti pendukung terlampir.', M, at(doc) + (honor ? 12 : 8));
-    signBlock(doc, at(doc) + (honor ? 20 : 16), '', pj.full_name, 'Yang meminta (PJ Keuangan),', 'Menyetujui,');
+    y += 6;
+    fontN(doc); doc.text((o.tempat || 'Jakarta') + ', ' + dots + ' ' + YEAR, 128, y);
+    doc.text(o.menerimaLabel || 'Yang Menerima', 128, y + 6);
+    fontB(doc, 10); splitLines(doc, o.penerima || '(................................)', 62).forEach((ln, j) => doc.text(ln, 128, y + 32 + j * 4.6));
+    fontN(doc, 8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, y + 38);
+    if (o.withPPK) signCols(doc, y + 48, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name]]);
+    fontN(doc);
   }
 
-  function pageKuitansi(doc, c, comp, g, who, amount, forText) {
-    const { r, pj } = c;
-    let y = title(doc, kop(doc), 'KUITANSI', 'Nomor: ........ / KWT / UKOMNAS-PMIK / ' + YEAR);
-    const pajak = () => { const s = taxSum(r, g); return `Honor bruto ${RP(s.br)} - ${taxLabel(r)} ${RP(s.pph)} = honor netto ${RP(s.hn)}` + (s.tr ? `; ditambah transport ${RP(s.tr)}; total diterima ${RP(s.net)}` : ''); };
-    y = infoBlock(doc, y, [
-      ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS PMIK ' + YEAR + ' (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
-      ['Uang sejumlah', RP(amount)],
-      ['Terbilang', cap(terbilang(amount)) + ' rupiah'],
-      ['Untuk pembayaran', forText || g.title + ' - TUK ' + r.tuk_name],
-      ['Rincian', uraian(r, g)],
-    ].concat(isHonorGroup(g) ? [['Pajak', pajak()]] : []));
-    doc.setFontSize(10);
-    doc.text('Tempat/Tanggal: ............................., ............................. ' + YEAR, M, y + 4);
-    signBlock(doc, y + 14, pj.full_name, who || '(................................)', 'Yang menerima,');
-    doc.setFontSize(8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, 275);
-  }
-
+  // Daftar Penerimaan: honor (Vol, Satuan, Honorium, PPh Pasal 21, Diterima) atau transport (Vol, Satuan, Diterima)
   function pageDaftarPenerimaan(doc, c, comp, g) {
-    const { r, pj } = c;
-    let y = title(doc, kop(doc), 'DAFTAR PENERIMAAN', g.title);
-    y = infoBlock(doc, y, [['TUK', r.tuk_name], ['Pengawas Pusat', c.pp.full_name]]);
-    const who = g.who(r, c);
-    const per = g.perPerson ? groupTotal(r, g) / who.length : groupTotal(r, g);
-    if (isHonorGroup(g)) {
-      const s = taxSum(r, g), n = Math.max(1, who.length), P = (x) => RP(x / n), mix = s.tr > 0;
-      const head = ['No', 'Nama (' + g.role + ')', 'Honor bruto', taxLabel(r), mix ? 'Honor netto' : 'Netto diterima'].concat(mix ? ['Transport', 'Total diterima'] : []).concat(['Tanda Tangan']);
-      const rowsT = (who.length ? who : ['']).map((nm, i) => [i + 1, nm || '', P(s.br), P(s.pph), P(s.hn)].concat(mix ? [P(s.tr), P(s.net)] : []).concat(['']));
-      const foot = [{ content: 'TOTAL', colSpan: 2, styles: { halign: 'right' } }, RP(s.br), RP(s.pph), RP(s.hn)].concat(mix ? [RP(s.tr), RP(s.net)] : []).concat(['']);
-      const cs = { 0: { cellWidth: 8, halign: 'center' } }; for (let i = 2; i < head.length - 1; i++) cs[i] = { halign: 'right' }; cs[head.length - 1] = { cellWidth: 28 };
-      doc.autoTable({
-        startY: y, theme: 'grid', styles: { fontSize: 8.5, minCellHeight: 12, valign: 'middle', cellPadding: 1.2 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-        head: [head], body: rowsT, foot: [foot], footStyles: { fillColor: [235, 235, 235], textColor: 0 }, columnStyles: cs,
-      });
-      doc.setFontSize(8.5); doc.text(taxNote(r), M, at(doc) + 6);
-      signBlock(doc, at(doc) + 14, pj.full_name, '', 'Mengetahui,');
-      return;
+    const { r, pj } = c, k = kindOf(g), it = itm(r, g.items[0]), who = g.who(r, c), n = Math.max(1, who.length);
+    const vol = (Number(it.qty) || 0) / n, unit = unitOf(g), volTxt = `${NUM(vol)} ${unit}`;
+    const net = (Number(it.nilai) || 0) * vol, brUnit = brutoOf(r, it.nilai), br = Math.round(brUnit * vol), pph = br - net;
+    fontB(doc, 11);
+    const ttl = `Daftar Penerimaan ${k === 'honor' ? 'Honorarium' : 'Transport Lokal'} sebagai ${g.sebagai || g.role} dalam rangka Uji Kompetensi ${PROGRAM.replace('/S.Tr', '/ S.Tr')}`;
+    let y = 18; splitLines(doc, ttl, PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5.5; });
+    fontN(doc); doc.text(periodeStr(r), M, y); y += 6; doc.text('TUK', M, y); doc.text(': ' + r.tuk_name, M + 14, y); y += 5;
+    const names = who.length ? who : [''];
+    const honor = k === 'honor';
+    const head = honor
+      ? [[{ content: 'No', rowSpan: 2 }, { content: 'Nama', rowSpan: 2 }, { content: 'Gol', rowSpan: 2 }, { content: 'Jumlah Penerimaan', colSpan: 5 }, { content: 'Tanda Tangan', rowSpan: 2 }], ['Vol', 'Satuan', 'Honorium', 'PPh Pasal 21', 'Diterima']]
+      : [[{ content: 'No', rowSpan: 2 }, { content: 'Nama', rowSpan: 2 }, { content: 'Gol', rowSpan: 2 }, { content: 'Jumlah Penerimaan', colSpan: 3 }, { content: 'Tanda Tangan', rowSpan: 2 }], ['Vol', 'Satuan', 'Diterima']];
+    const body = names.map((nm, i) => honor ? [i + 1, nm || '', 'III', volTxt, RP(brUnit), RP(br), RP(pph), RP(net), ''] : [i + 1, nm || '', 'III', volTxt, RP(it.nilai), RP(net), '']);
+    const foot = honor ? [[{ content: 'Jumlah', colSpan: 4, styles: { halign: 'right' } }, '=', RP(br * n), RP(pph * n), RP(net * n), '']] : [[{ content: 'Jumlah', colSpan: 4, styles: { halign: 'right' } }, '=', RP(net * n), '']];
+    // transport: kolom 'Satuan' (tarif) dan 'Diterima'
+    if (!honor) foot[0] = [{ content: 'Jumlah', colSpan: 4, styles: { halign: 'right' } }, '=', RP(net * n), ''];
+    const total = net * n;
+    doc.autoTable({
+      startY: y, theme: 'grid', styles: { fontSize: 8.5, minCellHeight: 11, valign: 'middle', cellPadding: 1.3, lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' },
+      head, body, foot, footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      columnStyles: honor ? { 0: { cellWidth: 8, halign: 'center' }, 2: { cellWidth: 10, halign: 'center' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' }, 8: { cellWidth: 24 } } : { 0: { cellWidth: 8, halign: 'center' }, 2: { cellWidth: 10, halign: 'center' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { cellWidth: 30 } },
+    });
+    y = at(doc) + 6; fontN(doc, 9.5); doc.text('Terbilang', M, y); doc.text(': ' + cap(terbilang(total)) + ' Rupiah', M + 22, y);
+    if (honor) { doc.setFontSize(8.5); doc.text(`Honorarium telah dipotong PPh 21 ${taxLabel(r).replace('PPh ', '')}; jumlah diterima adalah netto.`, M, y + 5.5); }
+    signCols(doc, y + 12, [['', 'Pejabat Pembuat Komitmen', PPK()], ['', 'Bendahara Pengeluaran', pj.full_name]]);
+  }
+
+  // SPb + Kwitansi untuk satu grup biaya
+  function pageSPBY(doc, c, comp, g) {
+    const { r, pp } = c, k = kindOf(g), amount = groupTotal(r, g);
+    const who = g.who(r, c).filter(Boolean), penerima = g.penerimaTxt ? g.penerimaTxt(r, c) : who.length === 1 ? who[0] : who.join(', ');
+    const extra = k === 'konsumsi' ? [rincianKonsumsi(r, g)] : [];
+    pageSPb(doc, c, { amount, kepada: g.kepada ? g.kepada(r, c) : r.tuk_name, untuk: untukLines(r, g, extra), penerima: k === 'honor' || k === 'transport' ? '' : penerima });
+  }
+  function pageKuitansi(doc, c, comp, g, who, amount) {
+    const { r } = c, k = kindOf(g);
+    const extra = k === 'konsumsi' ? [rincianKonsumsi(r, g)] : [];
+    const untuk = untukLines(r, g, extra);
+    const o = { amount, untuk: untuk.concat(k === 'konsumsi' || k === 'ops' ? ['Bukti terlampir.'] : ['Daftar terlampir.']), penerima: who, withPPK: k === 'konsumsi' || k === 'ops' };
+    if (k === 'honor') { const s = taxSum(r, g); o.pajak = { br: s.br, pph: s.pph, net: s.hn }; }
+    if (k === 'konsumsi') { o.pajakNol = true; o.menerimaLabel = 'Yang Menerima/Membayarkan'; }
+    pageKwitansi(doc, c, o);
+  }
+
+  // ---------- Daftar Hadir (mengikuti PDF template) ----------
+  function hadirBlock(doc, y, kegiatan, nRows, names, jamTempat) {
+    fontN(doc, 9.5);
+    doc.text('Kegiatan', M, y); doc.text(': ' + kegiatan, M + 24, y); doc.text('Jam : ' + dots, 128, y);
+    doc.text('Hari, Tanggal', M, y + 6); doc.text(': ' + dots, M + 24, y + 6); doc.text('Tempat : ' + dots, 128, y + 6);
+    const body = Array.from({ length: nRows }, (_, i) => [i + 1, names[i] || '', '', '']);
+    doc.autoTable({
+      startY: y + 10, theme: 'grid', styles: { fontSize: 9, minCellHeight: 8.5, valign: 'middle', cellPadding: 1.2, lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No', 'Nama', 'Tanda Tangan', 'Asal Institusi']], body,
+      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 48 }, 3: { cellWidth: 48 } },
+    });
+    return at(doc) + 8;
+  }
+  // h = { title: 'DAFTAR HADIR ADMIN', who: [...], mode: 'both'|'briefing'|'pelaksanaan' }
+  function pageDaftarHadir(doc, c, h) {
+    const { r, pp } = c, names = (typeof h.who === 'function' ? h.who(r, c) : h.who) || [], n = Math.max(names.length, 3), sesi = Math.max(1, Number(r.jumlah_sesi) || 1);
+    const head = (y) => { fontB(doc, 13); doc.text(h.title, PW / 2, y, { align: 'center' }); return y + 10; };
+    let first = true;
+    if (h.mode !== 'pelaksanaan') {
+      let y = head(18); y = hadirBlock(doc, y, 'Pelaksanaan Uji Kompetensi H-1 (Briefing)', Math.max(n, 6), names);
+      first = false;
+      if (h.mode === 'both') { /* briefing halaman sendiri */ }
     }
-    const rows = who.map((n, i) => [i + 1, n || '', g.role, RP(per), '']);
-    if (!rows.length) rows.push([1, '', g.role, RP(per), '']);
-    doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 9, minCellHeight: 12, valign: 'middle' }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-      head: [['No', 'Nama', 'Jabatan', 'Jumlah', 'Tanda Tangan']],
-      body: rows,
-      foot: [[{ content: 'TOTAL', colSpan: 3, styles: { halign: 'right' } }, RP(groupTotal(r, g)), '']],
-      footStyles: { fillColor: [235, 235, 235], textColor: 0 },
-      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 3: { halign: 'right', cellWidth: 32 }, 4: { cellWidth: 40 } },
-    });
-    signBlock(doc, at(doc) + 10, pj.full_name, '', 'Mengetahui,');
+    if (h.mode !== 'briefing') {
+      if (!first) doc.addPage();
+      let y = head(18), perPage = 0;
+      for (let s = 1; s <= sesi; s++) {
+        if (perPage === 3) { doc.addPage(); y = head(18); perPage = 0; }
+        y = hadirBlock(doc, y, `Pelaksanaan Uji Kompetensi Sesi ${s}`, n, names); perPage++;
+      }
+      fontN(doc); doc.text('Mengetahui', 145, Math.min(y + 4, 262)); doc.text('Pengawas Pusat', 145, Math.min(y + 9, 267));
+      fontB(doc, 9.5); splitLines(doc, pp.full_name || '', 52).forEach((ln, j) => doc.text(ln, 145, Math.min(y + 30, 276) + j * 4.6));
+    }
   }
-
-  function pageDaftarHadir(doc, c, h, rows) {
-    const { r } = c;
-    let y = title(doc, kop(doc), h.title.toUpperCase());
-    y = infoBlock(doc, y, [['TUK', r.tuk_name], ['Hari/Tanggal', '.............................................']]);
-    const who = h.who(r, c);
-    const body = who.map((n, i) => [i + 1, n || '', '', '']);
-    doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 9, minCellHeight: 12, valign: 'middle' }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-      head: [['No', 'Nama', 'Tanda Tangan', 'Keterangan']], body,
-      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 50 }, 3: { cellWidth: 40 } },
-    });
-  }
-
-  function pageSPTJM(doc, c, comp, g) {
-    const { r, pj } = c;
-    const peserta = Number(itm(r, 'ops_cbt').qty) || 0;
-    let y = title(doc, kop(doc), 'SURAT LAPORAN PENGGUNAAN BIAYA OPERASIONAL CBT', 'SPTJM - Halaman 1');
-    doc.setFontSize(10);
-    const t = `Yang bertanda tangan di bawah ini, Co CBT pada TUK ${r.tuk_name}, melaporkan penggunaan biaya operasional CBT UKOMNAS PMIK ${YEAR} sebesar ${RP(groupTotal(r, g))} untuk ${NUM(peserta)} peserta (Rp ${NUM(itm(r, 'ops_cbt').nilai)} per peserta).`;
-    doc.text(doc.splitTextToSize(t, PW - M * 2), M, y);
-    signBlock(doc, y + 30, '', (r.personnel || {}).co_cbt || '', 'Co CBT / CBT Center,');
-    doc.addPage();
-    y = title(doc, kop(doc), 'RINCIAN PENGGUNAAN BIAYA OPERASIONAL CBT', 'SPTJM - Halaman 2');
-    doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 9, minCellHeight: 9 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-      head: [['No', 'Uraian Penggunaan', 'Jumlah (Rp)']],
-      body: [[1, 'Sewa/penyiapan perangkat dan jaringan', ''], [2, 'Kebutuhan listrik & internet', ''], [3, 'Kebersihan & perlengkapan ruang uji', ''], [4, 'Lain-lain', ''], [{ content: 'TOTAL', colSpan: 2, styles: { fontStyle: 'bold', halign: 'right' } }, { content: RP(groupTotal(r, g)), styles: { fontStyle: 'bold' } }]],
-      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'right', cellWidth: 40 } },
-    });
-    doc.addPage();
-    y = title(doc, kop(doc), 'SURAT PERNYATAAN TANGGUNG JAWAB MUTLAK (SPTJM)', 'Halaman 3');
-    const t3 = `Saya menyatakan bahwa biaya operasional CBT sebesar ${RP(groupTotal(r, g))} pada TUK ${r.tuk_name} telah digunakan sesuai peruntukannya dan bertanggung jawab penuh atas kebenaran penggunaan tersebut. Apabila terdapat kelebihan/ketidaksesuaian, saya bersedia menyetorkannya kembali.`;
-    doc.setFontSize(10);
-    doc.text(doc.splitTextToSize(t3, PW - M * 2), M, y);
-    signBlock(doc, y + 30, '', (r.personnel || {}).co_cbt || '', 'Yang menyatakan (materai, stempel & TTD),');
-  }
-
   function pageNotaHadirKonsumsi(doc, c, g) {
-    const { r } = c;
-    let y = title(doc, kop(doc), 'DAFTAR HADIR KONSUMSI', g.title);
-    y = infoBlock(doc, y, [['TUK', r.tuk_name], ['Jumlah porsi', NUM(itm(r, g.items[0]).qty)]]);
-    const n = Math.max(1, Number(itm(r, g.items[0]).qty) || 1);
+    const { r } = c, it = itm(r, g.items[0]);
+    fontB(doc, 12); doc.text('DAFTAR HADIR KONSUMSI PELAKSANAAN UJI KOMPETENSI', PW / 2, 18, { align: 'center' });
+    fontN(doc, 10); let y = 30;
+    [['Kegiatan', g.kegiatan || g.untuk], ['Tanggal', fmtDate(r.tgl_pelaksanaan)], ['Pukul', dots], ['Tempat', r.tuk_name]].forEach(([l, v]) => { doc.text(l, M, y); doc.text(': ' + v, M + 26, y); y += 6; });
+    const rows = Math.max(1, Number(it.qty) || 1);
     doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 9, minCellHeight: 9 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-      head: [['No', 'Nama', 'Tanda Tangan']],
-      body: Array.from({ length: n }, (_, i) => [i + 1, '', '']),
-      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 50 } },
+      startY: y + 2, theme: 'grid', styles: { fontSize: 9, minCellHeight: 8, valign: 'middle', cellPadding: 1.1, lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No', 'Nama', 'Asal Institusi', 'Tanda tangan', 'Kabupaten/Kota']],
+      body: Array.from({ length: rows }, (_, i) => [i + 1, '', '', '', '']), columnStyles: { 0: { cellWidth: 10, halign: 'center' } },
     });
-  }
-
-  function pagePerjadin(doc, c) {
-    const { r, pp } = c;
-    let y = title(doc, kop(doc), 'RINCIAN PERJALANAN DINAS (LUAR KOTA)');
-    y = infoBlock(doc, y, [['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['Tujuan (TUK)', r.tuk_name]]);
-    const rows = ['tiket', 'hotel'].map((k) => itm(r, k));
-    doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 9, minCellHeight: 9 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-      head: [['Komponen', 'Nilai', 'Banyak', 'Jumlah (at cost)']],
-      body: rows.map((i) => [i.label, RP(i.nilai), NUM(i.qty), RP(i.nilai * i.qty)]),
-      columnStyles: { 1: { halign: 'right' }, 2: { halign: 'center' }, 3: { halign: 'right' } },
-    });
-    doc.setFontSize(9);
-    doc.text('Lampirkan invoice hotel/tiket dan boarding pass PP sebagai bukti (at cost).', M, at(doc) + 8);
-    signBlock(doc, at(doc) + 16, c.pj.full_name, pp.full_name);
   }
 
   /* ---------- RINCIAN OPERASIONAL TUK (Lembar Serah Terima) - wajib di setiap berkas ---------- */
@@ -442,39 +460,6 @@
     signBlock(doc, at(doc) + 10, pj.full_name, pp.full_name);
   }
 
-  /* ---------- Lembar Kurang / Lebih = realisasi pelaksanaan vs anggaran (hitungan PJ) ---------- */
-  function buildKurangLebih(r, pj, pp) {
-    setYear(r);
-    const c = ctx(r, pj, pp), doc = newDoc(), real = r.realisasi || {};
-    let y = title(doc, kop(doc), 'LEMBAR KURANG / LEBIH', 'Realisasi pelaksanaan terhadap anggaran (hitungan PJ Keuangan)');
-    y = infoBlock(doc, y, [['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', r.tuk_name], ['Jumlah Sesi / Hari', `${r.jumlah_sesi} / ${r.jumlah_hari}`]]);
-    let tA = 0, tR = 0, tK = 0, tL = 0;
-    const body = r.items.map((i) => {
-      const a = (Number(i.nilai) || 0) * (Number(i.qty) || 0);
-      const v = real[i.key], has = !isHonorItem(i) && v !== undefined && v !== null && v !== '' && isFinite(Number(v));
-      const f = staffFactor(r, i.key), extra = f > 1;
-      const mv = PP_FORM.includes(i.key) ? pmAmt(r, i.key) : null;
-      const rl = mv !== null ? mv : has ? Number(v) : extra ? Math.round(a * f) : a, K = rl < a ? a - rl : 0, L = rl > a ? rl - a : 0;
-      tA += a; tR += rl; tK += K; tL += L;
-      return [i.label, NUM(a), NUM(rl), K ? NUM(K) : '-', L ? NUM(L) : '-', PP_OWN.includes(i.key) ? 'dibuat mandiri PP' : extra ? `petugas ${actualCount(r, ITEM_STAFF[i.key])} orang (anggaran ${headcount(r, ITEM_STAFF[i.key])})` : ''];
-    });
-    doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [245, 205, 250], textColor: 0, halign: 'center' },
-      head: [['Komponen Biaya', 'Anggaran PJ (Rp)', 'Realisasi (Rp)', 'Kurang (Rp)', 'Lebih (Rp)', 'Keterangan']],
-      body,
-      foot: [['TOTAL', NUM(tA), NUM(tR), NUM(tK), NUM(tL), '']],
-      footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
-      columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' } },
-    });
-    doc.setFontSize(8.5); doc.setTextColor(60);
-    doc.text(doc.splitTextToSize('Kurang = realisasi di bawah anggaran. Lebih = realisasi melebihi anggaran. Honor bersifat tetap (netto, PPh 5%). Transport dan biaya operasional PP diisi mandiri oleh PP sesuai bukti pengeluaran.', PW - 2 * M), M, at(doc) + 5);
-    doc.setTextColor(0); doc.setFontSize(10);
-    signBlock(doc, at(doc) + 14, pj.full_name, pp.full_name, 'Yang membuat (PP),', 'Mengetahui (PJ Keuangan),');
-    footers(doc, c, 'Lembar Kurang Lebih');
-    return doc;
-  }
-
   /* ---------- Footer identitas TUK di setiap halaman ---------- */
   function footers(doc, c, label) {
     const n = doc.getNumberOfPages();
@@ -499,74 +484,170 @@
   const fmtDate = (s) => (s ? new Date(s + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : dots);
   const lamaHari = (a, b) => (a && b ? Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000) + 1) : null);
 
-  function kuitansiMandiri(doc, c, o) {
-    const { r, pj, pp } = c;
-    let y = title(doc, kop(doc), 'KUITANSI', o.sub);
-    y = infoBlock(doc, y, [
-      ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS PMIK ' + YEAR + ' (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
-      ['Uang sejumlah', RP(o.total)],
-      ['Terbilang', cap(terbilang(o.total)) + ' rupiah'],
-      ['Untuk pembayaran', o.forText],
-    ]);
+  const PP_ROWS = [['uang_harian', 'Uang Harian'], ['hotel', 'Hotel/Penginapan'], ['travel_lain', 'Travel/Transport lain'], ['transport_darat', 'Transport Darat'], ['tiket', 'Tiket PP'], ['taksi_asal', 'Taksi Asal'], ['taksi_tujuan', 'Taksi Tujuan']];
+  const ppAmt = (r, key) => { const v = pmAmt(r, key); return v === null ? (key === 'tiket' || key === 'hotel' ? anggaranOf(r, key) : 0) : v; };
+  const perjadinTotal = (r) => PP_ROWS.reduce((s, [k]) => s + ppAmt(r, k), 0);
+
+  // 5. Rincian biaya perjalanan dinas
+  function pageRincianPerjadin(doc, c) {
+    const { r, pj, pp } = c, m = PM(r), total = perjadinTotal(r);
+    fontB(doc, 13); doc.text('RINCIAN BIAYA PERJALANAN DINAS', PW / 2, 20, { align: 'center' });
+    fontN(doc); doc.text('Lampiran SPD Nomor : ' + (m.spd_nomor || dots), M, 32); doc.text('Tanggal : ' + (m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots), M, 38);
     doc.autoTable({
-      startY: y + 1, theme: 'grid', styles: { fontSize: 9 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-      head: [['Uraian', 'Jumlah']],
-      body: o.rows.map((x) => [x[0], RP(x[1])]).concat([[{ content: 'TOTAL', styles: { fontStyle: 'bold' } }, { content: RP(o.total), styles: { fontStyle: 'bold' } }]]),
-      columnStyles: { 1: { halign: 'right', cellWidth: 40 } },
+      startY: 43, theme: 'grid', styles: { fontSize: 9.5, cellPadding: 1.8, lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['NO', 'PERINCIAN BIAYA', 'JUMLAH', 'KETERANGAN']],
+      body: PP_ROWS.map(([k, l], i) => [i + 1, l, ppAmt(r, k) ? RP(ppAmt(r, k)) : 'Rp -', k === 'hotel' && m.hotel_nama ? `${m.hotel_nama}${m.hotel_malam ? ', ' + m.hotel_malam + ' malam' : ''}` : k === 'tiket' && m.moda ? m.moda : '']),
+      foot: [[{ content: 'Jumlah', colSpan: 2, styles: { halign: 'right' } }, RP(total), '']], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 2: { halign: 'right', cellWidth: 38 } },
     });
-    doc.setFontSize(9); doc.setTextColor(60);
-    doc.text(doc.splitTextToSize(o.note, PW - 2 * M), M, at(doc) + 6);
-    doc.setTextColor(0); doc.setFontSize(10);
-    doc.text('Tempat/Tanggal: ' + (PM(r).tempat || dots) + ', ' + dots + ' ' + YEAR, M, at(doc) + 18);
-    signBlock(doc, at(doc) + 26, pj.full_name, pp.full_name, 'Yang menerima (PP),');
-    doc.setFontSize(8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, 275);
+    let y = at(doc) + 7; fontN(doc); doc.text('Terbilang : ' + (total ? cap(terbilang(total)) + ' Rupiah' : '-'), M, y); y += 9;
+    doc.text('Telah dibayar sejumlah', M, y); doc.text(RP(total), M + 50, y); doc.text((m.tempat || '(Kota CBT)') + ', ' + fmtDate(m.tgl_pulang || r.tgl_pelaksanaan), 120, y); y += 6;
+    doc.text('Telah menerima jumlah uang sebesar ' + RP(total), 120, y); y += 6;
+    doc.text('Bendahara Pengeluaran', M, y); doc.text('Yang Menerima,', 120, y);
+    fontB(doc, 9.5); doc.text(pj.full_name || '', M, y + 24); splitLines(doc, pp.full_name || '', 70).forEach((ln, j) => doc.text(ln, 120, y + 24 + j * 4.6)); y += 34; fontN(doc, 9.5);
+    doc.text('Ditetapkan sejumlah', M, y); doc.text(': ' + RP(total), M + 50, y); y += 5.5;
+    doc.text('Yang telah dibayar semula', M, y); doc.text(': Rp -', M + 50, y); y += 5.5;
+    doc.text('Sisa kurang/lebih', M, y); doc.text(': ' + RP(total), M + 50, y);
+    doc.text('Pejabat Pembuat Komitmen', 120, y - 4); fontB(doc, 9.5); doc.text(PPK(), 120, y + 20); fontN(doc);
   }
+  // Daftar Pengeluaran Riil
+  function pageRiil(doc, c) {
+    const { r, pp } = c, m = PM(r), rows = [['Transport darat', ppAmt(r, 'transport_darat')], ['Taksi Asal', ppAmt(r, 'taksi_asal')], ['Taksi Tujuan', ppAmt(r, 'taksi_tujuan')]], total = rows.reduce((s, x) => s + x[1], 0);
+    fontB(doc, 13); doc.text('DAFTAR PENGELUARAN RIIL', PW / 2, 20, { align: 'center' });
+    fontN(doc); let y = 32; doc.text('Yang bertanda tangan di bawah ini, atas nama Kuasa Pengguna Anggaran :', M, y); y += 8;
+    [['Nama', PPK()], ['Jabatan', 'Pejabat Pembuat Komitmen']].forEach(([l, v]) => { doc.text(l, M, y); doc.text(': ' + v, M + 22, y); y += 5.5; });
+    y += 3; doc.text('Berdasarkan Surat Perjalanan Dinas (SPD) :', M, y); y += 6;
+    doc.text('Nomor', M, y); doc.text(': ' + (m.spd_nomor || dots), M + 22, y); y += 5.5; doc.text('Tanggal', M, y); doc.text(': ' + (m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots), M + 22, y); y += 8;
+    doc.text('dengan ini kami menyatakan dengan sesungguhnya bahwa :', M, y); y += 6;
+    doc.text('1', M, y); doc.text('Biaya transportasi pegawai dan / atau biaya penginapan di bawah ini yang tidak dapat diperoleh', M + 6, y); y += 5; doc.text('bukti - bukti pengeluarannya meliputi :', M + 6, y);
+    doc.autoTable({
+      startY: y + 3, theme: 'grid', margin: { left: M + 6 }, styles: { fontSize: 9.5, cellPadding: 1.6, lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No', 'Uraian', 'Jumlah']],
+      body: rows.map(([l, v], i) => [i + 1, l, v ? RP(v) : 'Rp -']), foot: [[{ content: 'Jumlah', colSpan: 2, styles: { halign: 'right' } }, total ? RP(total) : 'Rp -']], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 2: { halign: 'right', cellWidth: 40 } },
+    });
+    y = at(doc) + 6; fontN(doc); doc.text('Terbilang: ' + (total ? cap(terbilang(total)) + ' Rupiah' : '-'), M + 6, y); y += 8;
+    doc.text('2', M, y);
+    ['Jumlah uang tersebut pada angka 1 diatas benar-benar dikeluarkan untuk pelaksanaan perjalanan dinas dimaksud dan apabila di kemudian hari terdapat kelebihan atas pembayaran, kami bersedia untuk menyetorkan kelebihan tersebut ke kas negara.'].forEach((t) => splitLines(doc, t, PW - 2 * M - 6).forEach((ln) => { doc.text(ln, M + 6, y); y += 5; }));
+    y += 3; splitLines(doc, 'Demikian pernyataan ini kami buat dengan sebenarnya, untuk dapat dipergunakan sebagaimana mestinya.', PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5; });
+    y += 6; doc.text('Mengetahui / Menyetujui', M, y); doc.text((m.tempat || '(Kota CBT)') + ', ' + fmtDate(m.tgl_pulang || r.tgl_pelaksanaan), 120, y);
+    doc.text('Pejabat Pembuat Komitmen', M, y + 6); doc.text('Pelaksana SPD,', 120, y + 6);
+    fontB(doc, 9.5); doc.text(PPK(), M, y + 30); splitLines(doc, pp.full_name || '', 70).forEach((ln, j) => doc.text(ln, 120, y + 30 + j * 4.6)); fontN(doc);
+  }
+
   const CUSTOM = {
+    // Kwitansi Perjadin_PP: rincian + SPb + kwitansi + daftar pengeluaran riil
     kperjadin(r, pj, pp) {
-      setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r);
-      const tiket = amtPP(r, 'tiket'), hotel = amtPP(r, 'hotel'), total = tiket + hotel;
-      kuitansiMandiri(doc, c, {
-        sub: 'Perjalanan Dinas Pengawas Pusat - Nomor: ........ / KWT-PD / UKOMNAS-PMIK / ' + YEAR, total,
-        forText: `Perjalanan dinas luar kota Pengawas Pusat ke TUK ${r.tuk_name}` + (m.kota_asal ? ` dari ${m.kota_asal}` : ''),
-        rows: [[`Tiket PP - Transport Luar Kota${m.moda ? ' (' + m.moda + ')' : ''}${m.kota_asal ? ', ' + m.kota_asal + ' - ' + r.tuk_name : ''}`, tiket], [`Hotel${m.hotel_nama ? ' - ' + m.hotel_nama : ''}${m.hotel_malam ? ' (' + m.hotel_malam + ' malam)' : ''}`, hotel]],
-        note: 'Dibuat mandiri oleh PP sesuai bukti pengeluaran (at cost). Lampirkan invoice hotel dan/atau tiket serta boarding pass PP.',
-      });
-      footers(doc, c, 'Kuitansi Perjalanan Dinas'); return doc;
+      setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r), total = perjadinTotal(r);
+      const untuk = ['Biaya Perjalanan Dinas ke CBT dalam rangka kegiatan Uji Kompetensi', PROGRAM, periodeStr(r), 'Sesuai Surat penugasan Nomor ' + (m.surat_tugas || dots)];
+      pageRincianPerjadin(doc, c);
+      doc.addPage(); pageSPb(doc, c, { amount: total, kepada: pp.full_name, untuk, penerima: pp.full_name });
+      doc.addPage(); pageKwitansi(doc, c, { amount: total, untuk, penerima: pp.full_name, withPPK: true, tempat: m.tempat });
+      doc.addPage(); pageRiil(doc, c);
+      footers(doc, c, 'Kwitansi Perjadin PP'); return doc;
     },
+    // Kwitansi Biaya Operasional_PP: kwitansi + SPb
     kops(r, pj, pp) {
       setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r), total = amtPP(r, 'ops_pp');
-      kuitansiMandiri(doc, c, {
-        sub: 'Biaya Operasional Pengawas Pusat - Nomor: ........ / KWT-OP / UKOMNAS-PMIK / ' + YEAR, total,
-        forText: m.ops_uraian || `Biaya operasional Pengawas Pusat selama pelaksanaan UKOMNAS di TUK ${r.tuk_name}`,
-        rows: [[m.ops_uraian || 'Biaya Operasional Pengawas Pusat (at cost)', total]],
-        note: 'Dibuat mandiri oleh PP sesuai nota pengeluaran (at cost). Lampirkan nota biaya operasional.',
-      });
-      footers(doc, c, 'Kuitansi Biaya Operasional PP'); return doc;
+      pageKwitansi(doc, c, { amount: total, untuk: [m.ops_uraian || 'Biaya Operasional dalam rangka kegiatan Uji Kompetensi', PROGRAM, periodeStr(r), 'Di ' + r.tuk_name, 'Daftar terlampir.'], penerima: pp.full_name, withPPK: true, tempat: m.tempat });
+      doc.addPage(); pageSPb(doc, c, { amount: total, kepada: pp.full_name, untuk: ['Biaya Operasional Pengawas Pusat dalam rangka kegiatan Uji Kompetensi', PROGRAM + ' ' + periodeStr(r), 'Di ' + r.tuk_name], penerima: pp.full_name });
+      footers(doc, c, 'Kwitansi Biaya Operasional PP'); return doc;
     },
+    // FORM LAPORAN PERJALANAN DINAS PP
     laporan(r, pj, pp) {
-      setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r);
-      let y = title(doc, kop(doc), 'LAPORAN PERJALANAN DINAS', 'Pengawas Pusat UKOMNAS PMIK ' + YEAR);
-      const lama = lamaHari(m.tgl_berangkat, m.tgl_pulang);
-      y = infoBlock(doc, y, [
-        ['Nama', pp.full_name], ['Asal Institusi', r.pp_institusi], ['Dasar penugasan', m.surat_tugas || 'Surat Tugas Nomor ' + dots],
-        ['Tempat tujuan (TUK)', r.tuk_name], ['Kota asal', m.kota_asal || dots], ['Moda transportasi', m.moda || dots],
-        ['Berangkat', fmtDate(m.tgl_berangkat)], ['Kembali', fmtDate(m.tgl_pulang)], ['Lama perjalanan', lama ? lama + ' hari' : dots],
-      ]);
-      const sec = (judul, isi) => {
-        if (y > 245) { doc.addPage(); y = kop(doc); }
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text(judul, M, y); y += 5.5;
-        doc.setFont('helvetica', 'normal'); const lines = doc.splitTextToSize(isi, PW - 2 * M);
-        lines.forEach((ln) => { if (y > 275) { doc.addPage(); y = kop(doc); } doc.text(ln, M, y); y += 5; });
-        y += 3;
-      };
-      sec('I. Maksud dan Tujuan', m.maksud || `Melaksanakan tugas sebagai Pengawas Pusat pada Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan ${YEAR} di TUK ${r.tuk_name}.`);
-      sec('II. Kegiatan dan Hasil yang Dicapai', m.hasil || dots + dots + dots);
-      sec('III. Kendala dan Saran', m.kendala || dots + dots + dots);
-      sec('IV. Penutup', 'Demikian laporan perjalanan dinas ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.');
-      signBlock(doc, y + 4, pj.full_name, pp.full_name, 'Pelaksana perjalanan dinas,', 'Mengetahui (PJ Keuangan),');
+      setYear(r); const c = ctx(r, pj, pp), doc = newDoc(), m = PM(r), lama = lamaHari(m.tgl_berangkat, m.tgl_pulang);
+      fontB(doc, 13); doc.text('LAPORAN HASIL PERJALANAN DINAS', PW / 2, 22, { align: 'center' });
+      fontN(doc, 10.5); let y = 36;
+      const row = (l, v) => { doc.text(l, M, y); doc.text(':', M + 42, y); fontB(doc, 10.5); const ls = splitLines(doc, v || dots, PW - M - (M + 46)); ls.forEach((ln) => { doc.text(ln, M + 46, y); y += 5.6; }); fontN(doc, 10.5); y += 1.5; };
+      const para = (l, v) => { doc.text(l, M, y); doc.text(':', M + 42, y); const ls = splitLines(doc, v || dots + dots + dots, PW - M - (M + 46)); ls.forEach((ln) => { if (y > 265) { doc.addPage(); y = 22; } doc.text(ln, M + 46, y); y += 5.6; }); y += 4; };
+      row('Nama', pp.full_name); row('Golongan', m.golongan); row('Asal Instansi', r.pp_institusi); row('Tempat Tujuan', r.tuk_name);
+      para('Tujuan Perjalanan', m.maksud || `Melaksanakan tugas sebagai Pengawas Pusat pada Uji Kompetensi ${PROGRAM} ${periodeStr(r)} di ${r.tuk_name}.`);
+      row('Lama Perjalanan Dinas', lama ? `${lama} hari (${fmtDate(m.tgl_berangkat)} s.d. ${fmtDate(m.tgl_pulang)})` : '');
+      para('Hasil Kegiatan', m.hasil); para('Tindak Lanjut', m.kendala);
+      y += 6; if (y > 240) { doc.addPage(); y = 22; }
+      doc.text((m.tempat || '(Nama Kota CBT)') + ', ' + fmtDate(m.tgl_pulang || r.tgl_pelaksanaan), 128, y); doc.text('Yang Melaporkan', 128, y + 6);
+      fontB(doc, 10.5); splitLines(doc, pp.full_name || '', 70).forEach((ln, j) => doc.text(ln, 128, y + 32 + j * 5)); fontN(doc);
       footers(doc, c, 'Laporan Perjalanan Dinas'); return doc;
     },
   };
+
+  // FORM KURLEB (anggaran PJ = "Yang diberikan"; "Yang dikeluarkan" = realisasi)
+  function buildKurangLebih(r, pj, pp) {
+    setYear(r);
+    const c = ctx(r, pj, pp), doc = newDoc(), real = r.realisasi || {}, m = PM(r);
+    const sumA = (...ks) => ks.reduce((s, k) => s + anggaranOf(r, k), 0);
+    const given = (ks) => sumA(...ks);
+    // [label, kunci anggaran PJ, sumber realisasi]
+    const rows = [
+      ['Transport (dalam kota)', ['trans_dalam_kota'], () => real.trans_dalam_kota], ['Transport (luar kota)', [], () => pmAmt(r, 'travel_lain')], ['Hotel', [], () => pmAmt(r, 'hotel')],
+      ['Honor Briefing PP', ['honor_briefing_pp']], ['Honor Pelaksanaan PP', ['honor_pelaksanaan_pp']], ['Konsumsi di CBT', ['konsumsi_briefing', 'konsumsi_h1', 'konsumsi_h2'], () => real.konsumsi_h1],
+      ['Biaya Operasional CBT', ['ops_cbt'], () => real.ops_cbt], ['Biaya Operasional PP', ['ops_pp'], () => pmAmt(r, 'ops_pp')],
+      ['Honor PL', ['honor_pl']], ['Transport PL', ['trans_briefing_pl', 'trans_pelaksanaan_pl'], () => real.trans_briefing_pl],
+      ['Honor Co CBT ', ['honor_cocbt']], ['Transport Co CBT', ['trans_cocbt'], () => real.trans_cocbt], ['Honor Admin', ['honor_admin']], ['Transport Lokal Admin ', ['trans_admin'], () => real.trans_admin],
+      ['Honor IT Lokal', ['honor_it']], ['Transport Lokal IT Lokal ', ['trans_it'], () => real.trans_it],
+      ['Taksi Asal', [], () => pmAmt(r, 'taksi_asal')], ['Taksi TUK', [], () => pmAmt(r, 'taksi_tujuan')], ['Pesawat', [], () => pmAmt(r, 'tiket')], ['Transport (dalam kota)', [], () => pmAmt(r, 'transport_darat')], ['Transport (luar kota)', []], ['', []], ['', []], ['', []],
+    ];
+    fontB(doc, 11); doc.text('Nama (PP) : ' + (pp.full_name || ''), M, 20); doc.text('TUK : ' + (r.tuk_name || ''), M, 27); doc.text('No Hp : ' + (m.no_hp || ''), M, 34); fontN(doc);
+    let tg = 0, td = 0, tk = 0, tl = 0;
+    const body = rows.map(([label, ks, fn], i) => {
+      const g = given(ks), v = fn ? fn() : undefined, has = v !== undefined && v !== null && v !== '' && isFinite(Number(v)), out = has ? Number(v) : g;
+      const K = out < g ? g - out : 0, L = out > g ? out - g : 0; tg += g; td += out; tk += K; tl += L;
+      const show = (x) => (label ? (x ? NUM(x) : '') : '');
+      return [i + 1, label, show(g), has || g ? show(out) : '', K ? NUM(K) : '', L ? NUM(L) : ''];
+    });
+    doc.autoTable({
+      startY: 40, theme: 'grid', styles: { fontSize: 9, cellPadding: 1.4, minCellHeight: 7, lineColor: 0, lineWidth: 0.2, textColor: 0 },
+      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No.', 'Uang', 'Yang diberikan', 'Yang dikeluarkan', 'Kurang', 'Lebih']],
+      body, foot: [[{ content: 'Jumlah', colSpan: 2 }, NUM(tg), NUM(td), NUM(tk), NUM(tl)]], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 11, halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
+    });
+    let y = at(doc) + 9; fontN(doc, 10);
+    const net = tg - td;
+    doc.text('Jumlah yang diterima/dikembalikan  ' + (net === 0 ? '-' : (net > 0 ? 'dikembalikan ' : 'diterima ') + RP(Math.abs(net))), M, y);
+    if (y > 250) { doc.addPage(); y = 22; }
+    doc.text('Pengawas Pusat', 140, y + 10); fontB(doc, 10); splitLines(doc, '( ' + (pp.full_name || '') + ' )', 60).forEach((ln, j) => doc.text(ln, 140, y + 34 + j * 5)); fontN(doc);
+    footers(doc, c, 'Form Kurleb');
+    return doc;
+  }
+
+  // ---------- SPTJM dalam bentuk Word (contoh; TUK memakai kop surat sendiri) ----------
+  async function buildSptjmDocx(r, pj, pp, asType) {
+    setYear(r);
+    const ops = groupTotal(r, { items: ['ops_cbt'] }), per = periodeStr(r), x = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const P = (t, o = {}) => `<w:p><w:pPr><w:jc w:val="${o.c ? 'center' : o.r ? 'right' : o.j ? 'both' : 'left'}"/><w:spacing w:after="${o.after == null ? 100 : o.after}"/>${o.br ? '<w:pageBreakBefore/>' : ''}${o.ind ? '<w:ind w:left="' + o.ind + '"/>' : ''}</w:pPr><w:r><w:rPr>${o.b ? '<w:b/>' : ''}${o.u ? '<w:u w:val="single"/>' : ''}<w:sz w:val="${(o.size || 11) * 2}"/></w:rPr><w:t xml:space="preserve">${x(t)}</w:t></w:r></w:p>`;
+    const kota = '(kota CBT)', tgl = r.tgl_pelaksanaan ? fmtDate(r.tgl_pelaksanaan) : '… ' + YEAR;
+    const paras = [
+      P('[ KOP SURAT TUK / CBT — gunakan kop surat institusi ]', { c: true, b: true, size: 12, after: 240 }),
+      P(`Nomor : ${kota}, ${tgl}`), P('Lampiran : 2 (dua) lembar'),
+      P(`Perihal : Laporan dan Bukti Pertanggungjawaban atas biaya operasional Uji Kompetensi ${PROGRAM} ${per}`, { after: 200 }),
+      P('Kepada Yth.', { after: 40 }), P('Ketua Panitia Ujian Kompetensi Nasional Mahasiswa D-3 RMIK / S.Tr MIK – Ad Hoc Uji Kompetensi Nasional Rekam Medis dan Manajemen Informasi Kesehatan', { after: 40 }), P('Di tempat', { after: 200 }),
+      P('Dengan hormat,'),
+      P(`Sehubungan dengan telah selesainya Pelaksanaan Uji Kompetensi Nasional ${PROGRAM} ${per}, bersama ini kami dari CBT ${r.tuk_name} ingin menyampaikan laporan pertanggungjawaban keuangan kegiatan ini sebesar ${RP(ops)} (${cap(terbilang(ops))} rupiah) sebagai berikut :`, { j: true }),
+      P('1. Laporan Surat Pernyataan Tanggung Jawab Mutlak (SPTJM) (terlampir)', { ind: 360 }), P('2. Laporan Surat Pernyataan Tanggung Jawab Belanja (SPTB) (terlampir)', { ind: 360, after: 200 }),
+      P('Atas perhatian dan kerjasamanya kami ucapkan terima kasih.', { after: 300 }),
+      P('Koord CBT', { r: true, after: 60 }), P('Materai          Stempel CBT', { r: true, after: 60 }), P('ttd co cbt/pejabat CBT', { r: true, after: 500 }), P('…………………….', { r: true }),
+      P('CONTOH', { br: true, c: true, b: true, size: 12 }),
+      P('LAPORAN PENGGUNAAN DANA OPERASIONAL', { c: true, b: true, after: 40 }), P(`UJI KOMPETENSI ${PROGRAM.toUpperCase()}`, { c: true, b: true, after: 40 }), P(per, { c: true, b: true, after: 200 }),
+      P('Uji Kompetensi Mahasiswa Bidang Kesehatan'), P(`Jumlah Biaya Operasional ${RP(ops)}`, { b: true, after: 160 }), P('Penggunaan :', { after: 60 }),
+      ...['Pembayaran Cleaning Service 2 hari X 4 orang x Rp. 100.000 = Rp. 800.000', 'Pembayaran Satpam 2 hari X 2 orang x Rp. 150.000 = Rp. 600.000', 'Pemeliharaan Komputer = Rp. 2.000.000', 'Pembayaran Teknisi 2 hari X 2 Orang X Rp. 100.000 = Rp. 400.000', 'Pembayaran Honor Panitia Lokal = Rp. 500.000', 'Konsumsi Pelaksanaan = Rp. 300.000', 'Pembelian ATK = Rp. 320.000'].map((t) => P(t, { ind: 360, after: 40 })),
+      P(`Total = ${RP(ops)}`, { b: true, after: 40 }), P('Sisa = Rp. 0', { after: 200 }), P('Demikian laporan kami.', { after: 240 }),
+      P('Mengetahui,', { after: 40 }), P('Dekan, Wakil dekan, Kaprodi, Koor CBT/PJL', { after: 500 }), P('…………………………….'),
+      P('SURAT PERNYATAAN', { br: true, c: true, b: true, size: 12, after: 40 }), P('TANGGUNG JAWAB MUTLAK', { c: true, b: true, size: 12, after: 240 }),
+      P('Yang bertanda tangan di bawah ini :', { after: 80 }), P('Nama      : ……………………', { after: 40 }), P('Jabatan   : Penanggung jawab Lokasi TUK … /Koordinator CBT …….', { after: 40 }), P('Alamat    : ……………………', { after: 160 }),
+      P('Dengan ini menyatakan dan bertanggung jawab secara penuh atas hal-hal sebagai berikut :', { after: 100 }),
+      P(`1. Penggunaan anggaran biaya operasional Pelaksanaan Uji Kompetensi ${PROGRAM} ${per},`, { j: true, ind: 360 }),
+      P('2. Perhitungan satuan biaya kegiatan tersebut telah dilakukan secara profesional, efisien, efektif, transparan dan dapat dipertanggungjawabkan mengacu pada pedoman Pengelola Keuangan dan ketentuan peraturan perundang-undangan;', { j: true, ind: 360 }),
+      P('3. Apabila terjadi kelebihan pembayaran dari penggunaan anggaran kegiatan, sehingga mengakibatkan kerugian Negara, menjadi tanggung jawab penuh saya selaku Penanggung jawab Lokasi TUK/Koordinator CBT. Atas kerugian Negara tersebut saya sanggup menyetorkan ke Kas Ad Hoc Uji Kompetensi Nasional Rekam Medis dan Manajemen Informasi Kesehatan – Bank MANDIRI – 1260012612615497 an Ad Hoc Uji Kompetensi Nasional Rekam Medis dan Manajemen Informasi Kesehatan.', { j: true, ind: 360 }),
+      P('4. Apabila dalam penggunaan anggaran kegiatan mengakibatkan kerugian Ad Hoc Uji Kompetensi Nasional Rekam Medis dan Manajemen Informasi Kesehatan dan Negara, maka menjadi tanggung jawab penuh saya selaku Penanggung jawab Lokasi TUK/Koordinator CBT.', { j: true, ind: 360, after: 160 }),
+      P('Demikian Surat Pernyataan ini dibuat dengan sebenar-benarnya, dalam keadaan sadar dan tidak dalam tekanan.', { j: true, after: 240 }),
+      P(`${kota}, ..... ${YEAR}`, { r: true, after: 40 }), P('Penanggung jawab Lokasi TUK/', { r: true, after: 40 }), P('Koordinator CBT', { r: true, after: 40 }), P('TTD co cbt, cap cbt dan Materai', { r: true, after: 500 }), P('….……………………', { r: true, after: 40 }), P('NIP/NIK/NIDN .........................', { r: true }),
+    ];
+    const zip = new JSZip();
+    zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+    zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    zip.file('word/document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + paras.join('') + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>');
+    return zip.generateAsync({ type: asType === 'arraybuffer' ? 'arraybuffer' : 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  }
 
   // Satu berkas = satu jenis dokumen (honor, transport, dst), tidak digabung.
   function buildPart(comp, part, r, pj, pp) {
@@ -581,11 +662,9 @@
       const who = g.who(r, c).filter(Boolean);
       np(); pageSPBY(doc, c, comp, g);
       np(); pageKuitansi(doc, c, comp, g, who.length === 1 ? who[0] : who.length ? who.join(', ') : '', groupTotal(r, g));
-      if (g.daftar) { np(); pageDaftarPenerimaan(doc, c, comp, g); }
-      if (g.sptjm) { np(); pageSPTJM(doc, c, comp, g); }
+      if (g.daftar && kindOf(g) !== 'ops' && kindOf(g) !== 'konsumsi') { np(); pageDaftarPenerimaan(doc, c, comp, g); }
       if (g.nota) { np(); pageNotaHadirKonsumsi(doc, c, g); }
     });
-    if (part.perjadin) { np(); pagePerjadin(doc, c); }
     (part.hadir || []).forEach((h) => { np(); pageDaftarHadir(doc, c, h); });
     if (first) doc.text('(tidak ada data)', M, 40);
     footers(doc, c, part.label);
@@ -625,13 +704,17 @@
   const safe = (s) => String(s || 'TUK').replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim();
   function fileList(r, pj, pp) {
     const base = safe(r.tuk_name);
-    const list = [{ id: 'serah', folder: '', name: `Lembar Serah Terima - ${base}.pdf`, label: 'Lembar Serah Terima (Rincian Operasional TUK)', build: () => buildSerahTerima(r, pj, pp) }];
-    list.push({ id: 'kl', folder: '', name: `Lembar Kurang Lebih - ${base}.pdf`, label: 'Lembar Kurang / Lebih (realisasi pelaksanaan)', build: () => buildKurangLebih(r, pj, pp) });
-    list.push({ id: 'checklist', folder: '', name: `Checklist Kelengkapan Berkas - ${base}.pdf`, label: 'Checklist Kelengkapan Berkas (A-F)', build: () => buildChecklist(r, pj, pp) });
-    COMPONENTS.forEach((comp) => comp.parts.forEach((part) => list.push({
-      id: comp.key + '-' + part.key, folder: comp.folder, group: comp.label, name: `${part.label} - ${base}.pdf`, label: part.label,
-      build: () => buildPart(comp, part, r, pj, pp),
-    })));
+    const pdf = (o, build) => Object.assign({ ext: 'pdf', build, make: async (t) => build().output(t) }, o);
+    const list = [
+      pdf({ id: 'serah', folder: '', name: `Lembar Serah Terima - ${base}.pdf`, label: 'Lembar Serah Terima (Rincian Operasional TUK)' }, () => buildSerahTerima(r, pj, pp)),
+      pdf({ id: 'kl', folder: '', name: `Form Kurleb - ${base}.pdf`, label: 'Form Kurang / Lebih (Kurleb)' }, () => buildKurangLebih(r, pj, pp)),
+      pdf({ id: 'checklist', folder: '', name: `Checklist Kelengkapan Berkas - ${base}.pdf`, label: 'Checklist Kelengkapan Berkas (A-F)' }, () => buildChecklist(r, pj, pp)),
+    ];
+    COMPONENTS.forEach((comp) => comp.parts.forEach((part) => {
+      const o = { id: comp.key + '-' + part.key, folder: comp.folder, group: comp.label };
+      if (part.docx) list.push({ ...o, ext: 'docx', name: `SPTJM Biaya Operasional CBT (contoh) - ${base}.docx`, label: part.label, make: (t) => buildSptjmDocx(r, pj, pp, t) });
+      else list.push(pdf({ ...o, name: `${part.label} - ${base}.pdf`, label: part.label }, () => buildPart(comp, part, r, pj, pp)));
+    }));
     return list;
   }
 
