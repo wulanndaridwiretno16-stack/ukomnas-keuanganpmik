@@ -372,7 +372,7 @@
     const { r } = c, k = kindOf(g);
     const extra = k === 'konsumsi' ? [rincianKonsumsi(r, g)] : [];
     const untuk = untukLines(r, g, extra);
-    const o = { amount, untuk: untuk.concat(k === 'konsumsi' || k === 'ops' ? ['Bukti terlampir.'] : ['Daftar terlampir.']), penerima: who, withPPK: k === 'konsumsi' || k === 'ops' };
+    const o = { amount, untuk: untuk.concat(k === 'konsumsi' || k === 'ops' ? ['Bukti terlampir.'] : ['Daftar terlampir.']), penerima: who, withPPK: true };
     if (k === 'honor') { const s = taxSum(r, g); o.pajak = { br: s.br, pph: s.pph, net: s.hn }; }
     if (k === 'konsumsi') { o.pajakNol = true; o.menerimaLabel = 'Yang Menerima/Membayarkan'; }
     pageKwitansi(doc, c, o);
