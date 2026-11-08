@@ -131,7 +131,9 @@
   }
   function filesHtml(r) {
     const { pj, pp } = people(r);
-    return `<div class="files">${U.fileList(r, pj, pp).map((f) => `<div class="file"><div>${esc(f.label)}<small>${esc(f.folder || 'Rincian operasional TUK')}</small></div><button class="btn sm primary" data-dl="${f.id}">Unduh PDF</button></div>`).join('')}</div>`;
+    const files = U.fileList(r, pj, pp), one = (f) => `<div class="file"><div>${esc(f.label)}<small>${esc(f.folder || 'Satu file untuk seluruh TUK')}</small></div><button class="btn sm primary" data-dl="${f.id}">Unduh PDF</button></div>`;
+    const top = files.filter((f) => !f.group), groups = [...new Set(files.filter((f) => f.group).map((f) => f.group))];
+    return `<div class="files">${top.map(one).join('')}</div>` + groups.map((g) => `<h4 style="margin:14px 0 6px">${esc(files.find((f) => f.group === g).folder)} — ${esc(g)}</h4><div class="files">${files.filter((f) => f.group === g).map(one).join('')}</div>`).join('');
   }
   function bindFiles(root, r) {
     root.querySelectorAll('[data-dl]').forEach((b) => (b.onclick = () => downloadOne(r, b.dataset.dl)));

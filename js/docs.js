@@ -87,64 +87,69 @@
 
   const COMPONENTS = [
     {
-      key: 'admin', no: 1, folder: '1. ADMIN', label: 'Berkas Admin', role: 'Teknisi (Admin)',
-      groups: [
-        { title: 'Honorarium & Transport Lokal Teknisi (Admin)', items: ['honor_admin', 'trans_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true },
+      key: 'admin', no: 1, folder: '1. ADMIN', label: 'Berkas Admin', role: 'Admin',
+      parts: [
+        { key: 'honor', label: 'Honor Admin', groups: [{ title: 'Honorarium Admin', items: ['honor_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir Pelaksanaan Admin', who: (r) => names(r, 'admin') }] },
+        { key: 'transport', label: 'Transport Admin', groups: [{ title: 'Transport Lokal Admin', items: ['trans_admin'], who: (r) => names(r, 'admin'), role: 'Admin', daftar: true, perPerson: true }], hadir: [] },
       ],
-      hadir: [{ title: 'Daftar Hadir Pelaksanaan Admin', who: (r) => names(r, 'admin') }],
-      checklist: ['SPBY Honorarium & Transport Lokal Admin', 'Kuitansi Honorarium & Transport Lokal Admin', 'Daftar Penerimaan Honorarium & Transport Admin', 'Daftar Hadir Pelaksanaan Admin', 'Surat Tugas Admin'],
+      checklist: ['SPBY Honorarium Teknisi (Admin)', 'Kuitansi Honorarium Teknisi (Admin)', 'Daftar Penerimaan Honorarium Teknisi (Admin)', 'Daftar Hadir Pelaksanaan Admin', 'Surat Tugas Admin', 'SPBY Transport Lokal Admin', 'Kuitansi Transport Lokal Admin', 'Daftar Penerimaan Transport Lokal Admin'],
     },
     {
       key: 'cocbt', no: 2, folder: '2. Co CBT', label: 'Berkas Co CBT', role: 'Co CBT',
-      groups: [
-        { title: 'Honorarium & Transport Lokal Co CBT', items: ['honor_cocbt', 'trans_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true },
+      parts: [
+        { key: 'honor', label: 'Honor Co CBT', groups: [{ title: 'Honorarium Co CBT', items: ['honor_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir Co CBT', who: (r) => names(r, 'co_cbt') }] },
+        { key: 'transport', label: 'Transport Co CBT', groups: [{ title: 'Transport Lokal Co CBT', items: ['trans_cocbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT', daftar: true, perPerson: true }], hadir: [] },
       ],
-      hadir: [{ title: 'Daftar Hadir Co CBT', who: (r) => names(r, 'co_cbt') }],
-      checklist: ['SPBY Honorarium & Transport Lokal Co CBT', 'Kuitansi Honorarium & Transport Lokal Co CBT', 'Daftar Penerimaan Honorarium & Transport Co CBT', 'Daftar Hadir Co CBT', 'Surat Tugas Co CBT'],
+      checklist: ['SPBY Honorarium Co CBT', 'Kuitansi Honorarium Co CBT', 'Daftar Penerimaan Honorarium Co CBT', 'Daftar Hadir Co CBT', 'Surat Tugas Co CBT', 'SPBY Transport Lokal Co CBT', 'Kuitansi Transport Lokal Co CBT', 'Daftar Penerimaan Transport Lokal Co CBT'],
     },
     {
       key: 'it', no: 3, folder: '3. IT Lokal', label: 'Berkas IT Lokal', role: 'IT Lokal',
-      groups: [
-        { title: 'Honorarium & Transport Lokal IT Lokal', items: ['honor_it', 'trans_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true },
+      parts: [
+        { key: 'honor', label: 'Honor IT Lokal', groups: [{ title: 'Honorarium IT Lokal', items: ['honor_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir IT Lokal', who: (r) => names(r, 'it_lokal') }] },
+        { key: 'transport', label: 'Transport IT Lokal', groups: [{ title: 'Transport Lokal IT Lokal', items: ['trans_it'], who: (r) => names(r, 'it_lokal'), role: 'IT Lokal', daftar: true, perPerson: true }], hadir: [] },
       ],
-      hadir: [{ title: 'Daftar Hadir IT Lokal', who: (r) => names(r, 'it_lokal') }],
-      checklist: ['SPBY Honorarium & Transport Lokal IT Lokal', 'Kuitansi Honorarium & Transport Lokal IT Lokal', 'Daftar Penerimaan Honorarium & Transport IT Lokal', 'Daftar Hadir IT Lokal', 'Surat Tugas IT Lokal'],
+      checklist: ['SPBY Honorarium IT Lokal', 'Kuitansi Honorarium IT Lokal', 'Daftar Penerimaan Honorarium IT Lokal', 'Daftar Hadir IT Lokal', 'Surat Tugas IT Lokal', 'SPBY Transport Lokal IT Lokal', 'Kuitansi Transport Lokal IT Lokal', 'Daftar Penerimaan Transport Lokal IT Lokal'],
     },
     {
       key: 'pl', no: 4, folder: '4. PL', label: 'Berkas Pengawas Lokal', role: 'Pengawas Lokal',
-      groups: [
-        { title: 'Honorarium & Transport Lokal Pengawas Lokal', items: ['honor_pl', 'trans_briefing_pl', 'trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true },
+      parts: [
+        { key: 'honor', label: 'Honor Pengawas Lokal', groups: [{ title: 'Honorarium Pengawas Lokal', items: ['honor_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [{ title: 'Daftar Hadir Pengawas Lokal - Briefing', who: (r) => names(r, 'pl') }, { title: 'Daftar Hadir Pengawas Lokal - Pelaksanaan', who: (r) => names(r, 'pl') }] },
+        { key: 'transport', label: 'Transport Pengawas Lokal', groups: [{ title: 'Transport Lokal Pengawas Lokal', items: ['trans_briefing_pl', 'trans_pelaksanaan_pl'], who: (r) => names(r, 'pl'), role: 'Pengawas Lokal', daftar: true, perPerson: true }], hadir: [] },
       ],
-      hadir: [
-        { title: 'Daftar Hadir Pengawas Lokal - Briefing', who: (r) => names(r, 'pl') },
-        { title: 'Daftar Hadir Pengawas Lokal - Pelaksanaan', who: (r) => names(r, 'pl') },
-      ],
-      checklist: ['SPBY Honorarium & Transport Lokal Pengawas Lokal', 'Kuitansi Honorarium & Transport Lokal Pengawas Lokal', 'Daftar Penerimaan Honorarium & Transport Pengawas Lokal', 'Daftar Hadir Pengawas Lokal Briefing', 'Daftar Hadir Pengawas Lokal Pelaksanaan', 'Surat Tugas Pengawas Lokal'],
+      checklist: ['SPBY Honorarium Pengawas Lokal', 'Kuitansi Honorarium Pengawas Lokal', 'Daftar Penerimaan Honorarium Pengawas Lokal', 'Daftar Hadir Pengawas Lokal Briefing', 'Daftar Hadir Pengawas Lokal Pelaksanaan', 'Surat Tugas Pengawas Lokal', 'SPBY Transport Lokal Pengawas Lokal', 'Kuitansi Transport Lokal Pengawas Lokal', 'Daftar Penerimaan Transport Pengawas Lokal'],
     },
     {
       key: 'pp', no: 5, folder: '5. PP', label: 'Berkas Pengawas Pusat', role: 'Pengawas Pusat',
-      groups: [
-        { title: 'Honorarium Bimtek Komponen Uji (Briefing)', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: false },
-        { title: 'Honorarium Bimtek Peserta Uji (Pelaksanaan)', items: ['honor_pelaksanaan_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
-        { title: 'Transport Lokal Pengawas Pusat (Dalam Kota)', items: ['trans_dalam_kota', 'trans_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
-        { title: 'Biaya Operasional Pengawas Pusat', items: ['ops_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: false },
-      ],
-      perjadin: true,
-      hadir: [
-        { title: 'Daftar Hadir H-1 Pengawas Pusat (Briefing)', who: (r, c) => [c.pp.full_name] },
-        { title: 'Daftar Hadir Pelaksanaan Pengawas Pusat', who: (r, c) => [c.pp.full_name] },
+      parts: [
+        { key: 'honor', label: 'Honor Pengawas Pusat', groups: [
+          { title: 'Honorarium Bimtek Komponen Uji (Briefing)', items: ['honor_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: false },
+          { title: 'Honorarium Bimtek Peserta Uji (Pelaksanaan)', items: ['honor_pelaksanaan_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
+        ], hadir: [
+          { title: 'Daftar Hadir H-1 Pengawas Pusat (Briefing)', who: (r, c) => [c.pp.full_name] },
+          { title: 'Daftar Hadir Pelaksanaan Pengawas Pusat', who: (r, c) => [c.pp.full_name] },
+        ] },
+        { key: 'transport', label: 'Transport Pengawas Pusat', groups: [
+          { title: 'Transport Lokal Pengawas Pusat (Dalam Kota)', items: ['trans_dalam_kota', 'trans_briefing_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: true },
+        ], hadir: [] },
+        { key: 'operasional', label: 'Biaya Operasional Pengawas Pusat', groups: [
+          { title: 'Biaya Operasional Pengawas Pusat', items: ['ops_pp'], who: (r, c) => [c.pp.full_name], role: 'Pengawas Pusat', daftar: false },
+        ], hadir: [] },
+        { key: 'perjadin', label: 'Rincian Perjalanan Dinas', groups: [], perjadin: true, hadir: [] },
       ],
       checklist: ['SPBY Perjalanan Dinas Pengawas Pusat', 'Kuitansi Perjalanan Dinas (luar kota & dalam kota)', 'Rincian Perjalanan Dinas', 'Daftar Pengeluaran Riil', 'SPPD Pelaksanaan (stempel CBT)', 'Invoice Hotel dan/atau Tiket Travel', 'Boarding Pass PP (luar kota)', 'Laporan Perjalanan Dinas', 'SPBY & Kuitansi Honorarium Briefing', 'Daftar Hadir H-1', 'SPBY & Kuitansi Honorarium Pelaksanaan', 'Daftar Penerimaan Pelaksanaan', 'Daftar Hadir Pelaksanaan', 'Surat Tugas PP (dari institusi)', 'SPBY, Kuitansi & Daftar Penerimaan Transport Lokal', 'SPBY, Kuitansi & Nota Biaya Operasional PP'],
     },
     {
       key: 'cbt', no: 6, folder: '6. CBT', label: 'Berkas CBT Center', role: 'CBT Center',
-      groups: [
-        { title: 'Biaya Operasional CBT Center (Rp 40.000 per peserta)', items: ['ops_cbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT / CBT Center', daftar: false, sptjm: true },
-        { title: 'Biaya Konsumsi Hari Briefing', items: ['konsumsi_briefing'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true },
-        { title: 'Biaya Konsumsi Hari 1 Pelaksanaan', items: ['konsumsi_h1'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true },
-        { title: 'Biaya Konsumsi Hari 2 Pelaksanaan', items: ['konsumsi_h2'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true, skipIfZero: true },
+      parts: [
+        { key: 'operasional', label: 'Biaya Operasional CBT Center', groups: [
+          { title: 'Biaya Operasional CBT Center (Rp 40.000 per peserta)', items: ['ops_cbt'], who: (r) => names(r, 'co_cbt'), role: 'Co CBT / CBT Center', daftar: false, sptjm: true },
+        ], hadir: [] },
+        { key: 'konsumsi', label: 'Konsumsi', groups: [
+          { title: 'Biaya Konsumsi Hari Briefing', items: ['konsumsi_briefing'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true },
+          { title: 'Biaya Konsumsi Hari 1 Pelaksanaan', items: ['konsumsi_h1'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true },
+          { title: 'Biaya Konsumsi Hari 2 Pelaksanaan', items: ['konsumsi_h2'], who: (r) => names(r, 'rumah_makan'), role: 'Rumah Makan', daftar: false, nota: true, skipIfZero: true },
+        ], hadir: [] },
       ],
-      hadir: [],
       checklist: ['SPBY Biaya Operasional CBT Center', 'Kuitansi Biaya Operasional CBT', 'SPTJM (surat laporan, rincian, pernyataan)', 'SPBY/Kuitansi/Nota/Daftar Hadir Konsumsi Briefing', 'SPBY/Kuitansi/Nota/Daftar Hadir Konsumsi Hari 1', 'SPBY/Kuitansi/Nota/Daftar Hadir Konsumsi Hari 2'],
     },
   ];
@@ -308,15 +313,14 @@
     const who = g.who(r, c);
     const per = g.perPerson ? groupTotal(r, g) / who.length : groupTotal(r, g);
     if (isHonorGroup(g)) {
-      const s = taxSum(r, g), n = Math.max(1, who.length), P = (x) => RP(x / n);
-      const rowsT = (who.length ? who : ['']).map((nm, i) => [i + 1, nm || '', P(s.br), P(s.pph), P(s.hn), s.tr ? P(s.tr) : '-', P(s.net), '']);
+      const s = taxSum(r, g), n = Math.max(1, who.length), P = (x) => RP(x / n), mix = s.tr > 0;
+      const head = ['No', 'Nama (' + g.role + ')', 'Honor bruto', taxLabel(r), mix ? 'Honor netto' : 'Netto diterima'].concat(mix ? ['Transport', 'Total diterima'] : []).concat(['Tanda Tangan']);
+      const rowsT = (who.length ? who : ['']).map((nm, i) => [i + 1, nm || '', P(s.br), P(s.pph), P(s.hn)].concat(mix ? [P(s.tr), P(s.net)] : []).concat(['']));
+      const foot = [{ content: 'TOTAL', colSpan: 2, styles: { halign: 'right' } }, RP(s.br), RP(s.pph), RP(s.hn)].concat(mix ? [RP(s.tr), RP(s.net)] : []).concat(['']);
+      const cs = { 0: { cellWidth: 8, halign: 'center' } }; for (let i = 2; i < head.length - 1; i++) cs[i] = { halign: 'right' }; cs[head.length - 1] = { cellWidth: 28 };
       doc.autoTable({
-        startY: y, theme: 'grid', styles: { fontSize: 8, minCellHeight: 12, valign: 'middle', cellPadding: 1.2 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-        head: [['No', 'Nama (' + g.role + ')', 'Honor bruto', taxLabel(r), 'Honor netto', 'Transport', 'Total diterima', 'Tanda Tangan']],
-        body: rowsT,
-        foot: [[{ content: 'TOTAL', colSpan: 2, styles: { halign: 'right' } }, RP(s.br), RP(s.pph), RP(s.hn), s.tr ? RP(s.tr) : '-', RP(s.net), '']],
-        footStyles: { fillColor: [235, 235, 235], textColor: 0 },
-        columnStyles: { 0: { cellWidth: 8, halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right' }, 7: { cellWidth: 24 } },
+        startY: y, theme: 'grid', styles: { fontSize: 8.5, minCellHeight: 12, valign: 'middle', cellPadding: 1.2 }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
+        head: [head], body: rowsT, foot: [foot], footStyles: { fillColor: [235, 235, 235], textColor: 0 }, columnStyles: cs,
       });
       doc.setFontSize(8.5); doc.text(taxNote(r), M, at(doc) + 6);
       signBlock(doc, at(doc) + 14, pj.full_name, '', 'Mengetahui,');
@@ -401,17 +405,6 @@
     signBlock(doc, at(doc) + 16, c.pj.full_name, pp.full_name);
   }
 
-  function pageChecklist(doc, c, comp) {
-    let y = title(doc, kop(doc), 'CHECKLIST KELENGKAPAN BERKAS', comp.label);
-    y = infoBlock(doc, y, [['TUK', c.r.tuk_name], ['Pengawas Pusat', c.pp.full_name]]);
-    doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 9, minCellHeight: 8, valign: 'middle' }, headStyles: { fillColor: [240, 220, 250], textColor: 0 },
-      head: [['No', 'Dokumen', 'Ada', 'Kurang']],
-      body: comp.checklist.map((t, i) => [i + 1, t, '', '']),
-      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 16 }, 3: { cellWidth: 16 } },
-    });
-  }
-
   /* ---------- RINCIAN OPERASIONAL TUK (Lembar Serah Terima) - wajib di setiap berkas ---------- */
   function pageRincian(doc, c, numberLabel) {
     const { r, pj, pp } = c;
@@ -493,14 +486,14 @@
   }
 
   /* ---------- Builder berkas ---------- */
-  function buildComponent(comp, r, pj, pp) {
+  // Satu berkas = satu jenis dokumen (honor, transport, dst), tidak digabung.
+  function buildPart(comp, part, r, pj, pp) {
     setYear(r);
     const c = ctx(r, pj, pp);
     const doc = newDoc();
     let first = true;
     const np = () => { if (!first) doc.addPage(); first = false; };
-    np(); pageChecklist(doc, c, comp);
-    comp.groups.forEach((g) => {
+    part.groups.forEach((g) => {
       if (g.skipIfZero && groupTotal(r, g) === 0) return;
       const who = g.who(r, c).filter(Boolean);
       np(); pageSPBY(doc, c, comp, g);
@@ -509,9 +502,33 @@
       if (g.sptjm) { np(); pageSPTJM(doc, c, comp, g); }
       if (g.nota) { np(); pageNotaHadirKonsumsi(doc, c, g); }
     });
-    if (comp.perjadin) { np(); pagePerjadin(doc, c); }
-    (comp.hadir || []).forEach((h) => { np(); pageDaftarHadir(doc, c, h); });
-    footers(doc, c, comp.label);
+    if (part.perjadin) { np(); pagePerjadin(doc, c); }
+    (part.hadir || []).forEach((h) => { np(); pageDaftarHadir(doc, c, h); });
+    if (first) doc.text('(tidak ada data)', M, 40);
+    footers(doc, c, part.label);
+    return doc;
+  }
+  // Checklist kelengkapan seluruh berkas (A-F), satu file
+  function buildChecklist(r, pj, pp) {
+    setYear(r);
+    const c = ctx(r, pj, pp), doc = newDoc();
+    let y = title(doc, kop(doc), 'CHECKLIST KELENGKAPAN BERKAS', 'Checklist Keuangan UKOMNAS ' + YEAR);
+    y = infoBlock(doc, y, [['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', r.tuk_name]]);
+    const order = [['A', 'pp', 'BERKAS PENGAWAS PUSAT'], ['B', 'cbt', 'BERKAS CBT CENTER'], ['C', 'cocbt', 'BERKAS CO CBT'], ['D', 'admin', 'BERKAS ADMIN'], ['E', 'it', 'BERKAS IT LOKAL'], ['F', 'pl', 'BERKAS PENGAWAS LOKAL']];
+    const body = [];
+    order.forEach(([L, key, label]) => {
+      const comp = COMPONENTS.find((x) => x.key === key);
+      body.push([{ content: `${L}. ${label}`, colSpan: 4, styles: { fillColor: [190, 245, 225], fontStyle: 'bold' } }]);
+      comp.checklist.forEach((t, i) => body.push([i + 1, t, '', '']));
+    });
+    doc.autoTable({
+      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, minCellHeight: 6.5, valign: 'middle', lineColor: 0, lineWidth: 0.15, textColor: 0 },
+      headStyles: { fillColor: [245, 205, 250], textColor: 0, halign: 'center' },
+      head: [['No', 'Dokumen / Form', 'Kurang', 'Lebih']], body,
+      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 24 }, 3: { cellWidth: 24 } },
+    });
+    signBlock(doc, at(doc) + 12, pj.full_name, pp.full_name, 'Yang memeriksa (PP),', 'Mengetahui (PJ Keuangan),');
+    footers(doc, c, 'Checklist Berkas');
     return doc;
   }
   function buildSerahTerima(r, pj, pp) {
@@ -527,10 +544,11 @@
     const base = safe(r.tuk_name);
     const list = [{ id: 'serah', folder: '', name: `Lembar Serah Terima - ${base}.pdf`, label: 'Lembar Serah Terima (Rincian Operasional TUK)', build: () => buildSerahTerima(r, pj, pp) }];
     list.push({ id: 'kl', folder: '', name: `Lembar Kurang Lebih - ${base}.pdf`, label: 'Lembar Kurang / Lebih (realisasi pelaksanaan)', build: () => buildKurangLebih(r, pj, pp) });
-    COMPONENTS.forEach((comp) => list.push({
-      id: comp.key, folder: comp.folder, name: `${comp.label} - ${base}.pdf`, label: comp.label,
-      build: () => buildComponent(comp, r, pj, pp),
-    }));
+    list.push({ id: 'checklist', folder: '', name: `Checklist Kelengkapan Berkas - ${base}.pdf`, label: 'Checklist Kelengkapan Berkas (A-F)', build: () => buildChecklist(r, pj, pp) });
+    COMPONENTS.forEach((comp) => comp.parts.forEach((part) => list.push({
+      id: comp.key + '-' + part.key, folder: comp.folder, group: comp.label, name: `${part.label} - ${base}.pdf`, label: part.label,
+      build: () => buildPart(comp, part, r, pj, pp),
+    })));
     return list;
   }
 
