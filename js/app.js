@@ -145,7 +145,7 @@
     try { data = await DB.reports(F.where('pp_id', '==', me.id), F.where('status', '==', 'published')); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
     data.sort((a, b) => (b.published_at || 0) - (a.published_at || 0));
     if (!data.length) return (app.innerHTML = verifyBanner() + `<div class="card"><h2>Berkas Saya</h2><p class="muted">Belum ada dokumen. Dokumen akan tersedia setelah PJ Keuangan memasukkan nama TUK dan biaya komponen uji untuk Anda.</p>${me.pj_id ? '' : '<p class="err">Akun Anda belum terhubung ke PJ Keuangan. Minta PJ menambahkan email Anda di menu “PP Saya”.</p>'}</div>`) && bindBanner();
-    app.innerHTML = verifyBanner() + data.map((r, i) => `<div class="card" id="rep${i}"><div class="row between"><div><h2 style="margin:0">${esc(r.tuk_name)}</h2><span class="muted">Sesi ${r.jumlah_sesi} · ${r.jumlah_hari} hari · terbit ${new Date(r.published_at).toLocaleDateString('id-ID')}</span></div><div><div class="total">${U.RP(r.total)}</div><button class="btn primary" data-zip>Unduh semua (ZIP)</button></div></div><h3 style="margin-top:14px">Dokumen per komponen uji</h3>${filesHtml(r)}</div>`).join('');
+    app.innerHTML = verifyBanner() + data.map((r, i) => `<div class="card" id="rep${i}"><div class="row between"><div><h2 style="margin:0">${esc(r.tuk_name)}</h2><span class="muted">Tahun ${esc(r.tahun || '')} · Sesi ${r.jumlah_sesi} · ${r.jumlah_hari} hari · terbit ${new Date(r.published_at).toLocaleDateString('id-ID')}</span></div><div><div class="total">${U.RP(r.total)}</div><button class="btn primary" data-zip>Unduh semua (ZIP)</button></div></div><h3 style="margin-top:14px">Dokumen per komponen uji</h3>${filesHtml(r)}</div>`).join('');
     bindBanner(); data.forEach((r, i) => bindFiles($('#rep' + i), r));
   }
 
@@ -171,7 +171,7 @@
   async function newReport() {
     let pps; try { pps = await myPPs(); } catch (e) { return toast(msgOf(e)); }
     if (!pps.length) return toast('Tambahkan PP dulu di menu “PP Saya”.');
-    openEditor({ id: null, pj_id: me.id, pp_id: pps[0].id, tuk_name: '', pp_institusi: pps[0].institusi || '', jumlah_sesi: 1, jumlah_hari: 1, jumlah_peserta: 0, items: U.defaultItems(), personnel: {}, status: 'draft' }, pps);
+    openEditor({ id: null, pj_id: me.id, pp_id: pps[0].id, tuk_name: '', pp_institusi: pps[0].institusi || '', jumlah_sesi: 1, jumlah_hari: 1, jumlah_peserta: 0, tahun: String(new Date().getFullYear()), items: U.defaultItems(), personnel: {}, status: 'draft' }, pps);
   }
   async function openEditor(r, pps) {
     try { pps = pps || (await myPPs()); } catch (e) { return toast(msgOf(e)); }
@@ -186,6 +186,7 @@
         <div><label>Pengawas Pusat (PP)</label><select id="pp">${pps.map((x) => `<option value="${x.id}" ${x.id === r.pp_id ? 'selected' : ''}>${esc(x.full_name || x.email)}</option>`).join('')}</select></div>
         <div><label>Asal institusi PP</label><input id="inst" value="${esc(r.pp_institusi)}"></div>
         <div><label>Nama TUK *</label><input id="tuk" value="${esc(r.tuk_name)}" placeholder="mis. STIKES Wira Medika Bali"></div>
+        <div><label>Tahun pelaksanaan * (tercetak di kop & nomor dokumen)</label><input id="tahun" type="number" min="2000" max="2200" value="${esc(r.tahun || new Date().getFullYear())}"></div>
         <div><label>Jumlah sesi</label><input id="sesi" type="number" min="1" value="${r.jumlah_sesi}"></div>
         <div><label>Jumlah hari</label><input id="hari" type="number" min="1" value="${r.jumlah_hari}"></div>
         <div><label>Jumlah peserta uji (→ Biaya Operasional CBT)</label><input id="peserta" type="number" min="0" value="${r.jumlah_peserta}"></div>
@@ -212,11 +213,13 @@
     const save = async (status) => {
       r.pp_id = $('#pp').value; r.pp_institusi = $('#inst').value.trim(); r.tuk_name = $('#tuk').value.trim();
       r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Math.max(0, Number($('#peserta').value) || 0);
+      r.tahun = String($('#tahun').value || '').trim();
+      if (!/^\d{4}$/.test(r.tahun)) { $('#err').textContent = 'Isi tahun pelaksanaan dengan 4 angka, mis. 2026.'; return; }
       const x = pps.find((q) => q.id === r.pp_id); const total = U.totalOf(r.items);
       if (status === 'published' && (!r.tuk_name || total <= 0)) { $('#err').textContent = 'Untuk menerbitkan, isi nama TUK dan biaya komponen (total harus > 0).'; return; }
       const personnel = { ...r.personnel, pp_name: (x && x.full_name) || r.personnel.pp_name || '', pj_name: me.role === 'admin' && x && x.pj_id !== me.id ? ((await DB.user(x.pj_id)) || {}).full_name || '' : me.full_name };
       const now = Date.now();
-      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
+      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, tahun: r.tahun, items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
       if (r.id) row.pj_id = r.pj_id || row.pj_id;
       try {
         let id = r.id;
@@ -231,7 +234,7 @@
   }
   function keepAndRender(pps) {
     const r = editing;
-    r.tuk_name = $('#tuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Number($('#sesi').value) || 1; r.jumlah_hari = Number($('#hari').value) || 1; r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value;
+    r.tuk_name = $('#tuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Number($('#sesi').value) || 1; r.jumlah_hari = Number($('#hari').value) || 1; r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value; r.tahun = $('#tahun').value;
     const pos = $('#peserta').selectionStart; renderEditor(pps); const el = $('#peserta'); el.focus(); try { el.setSelectionRange(pos, pos); } catch (_) {}
   }
 

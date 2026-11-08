@@ -129,6 +129,8 @@
 
   /* ---------- Gambar ---------- */
   const PW = 210, M = 15;
+  let YEAR = new Date().getFullYear();   // diisi dari r.tahun saat berkas dibuat
+  const setYear = (r) => { YEAR = String((r && r.tahun) || new Date().getFullYear()); };
   const ctx = (r, pj, pp) => ({ r, pj, pp });
   const itm = (r, key) => r.items.find((i) => i.key === key) || { nilai: 0, qty: 0, label: key };
 
@@ -139,17 +141,24 @@
     return doc;
   }
   function kop(doc) {
+    const L = window.UKOM_LOGO;
+    if (L) {
+      try {
+        doc.addImage(L.kiri.data, 'PNG', M, 9, 18 * L.kiri.w / L.kiri.h, 18);
+        const wk = 20 * L.kanan.w / L.kanan.h; doc.addImage(L.kanan.data, 'PNG', PW - M - wk, 9, wk, 20);
+      } catch (e) { /* logo gagal dimuat: lanjut tanpa logo */ }
+    }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.text('TIM AD HOC UJI KOMPETENSI NASIONAL REKAM MEDIS', PW / 2, 15, { align: 'center' });
     doc.text('DAN MANAJEMEN INFORMASI KESEHATAN', PW / 2, 20, { align: 'center' });
-    doc.text('TAHUN 2026', PW / 2, 25, { align: 'center' });
+    doc.text('TAHUN ' + YEAR, PW / 2, 25, { align: 'center' });
     doc.setLineWidth(0.6);
-    doc.line(M, 28, PW - M, 28);
+    doc.line(M, 31, PW - M, 31);
     doc.setLineWidth(0.15);
-    doc.line(M, 29, PW - M, 29);
+    doc.line(M, 32, PW - M, 32);
     doc.setFont('helvetica', 'normal');
-    return 36;
+    return 39;
   }
   function title(doc, y, t, sub) {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
@@ -195,9 +204,9 @@
 
   function pageSPBY(doc, c, comp, g) {
     const { r, pj, pp } = c;
-    let y = title(doc, kop(doc), 'SURAT PERMINTAAN BAYAR (SPBY)', 'Nomor: ........ / SPBY / UKOMNAS-PMIK / 2026');
+    let y = title(doc, kop(doc), 'SURAT PERMINTAAN BAYAR (SPBY)', 'Nomor: ........ / SPBY / UKOMNAS-PMIK / ' + YEAR);
     y = infoBlock(doc, y, [
-      ['Kegiatan', 'Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan 2026'],
+      ['Kegiatan', 'Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan ' + YEAR],
       ['Tempat Uji Kompetensi', r.tuk_name],
       ['Pengawas Pusat', pp.full_name],
       ['Keperluan', g.title],
@@ -217,16 +226,16 @@
 
   function pageKuitansi(doc, c, comp, g, who, amount, forText) {
     const { r, pj } = c;
-    let y = title(doc, kop(doc), 'KUITANSI', 'Nomor: ........ / KWT / UKOMNAS-PMIK / 2026');
+    let y = title(doc, kop(doc), 'KUITANSI', 'Nomor: ........ / KWT / UKOMNAS-PMIK / ' + YEAR);
     y = infoBlock(doc, y, [
-      ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS PMIK 2026 (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
+      ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS PMIK ' + YEAR + ' (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
       ['Uang sejumlah', RP(amount)],
       ['Terbilang', cap(terbilang(amount)) + ' rupiah'],
       ['Untuk pembayaran', forText || g.title + ' - TUK ' + r.tuk_name],
       ['Rincian', uraian(r, g)],
     ]);
     doc.setFontSize(10);
-    doc.text('Tempat/Tanggal: ............................., ............................. 2026', M, y + 4);
+    doc.text('Tempat/Tanggal: ............................., ............................. ' + YEAR, M, y + 4);
     signBlock(doc, y + 14, pj.full_name, who || '(................................)', 'Yang menerima,');
     doc.setFontSize(8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, 275);
   }
@@ -268,7 +277,7 @@
     const peserta = Number(itm(r, 'ops_cbt').qty) || 0;
     let y = title(doc, kop(doc), 'SURAT LAPORAN PENGGUNAAN BIAYA OPERASIONAL CBT', 'SPTJM - Halaman 1');
     doc.setFontSize(10);
-    const t = `Yang bertanda tangan di bawah ini, Co CBT pada TUK ${r.tuk_name}, melaporkan penggunaan biaya operasional CBT UKOMNAS PMIK 2026 sebesar ${RP(groupTotal(r, g))} untuk ${NUM(peserta)} peserta (Rp ${NUM(itm(r, 'ops_cbt').nilai)} per peserta).`;
+    const t = `Yang bertanda tangan di bawah ini, Co CBT pada TUK ${r.tuk_name}, melaporkan penggunaan biaya operasional CBT UKOMNAS PMIK ${YEAR} sebesar ${RP(groupTotal(r, g))} untuk ${NUM(peserta)} peserta (Rp ${NUM(itm(r, 'ops_cbt').nilai)} per peserta).`;
     doc.text(doc.splitTextToSize(t, PW - M * 2), M, y);
     signBlock(doc, y + 30, '', (r.personnel || {}).co_cbt || '', 'Co CBT / CBT Center,');
     doc.addPage();
@@ -375,6 +384,7 @@
 
   /* ---------- Builder berkas ---------- */
   function buildComponent(comp, r, pj, pp) {
+    setYear(r);
     const c = ctx(r, pj, pp);
     const doc = newDoc();
     let first = true;
@@ -396,6 +406,7 @@
     return doc;
   }
   function buildSerahTerima(r, pj, pp) {
+    setYear(r);
     const doc = newDoc();
     pageRincian(doc, ctx(r, pj, pp), '1');
     footers(doc, ctx(r, pj, pp), 'Lembar Serah Terima');
