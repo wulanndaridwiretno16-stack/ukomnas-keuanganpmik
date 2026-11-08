@@ -172,6 +172,7 @@
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
     doc.setFont('helvetica', 'normal');
+    try { doc.setProperties({ title: 'Dokumen Keuangan UKOMNAS PMIK', author: 'Tim Ad Hoc UKOMNAS PMIK', creator: 'Keuangan UKOMNAS PMIK' }); doc.viewerPreferences({ PrintScaling: 'None', FitWindow: true }); } catch (e) { /* abaikan */ }
     return doc;
   }
   function kop(doc) {
@@ -265,11 +266,11 @@
   // baris "label : isi" (isi bisa array baris)
   function kv(doc, y, label, val, o = {}) {
     const x = o.x || M, lw = o.lw || 34, vw = (o.w || PW - M) - (x + lw + 4);
-    fontN(doc, o.size || 10); doc.text(label, x, y); doc.text(':', x + lw, y);
-    fontB(doc, o.size || 10);
-    (Array.isArray(val) ? val : [val]).forEach((v) => { splitLines(doc, String(v == null || v === '' ? dots : v), vw).forEach((ln) => { doc.text(ln, x + lw + 4, y); y += 5.2; }); });
-    fontN(doc, o.size || 10);
-    return y + 0.8;
+    fontN(doc, o.size || 10.5); doc.text(label, x, y); doc.text(':', x + lw, y);
+    fontB(doc, o.size || 10.5);
+    (Array.isArray(val) ? val : [val]).forEach((v) => { splitLines(doc, String(v == null || v === '' ? dots : v), vw).forEach((ln) => { doc.text(ln, x + lw + 4, y); y += 6.1; }); });
+    fontN(doc, o.size || 10.5);
+    return y + 1.8;
   }
   const splitLines = (doc, t, w) => doc.splitTextToSize(t, w);
   // nama penanda tangan: tebal + garis bawah (ruang tanda tangan di atasnya)
@@ -295,10 +296,10 @@
   function signCols(doc, y, cols) {
     const W = 48, xs = cols.length === 2 ? [M, PW - M - W] : [M, M + 76, M + 132];   // 2 kolom: Bendahara rata ke margin kanan
     cols.forEach((col, i) => {
-      fontN(doc, 9.5); doc.text(col[0], xs[i], y); doc.text(col[1], xs[i], y + 5);
-      signName(doc, xs[i], y + 28, col[2] || '', W);
+      fontN(doc, 10); doc.text(col[0], xs[i], y); doc.text(col[1], xs[i], y + 5.4);
+      signName(doc, xs[i], y + 34, col[2] || '', W);
     });
-    fontN(doc); return y + 40;
+    fontN(doc); return y + 46;
   }
 
   function pageSPb(doc, c, o) {
@@ -307,18 +308,18 @@
     kvTop(doc, 128, y + 9, [['Tanggal', dots], ['Nomor', dots]]);
     y += 28;
     doc.text('Saya yang bertanda tangan di bawah ini selaku Pejabat Pembuatan Komitmen memerintahkan', M, y);
-    doc.text('Bendahara Pengeluaran Pembantu agar melakukan Pembayaran sejumlah', M, y + 5.6); y += 12;
-    doc.setLineWidth(0.3); doc.setFillColor(243, 246, 250); doc.rect(M + 36, y, 70, 9, 'FD'); fontB(doc, 11); doc.text(RP(o.amount), M + 71, y + 6.3, { align: 'center' }); fontN(doc); y += 16;
+    doc.text('Bendahara Pengeluaran Pembantu agar melakukan Pembayaran sejumlah', M, y + 6.2); y += 14;
+    doc.setLineWidth(0.3); doc.setFillColor(243, 246, 250); doc.rect(M + 36, y, 74, 10.5, 'FD'); fontB(doc, 12); doc.text(RP(o.amount), M + 73, y + 7.2, { align: 'center' }); fontN(doc); y += 19;
     y = kv(doc, y, 'Terbilang', cap(terbilang(o.amount)) + ' Rupiah');
     y = kv(doc, y, 'Kepada', o.kepada);
     y = kv(doc, y, 'Untuk Pembayaran', o.untuk);
-    y += 2; doc.text('atas dasar', M, y); y += 5.5;
-    doc.text('1.', M + 6, y); doc.text('Kwitansi/bukti pembelian', M + 12, y); doc.text(': terlampir', M + 80, y); y += 5.2;
-    doc.text('2.', M + 6, y); doc.text('Nota/bukti penerimaan barang/jasa', M + 12, y); doc.text(': terlampir', M + 80, y); y += 5.2;
-    doc.text('(bukti lainnya)', M + 12, y); y += 7;
-    doc.text('diberikan pada', M, y); y += 5.5;
-    doc.text('Kegiatan/output/MAK', M, y); doc.text(': ' + dots, M + 40, y); y += 5.5;
-    doc.text('Kode', M, y); doc.text(': ' + dots, M + 40, y); y += 10;
+    y += 5; doc.text('atas dasar', M, y); y += 7;
+    doc.text('1.', M + 6, y); doc.text('Kwitansi/bukti pembelian', M + 12, y); doc.text(': terlampir', M + 80, y); y += 6.4;
+    doc.text('2.', M + 6, y); doc.text('Nota/bukti penerimaan barang/jasa', M + 12, y); doc.text(': terlampir', M + 80, y); y += 6.4;
+    doc.text('(bukti lainnya)', M + 12, y); y += 10;
+    doc.text('diberikan pada', M, y); y += 7;
+    doc.text('Kegiatan/output/MAK', M, y); doc.text(': ' + dots, M + 42, y); y += 7;
+    doc.text('Kode', M, y); doc.text(': ' + dots, M + 42, y); y += 18;
     signCols(doc, y, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name], ['diterima tanggal ...............', 'penerima uang/uang Muka kerja', o.penerima || '']]);
   }
 
@@ -337,12 +338,12 @@
     } else if (o.pajakNol) {
       fontN(doc); [['Bruto', o.amount], ['Pajak', 0], ['Netto', o.amount]].forEach(([l, v]) => { doc.text(l, M + 36, y); doc.text(': ' + (v ? RP(v) : 'Rp -'), M + 60, y); y += 5.2; });
     }
-    y += 6;
+    y += 12;
     fontN(doc); doc.text((o.tempat || 'Jakarta') + ', ' + dots + ' ' + YEAR, 128, y);
-    doc.text(o.menerimaLabel || 'Yang Menerima', 128, y + 6);
-    signName(doc, 128, y + 32, o.penerima || '', 62);
-    fontN(doc, 8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, y + 38);
-    if (o.withPPK) signCols(doc, y + 48, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name]]);
+    doc.text(o.menerimaLabel || 'Yang Menerima', 128, y + 6.5);
+    signName(doc, 128, y + 38, o.penerima || '', 62);
+    fontN(doc, 8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, y + 44);
+    if (o.withPPK) signCols(doc, y + 58, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name]]);
     fontN(doc);
   }
 

@@ -66,7 +66,7 @@
     if (!me) { nav.innerHTML = ''; return; }
     const tabs = me.role === 'pp' ? [['berkas', 'Berkas Saya']] : [['laporan', 'Laporan TUK'], ['impor', 'Impor Data'], ['pp', 'PP Saya']].concat(me.role === 'admin' ? [['users', 'Pengguna']] : []);
     nav.innerHTML = tabs.map(([k, l]) => `<button data-v="${k}" class="${view === k ? 'active' : ''}">${l}</button>`).join('') +
-      `<span class="muted" style="font-size:13px;margin-left:8px">${esc(me.full_name || me.email)} · ${ROLE[me.role]}</span><button id="out">Keluar</button>`;
+      `<span class="who">${esc(me.full_name || me.email)} · ${ROLE[me.role]}</span><button id="out">Keluar</button>`;
     nav.querySelectorAll('[data-v]').forEach((b) => (b.onclick = () => go(b.dataset.v)));
     $('#out').onclick = () => F.signOut(auth);
   }
@@ -81,7 +81,10 @@
 
   /* ---------------- Auth ---------------- */
   function renderAuth(mode = 'login', err = '') {
-    app.innerHTML = `<div class="card auth">
+    app.innerHTML = `<div class="authwrap"><aside class="hero"><div class="hero-logos"><img src="assets/logo-kiri.png" alt=""><img src="assets/logo-kanan.png" alt=""></div>
+      <h1>Dokumen Keuangan<br>Tempat Uji Kompetensi</h1><p>Tim Ad Hoc Uji Kompetensi Nasional Rekam Medis dan Manajemen Informasi Kesehatan</p>
+      <ol><li><span>1</span>PJ Keuangan menyusun biaya operasional tiap TUK</li><li><span>2</span>Pengawas Pusat melengkapi nama petugas dan dokumen mandiri</li><li><span>3</span>Seluruh berkas diunduh siap cetak di kertas A4</li></ol></aside>
+      <div class="card auth">
       <div class="tabs"><button class="btn ${mode === 'login' ? 'primary' : ''}" data-m="login">Masuk</button><button class="btn ${mode === 'daftar' ? 'primary' : ''}" data-m="daftar">Daftar</button></div>
       <form id="f" class="grid" style="grid-template-columns:1fr">
         ${mode === 'daftar' ? `<div><label>Nama lengkap (beserta gelar)</label><input name="full_name" required></div>
@@ -94,7 +97,7 @@
         <button class="btn primary" id="go">${mode === 'login' ? 'Masuk' : 'Daftar'}</button>
         ${mode === 'login' ? '<button type="button" class="btn sm" id="reset">Lupa kata sandi</button>' : ''}
       </form>
-      ${window.DEMO ? `<div style="margin-top:14px"><p class="muted" style="margin:0 0 6px;font-size:13px">Masuk cepat (kata sandi demo: demo123):</p><div class="row"><button class="btn sm" data-q="admin@demo.test">Admin</button><button class="btn sm" data-q="pj@demo.test">PJ Keuangan</button><button class="btn sm" data-q="pp1@demo.test">Pengawas Pusat</button></div></div>` : '<p class="center" style="margin:14px 0 0;font-size:13px"><a href="?demo=1">Coba mode demo (data tidak disimpan)</a></p>'}</div>`;
+      ${window.DEMO ? `<div style="margin-top:14px"><p class="muted" style="margin:0 0 6px;font-size:13px">Masuk cepat (kata sandi demo: demo123):</p><div class="row"><button class="btn sm" data-q="admin@demo.test">Admin</button><button class="btn sm" data-q="pj@demo.test">PJ Keuangan</button><button class="btn sm" data-q="pp1@demo.test">Pengawas Pusat</button></div></div>` : '<p class="center" style="margin:14px 0 0;font-size:13px"><a href="?demo=1">Coba mode demo (data tidak disimpan)</a></p>'}</div></div>`;
     app.querySelectorAll('[data-q]').forEach((b) => (b.onclick = () => F.signInWithEmailAndPassword(auth, b.dataset.q, 'demo123')));
     app.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => renderAuth(b.dataset.m)));
     const rs = $('#reset'); if (rs) rs.onclick = async () => { const em = $('[name=email]').value; if (!em) return toast('Isi email dulu'); try { await F.sendPasswordResetEmail(auth, em); toast('Tautan reset dikirim ke email'); } catch (e) { toast(msgOf(e)); } };
