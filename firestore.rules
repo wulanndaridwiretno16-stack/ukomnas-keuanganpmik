@@ -1,5 +1,5 @@
 rules_version = '2';
-// UKOMNAS RMIK 2026 - Keuangan TUK
+// UKOMNAS PMIK - Keuangan TUK
 // Peran: admin | pj (PJ Keuangan) | pp (Pengawas Pusat)
 service cloud.firestore {
   match /databases/{database}/documents {

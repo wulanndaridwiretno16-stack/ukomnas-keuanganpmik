@@ -1,10 +1,13 @@
-# Keuangan UKOMNAS RMIK 2026 — Dokumen Keuangan TUK
+# Keuangan UKOMNAS PMIK — Dokumen Keuangan TUK
 
 Aplikasi web untuk Tim Ad Hoc PMIK. **PJ Keuangan** memasukkan nama TUK dan biaya komponen uji; setelah *diterbitkan*, **Pengawas Pusat (PP)** langsung mengunduh semua berkas keuangan (PDF) per komponen uji.
 
 - **Hosting**: Netlify (situs statis, tanpa build) — kode di GitHub
 - **Database + login**: Firebase (Authentication + Firestore, paket gratis *Spark*)
 - **PDF**: dibuat di browser (jsPDF), tidak perlu server/Storage
+
+## Mode demo (uji coba tanpa menyimpan data)
+Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk Firebase, dan hilang saat halaman dimuat ulang. Tersedia tombol masuk cepat sebagai Admin, PJ Keuangan, dan Pengawas Pusat (kata sandi demo: `demo123`).
 
 ## Peran
 | Peran | Bisa apa |

@@ -2,7 +2,7 @@
   "name": "ukomnas-keuangan",
   "version": "1.0.0",
   "private": true,
-  "description": "Dokumen keuangan TUK - UKOMNAS RMIK 2026 (Firebase + Netlify)",
+  "description": "Dokumen keuangan TUK - UKOMNAS PMIK 2026 (Firebase + Netlify)",
   "scripts": {
     "build": "esbuild src/fb-entry.js --bundle --minify --format=iife --outfile=vendor/firebase.js",
     "rules": "firebase deploy --only firestore:rules"

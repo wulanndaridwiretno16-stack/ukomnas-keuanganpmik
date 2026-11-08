@@ -1,4 +1,4 @@
-/* Aplikasi Keuangan UKOMNAS RMIK 2026 - Firebase Auth + Firestore */
+/* Aplikasi Keuangan UKOMNAS PMIK - Firebase Auth + Firestore */
 (function () {
   const U = window.UKOM, F = window.FB;
   const $ = (s, el = document) => el.querySelector(s);
@@ -28,6 +28,7 @@
 
   /* ---------------- Boot ---------------- */
   function boot() {
+    if (window.DEMO) { const b = document.createElement('div'); b.className = 'demobar'; b.innerHTML = 'MODE DEMO — data hanya di browser ini & tidak masuk database. Muat ulang = kembali bersih. <a href="./">Keluar dari demo</a>'; document.body.insertBefore(b, document.body.firstChild); }
     if (!configured || !F) { app.innerHTML = '<div class="card"><h2>Konfigurasi belum diisi</h2><p>Isi data Firebase pada <code>js/config.js</code> (lihat README).</p></div>'; return; }
     const fapp = F.initializeApp(cfg.firebase);
     auth = F.getAuth(fapp); db = F.getFirestore(fapp);
@@ -91,7 +92,9 @@
         ${err ? `<div class="err">${esc(err)}</div>` : ''}
         <button class="btn primary" id="go">${mode === 'login' ? 'Masuk' : 'Daftar'}</button>
         ${mode === 'login' ? '<button type="button" class="btn sm" id="reset">Lupa kata sandi</button>' : ''}
-      </form></div>`;
+      </form>
+      ${window.DEMO ? `<div style="margin-top:14px"><p class="muted" style="margin:0 0 6px;font-size:13px">Masuk cepat (kata sandi demo: demo123):</p><div class="row"><button class="btn sm" data-q="admin@demo.test">Admin</button><button class="btn sm" data-q="pj@demo.test">PJ Keuangan</button><button class="btn sm" data-q="pp1@demo.test">Pengawas Pusat</button></div></div>` : '<p class="center" style="margin:14px 0 0;font-size:13px"><a href="?demo=1">Coba mode demo (data tidak disimpan)</a></p>'}</div>`;
+    app.querySelectorAll('[data-q]').forEach((b) => (b.onclick = () => F.signInWithEmailAndPassword(auth, b.dataset.q, 'demo123')));
     app.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => renderAuth(b.dataset.m)));
     const rs = $('#reset'); if (rs) rs.onclick = async () => { const em = $('[name=email]').value; if (!em) return toast('Isi email dulu'); try { await F.sendPasswordResetEmail(auth, em); toast('Tautan reset dikirim ke email'); } catch (e) { toast(msgOf(e)); } };
     $('#f').onsubmit = async (e) => {

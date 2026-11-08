@@ -195,7 +195,7 @@
 
   function pageSPBY(doc, c, comp, g) {
     const { r, pj, pp } = c;
-    let y = title(doc, kop(doc), 'SURAT PERMINTAAN BAYAR (SPBY)', 'Nomor: ........ / SPBY / UKOMNAS-RMIK / 2026');
+    let y = title(doc, kop(doc), 'SURAT PERMINTAAN BAYAR (SPBY)', 'Nomor: ........ / SPBY / UKOMNAS-PMIK / 2026');
     y = infoBlock(doc, y, [
       ['Kegiatan', 'Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan 2026'],
       ['Tempat Uji Kompetensi', r.tuk_name],
@@ -217,9 +217,9 @@
 
   function pageKuitansi(doc, c, comp, g, who, amount, forText) {
     const { r, pj } = c;
-    let y = title(doc, kop(doc), 'KUITANSI', 'Nomor: ........ / KWT / UKOMNAS-RMIK / 2026');
+    let y = title(doc, kop(doc), 'KUITANSI', 'Nomor: ........ / KWT / UKOMNAS-PMIK / 2026');
     y = infoBlock(doc, y, [
-      ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS RMIK 2026 (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
+      ['Sudah terima dari', 'Tim Ad Hoc UKOMNAS PMIK 2026 (PJ Keuangan: ' + (pj.full_name || '-') + ')'],
       ['Uang sejumlah', RP(amount)],
       ['Terbilang', cap(terbilang(amount)) + ' rupiah'],
       ['Untuk pembayaran', forText || g.title + ' - TUK ' + r.tuk_name],
@@ -268,7 +268,7 @@
     const peserta = Number(itm(r, 'ops_cbt').qty) || 0;
     let y = title(doc, kop(doc), 'SURAT LAPORAN PENGGUNAAN BIAYA OPERASIONAL CBT', 'SPTJM - Halaman 1');
     doc.setFontSize(10);
-    const t = `Yang bertanda tangan di bawah ini, Co CBT pada TUK ${r.tuk_name}, melaporkan penggunaan biaya operasional CBT UKOMNAS RMIK 2026 sebesar ${RP(groupTotal(r, g))} untuk ${NUM(peserta)} peserta (Rp ${NUM(itm(r, 'ops_cbt').nilai)} per peserta).`;
+    const t = `Yang bertanda tangan di bawah ini, Co CBT pada TUK ${r.tuk_name}, melaporkan penggunaan biaya operasional CBT UKOMNAS PMIK 2026 sebesar ${RP(groupTotal(r, g))} untuk ${NUM(peserta)} peserta (Rp ${NUM(itm(r, 'ops_cbt').nilai)} per peserta).`;
     doc.text(doc.splitTextToSize(t, PW - M * 2), M, y);
     signBlock(doc, y + 30, '', (r.personnel || {}).co_cbt || '', 'Co CBT / CBT Center,');
     doc.addPage();
