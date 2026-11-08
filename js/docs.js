@@ -287,6 +287,11 @@
   }
   const rincianKonsumsi = (r, g) => { const i = itm(r, g.items[0]); return `Rincian : ${NUM(i.qty)} orang x ${RP(i.nilai)} = ${RP(i.nilai * i.qty)}`; };
 
+  // blok "Label : isi" rata: titik dua sejajar tepat di satu posisi
+  function kvTop(doc, x, y, rows, step = 5.8) {
+    fontN(doc); const cx = x + Math.max(...rows.map(([l]) => doc.getTextWidth(l))) + 2.5;
+    rows.forEach(([l, v], i) => { const yy = y + i * step; doc.text(l, x, yy); doc.text(':', cx, yy); doc.text(String(v), cx + 3, yy); });
+  }
   function signCols(doc, y, cols) {
     const W = 48, xs = cols.length === 2 ? [M, PW - M - W] : [M, M + 76, M + 132];   // 2 kolom: Bendahara rata ke margin kanan
     cols.forEach((col, i) => {
@@ -299,7 +304,7 @@
   function pageSPb(doc, c, o) {
     const { r, pj } = c; let y = top(doc, 20);
     fontB(doc, 13); doc.text('SURAT PERINTAH BAYAR', PW / 2, y, { align: 'center' }); { const tw = doc.getTextWidth('SURAT PERINTAH BAYAR'); doc.setLineWidth(0.3); doc.line(PW / 2 - tw / 2, y + 1.5, PW / 2 + tw / 2, y + 1.5); }
-    fontN(doc); doc.text('Tanggal : ' + dots, 128, y + 9); doc.text('Nomor   : ' + dots, 128, y + 15);
+    kvTop(doc, 128, y + 9, [['Tanggal', dots], ['Nomor', dots]]);
     y += 28;
     doc.text('Saya yang bertanda tangan di bawah ini selaku Pejabat Pembuatan Komitmen memerintahkan', M, y);
     doc.text('Bendahara Pengeluaran Pembantu agar melakukan Pembayaran sejumlah', M, y + 5.6); y += 12;
@@ -319,7 +324,7 @@
 
   function pageKwitansi(doc, c, o) {
     const { r, pj } = c; let y = top(doc, 20);
-    fontN(doc); doc.text('Tahun Anggaran : ' + YEAR, 128, y); doc.text('Nomor Bukti     : ' + dots, 128, y + 5.5); doc.text('Mata Anggaran   : ' + dots, 128, y + 11);
+    kvTop(doc, 128, y, [['Tahun Anggaran', YEAR], ['Nomor Bukti', dots], ['Mata Anggaran', dots]]);
     fontB(doc, 13); doc.text('KWITANSI BUKTI / PEMBAYARAN', PW / 2, y + 26, { align: 'center' });
     const w = doc.getTextWidth('KWITANSI BUKTI / PEMBAYARAN'); doc.setLineWidth(0.3); doc.line(PW / 2 - w / 2, y + 27.5, PW / 2 + w / 2, y + 27.5);
     y += 38;
@@ -504,7 +509,7 @@
   function pageRincianPerjadin(doc, c) {
     const { r, pj, pp } = c, m = PM(r), total = perjadinTotal(r), K = top(doc, 0);
     fontB(doc, 13); doc.text('RINCIAN BIAYA PERJALANAN DINAS', PW / 2, 20 + K, { align: 'center' });
-    fontN(doc); doc.text('Lampiran SPD Nomor : ' + (m.spd_nomor || dots), M, 32 + K); doc.text('Tanggal : ' + (m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots), M, 38 + K);
+    kvTop(doc, M, 32 + K, [['Lampiran SPD Nomor', m.spd_nomor || dots], ['Tanggal', m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots]], 6);
     doc.autoTable({
       startY: 43 + K, theme: 'grid', styles: { fontSize: 9.5, cellPadding: 1.8, lineColor: LINE, lineWidth: 0.15, textColor: 20 },
       headStyles: HEAD, head: [['NO', 'PERINCIAN BIAYA', 'JUMLAH', 'KETERANGAN']],
