@@ -6,6 +6,9 @@ Aplikasi web untuk Tim Ad Hoc PMIK. **PJ Keuangan** memasukkan nama TUK dan biay
 - **Database + login**: Firebase (Authentication + Firestore, paket gratis *Spark*)
 - **PDF**: dibuat di browser (jsPDF), tidak perlu server/Storage
 
+## Panduan / sosialisasi
+Menu **Panduan** menyediakan dua halaman terpisah: **Panduan PJ Keuangan** dan **Panduan Pengawas Pusat** (PP hanya melihat panduannya sendiri). Keduanya dapat dibuka **tanpa login** lewat tautan di halaman masuk atau tautan langsung `…/#/panduan-pj` dan `…/#/panduan-pp`, dan dapat diunduh sebagai PDF A4 untuk dicetak. Isi materi ada di `js/panduan.js`.
+
 ## Impor data (menu **Impor Data** untuk PJ/Admin)
 - **Data operasional TUK**: unggah Excel/CSV (nomor TUK, nama TUK, PP, sesi/hari/peserta, jumlah petugas, konsumsi, tiket/hotel/ops PP) atau file `operasional_TUK-PP.xlsx` berformat Lembar Serah Terima (satu sheet per TUK). Hasil berupa **draft**; baris yang sudah ada dilewati.
 - **Data PP**: unggah daftar PP (nama, email, institusi, no HP, golongan). PP yang mendaftar dengan email yang sama otomatis terhubung ke PJ pengunggah (tanpa Kode PJ).

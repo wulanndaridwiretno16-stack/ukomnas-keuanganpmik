@@ -34,11 +34,12 @@
     const fapp = F.initializeApp(cfg.firebase);
     auth = F.getAuth(fapp); db = F.getFirestore(fapp);
     F.onAuthStateChanged(auth, (u) => { user = u; start(); });
+    window.addEventListener('hashchange', () => { if (!user) start(); });
   }
   let startSeq = 0;
   async function start() {
     const seq = ++startSeq; me = null; editing = null;
-    if (!user) { renderAuth(); renderNav(); return; }
+    if (!user) { renderNav(); const m = /^#\/panduan-(pj|pp)$/.exec(location.hash); if (m) renderPanduan(m[1]); else renderAuth(); return; }
     app.innerHTML = '<p class="muted center">Memuat…</p>';
     try {
       let p = null;
@@ -61,10 +62,10 @@
     view = me.role === 'pp' ? 'berkas' : 'laporan';
     go(view);
   }
-  function go(v) { view = v; editing = null; renderNav(); ({ berkas: renderBerkas, laporan: renderLaporan, impor: renderImpor, pp: renderPP, users: renderUsers }[v] || renderBerkas)(); }
+  function go(v) { view = v; editing = null; renderNav(); ({ berkas: renderBerkas, laporan: renderLaporan, impor: renderImpor, pp: renderPP, users: renderUsers, panduan: () => { guideKind = null; renderPanduan(); } }[v] || renderBerkas)(); }
   function renderNav() {
     if (!me) { nav.innerHTML = ''; return; }
-    const tabs = me.role === 'pp' ? [['berkas', 'Berkas Saya']] : [['laporan', 'Laporan TUK'], ['impor', 'Impor Data'], ['pp', 'PP Saya']].concat(me.role === 'admin' ? [['users', 'Pengguna']] : []);
+    const tabs = (me.role === 'pp' ? [['berkas', 'Berkas Saya']] : [['laporan', 'Laporan TUK'], ['impor', 'Impor Data'], ['pp', 'PP Saya']].concat(me.role === 'admin' ? [['users', 'Pengguna']] : [])).concat([['panduan', 'Panduan']]);
     nav.innerHTML = tabs.map(([k, l]) => `<button data-v="${k}" class="${view === k ? 'active' : ''}">${l}</button>`).join('') +
       `<span class="who">${esc(me.full_name || me.email)} · ${ROLE[me.role]}</span><button id="out">Keluar</button>`;
     nav.querySelectorAll('[data-v]').forEach((b) => (b.onclick = () => go(b.dataset.v)));
@@ -97,7 +98,8 @@
         <button class="btn primary" id="go">${mode === 'login' ? 'Masuk' : 'Daftar'}</button>
         ${mode === 'login' ? '<button type="button" class="btn sm" id="reset">Lupa kata sandi</button>' : ''}
       </form>
-      ${window.DEMO ? `<div style="margin-top:14px"><p class="muted" style="margin:0 0 6px;font-size:13px">Masuk cepat (kata sandi demo: demo123):</p><div class="row"><button class="btn sm" data-q="admin@demo.test">Admin</button><button class="btn sm" data-q="pj@demo.test">PJ Keuangan</button><button class="btn sm" data-q="pp1@demo.test">Pengawas Pusat</button></div></div>` : '<p class="center" style="margin:14px 0 0;font-size:13px"><a href="?demo=1">Coba mode demo (data tidak disimpan)</a></p>'}</div></div>`;
+      ${window.DEMO ? `<div style="margin-top:14px"><p class="muted" style="margin:0 0 6px;font-size:13px">Masuk cepat (kata sandi demo: demo123):</p><div class="row"><button class="btn sm" data-q="admin@demo.test">Admin</button><button class="btn sm" data-q="pj@demo.test">PJ Keuangan</button><button class="btn sm" data-q="pp1@demo.test">Pengawas Pusat</button></div></div>` : '<p class="center" style="margin:14px 0 0;font-size:13px"><a href="?demo=1">Coba mode demo (data tidak disimpan)</a></p>'}
+      <p class="center" style="margin:12px 0 0;font-size:13px">Panduan penggunaan: <a href="#/panduan-pj">PJ Keuangan</a> · <a href="#/panduan-pp">Pengawas Pusat</a></p></div></div>`;
     app.querySelectorAll('[data-q]').forEach((b) => (b.onclick = () => F.signInWithEmailAndPassword(auth, b.dataset.q, 'demo123')));
     app.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => renderAuth(b.dataset.m)));
     const rs = $('#reset'); if (rs) rs.onclick = async () => { const em = $('[name=email]').value; if (!em) return toast('Isi email dulu'); try { await F.sendPasswordResetEmail(auth, em); toast('Tautan reset dikirim ke email'); } catch (e) { toast(msgOf(e)); } };
@@ -546,6 +548,25 @@
     };
   }
 
+
+  /* ---------------- Panduan / sosialisasi ---------------- */
+  let guideKind = null;
+  function renderPanduan(kind) {
+    const G = window.PANDUAN, pub = !me, onlyPP = me && me.role === 'pp';
+    kind = onlyPP ? 'pp' : (kind || guideKind || 'pj'); guideKind = kind;
+    const g = G[kind], md = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    const link = location.origin + location.pathname + '#/panduan-' + kind;
+    app.innerHTML = `<div class="card"><div class="row between"><h2 style="margin:0">${esc(g.title)}</h2>
+      <div class="row">${pub ? '<button class="btn" id="gback">← Masuk</button>' : ''}<button class="btn primary" id="gpdf">Unduh PDF (A4)</button></div></div>
+      ${onlyPP ? '' : `<div class="tabs" style="margin-top:14px"><button class="btn ${kind === 'pj' ? 'primary' : ''}" data-gk="pj">Panduan PJ Keuangan</button><button class="btn ${kind === 'pp' ? 'primary' : ''}" data-gk="pp">Panduan Pengawas Pusat</button></div>`}
+      <p style="margin:14px 0 0">${md(g.intro)}</p>
+      <div class="row" style="margin-top:10px"><span class="muted" style="font-size:13px">Tautan untuk dibagikan:</span><input id="glink" readonly value="${esc(link)}" style="max-width:420px"><button class="btn sm" id="gcopy">Salin</button></div></div>
+      ${g.sections.map((s) => `<div class="card"><h3>${esc(s.h)}</h3><ol class="guide">${s.steps.map((t) => `<li>${md(t)}</li>`).join('')}</ol>${s.tip ? `<div class="tip"><strong>Catatan:</strong> ${md(s.tip)}</div>` : ''}</div>`).join('')}`;
+    app.querySelectorAll('[data-gk]').forEach((b) => (b.onclick = () => { if (pub) location.hash = '#/panduan-' + b.dataset.gk; else renderPanduan(b.dataset.gk); }));
+    $('#gpdf').onclick = () => { try { saveBlob(U.panduanPdf(g).output('blob'), `Panduan ${g.short} - Keuangan UKOMNAS PMIK.pdf`); } catch (e) { toast('Gagal membuat PDF: ' + msgOf(e)); } };
+    $('#gcopy').onclick = async () => { try { await navigator.clipboard.writeText(link); toast('Tautan disalin'); } catch (_) { $('#glink').select(); toast('Tekan Ctrl+C untuk menyalin'); } };
+    const back = $('#gback'); if (back) back.onclick = () => { location.hash = ''; renderAuth(); };
+  }
 
   boot();
 })();

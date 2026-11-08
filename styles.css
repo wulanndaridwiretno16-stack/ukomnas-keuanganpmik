@@ -121,3 +121,9 @@ details summary{cursor:pointer}
   nav .who{display:none}
 }
 @media print{.top,.demobar,#toast,nav{display:none!important}body{background:#fff}}
+
+/* ===== panduan ===== */
+ol.guide{margin:6px 0 0;padding-left:22px}
+ol.guide li{margin:0 0 9px;padding-left:4px}
+ol.guide li::marker{color:var(--gold);font-weight:700}
+.tip{margin-top:12px;padding:10px 14px;background:rgba(199,154,59,.12);border-left:4px solid var(--gold);border-radius:3px;font-size:14px}

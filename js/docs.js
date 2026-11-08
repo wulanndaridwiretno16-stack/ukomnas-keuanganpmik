@@ -739,5 +739,33 @@
     return list;
   }
 
-  window.UKOM = { tukLabel, PP_FORM, actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
+  // PDF panduan penggunaan (A4, berkop) untuk dicetak saat sosialisasi
+  function panduanPdf(g) {
+    setYear({});
+    const doc = newDoc(); const strip = (t) => String(t).replace(/\*\*/g, '').replace(/→/g, '>').replace(/←/g, '<').replace(/—/g, '-');
+    let y = kop(doc) + 2;
+    fontB(doc, 14); doc.setTextColor(18, 53, 91); splitLines(doc, g.title.toUpperCase(), PW - 2 * M).forEach((ln) => { doc.text(ln, PW / 2, y, { align: 'center' }); y += 6.5; }); doc.setTextColor(20);
+    fontN(doc, 10.2); y += 2; splitLines(doc, strip(g.intro), PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5.2; }); y += 4;
+    const need = (h) => { if (y + h > 276) { doc.addPage(); y = kop(doc) + 4; } };
+    g.sections.forEach((s) => {
+      need(22); doc.setFillColor(226, 232, 240); doc.rect(M, y - 4.8, PW - 2 * M, 7.4, 'F'); doc.setFillColor(199, 154, 59); doc.rect(M, y - 4.8, 1.6, 7.4, 'F');
+      fontB(doc, 11); doc.setTextColor(18, 53, 91); doc.text(strip(s.h), M + 4, y); doc.setTextColor(20); y += 7;
+      s.steps.forEach((t, i) => {
+        const lines = splitLines(doc, strip(t), PW - 2 * M - 11); need(lines.length * 5 + 3);
+        fontB(doc, 10); doc.text(String(i + 1) + '.', M + 3, y); fontN(doc, 10);
+        lines.forEach((ln) => { doc.text(ln, M + 10, y); y += 5; }); y += 1.4;
+      });
+      if (s.tip) {
+        const lines = splitLines(doc, 'Catatan: ' + strip(s.tip), PW - 2 * M - 12); need(lines.length * 4.8 + 6);
+        doc.setFillColor(250, 244, 228); doc.rect(M + 3, y - 3.6, PW - 2 * M - 3, lines.length * 4.8 + 3.4, 'F'); doc.setFillColor(199, 154, 59); doc.rect(M + 3, y - 3.6, 1.2, lines.length * 4.8 + 3.4, 'F');
+        fontN(doc, 9.4); lines.forEach((ln) => { doc.text(ln, M + 8, y); y += 4.8; }); y += 2;
+      }
+      y += 4;
+    });
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setDrawColor(190); doc.setLineWidth(0.2); doc.line(M, 281.2, PW - M, 281.2); doc.setDrawColor(0); doc.setFontSize(7.5); doc.setTextColor(90); doc.text('Panduan ' + g.short + ' - Keuangan UKOMNAS PMIK', M, 286); doc.text(`hal ${i}/${n}`, PW - M, 286, { align: 'right' }); doc.setTextColor(20); }
+    return doc;
+  }
+
+  window.UKOM = { panduanPdf, tukLabel, PP_FORM, actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
 })();
