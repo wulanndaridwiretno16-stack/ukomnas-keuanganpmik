@@ -686,7 +686,7 @@
     doc.autoTable({
       startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, minCellHeight: 6.5, valign: 'middle', lineColor: 0, lineWidth: 0.15, textColor: 0 },
       headStyles: { fillColor: [245, 205, 250], textColor: 0, halign: 'center' },
-      head: [['No', 'Dokumen / Form', 'Kurang', 'Lebih']], body,
+      head: [['No', 'Dokumen / Form', 'Ada', 'Tidak Ada']], body,
       columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 24 }, 3: { cellWidth: 24 } },
     });
     signBlock(doc, at(doc) + 12, pj.full_name, pp.full_name, 'Yang memeriksa (PP),', 'Mengetahui (PJ Keuangan),');
