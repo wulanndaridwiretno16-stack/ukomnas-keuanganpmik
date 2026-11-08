@@ -6,6 +6,11 @@ Aplikasi web untuk Tim Ad Hoc PMIK. **PJ Keuangan** memasukkan nama TUK dan biay
 - **Database + login**: Firebase (Authentication + Firestore, paket gratis *Spark*)
 - **PDF**: dibuat di browser (jsPDF), tidak perlu server/Storage
 
+## Impor data (menu **Impor Data** untuk PJ/Admin)
+- **Data operasional TUK**: unggah Excel/CSV (nomor TUK, nama TUK, PP, sesi/hari/peserta, jumlah petugas, konsumsi, tiket/hotel/ops PP) atau file `operasional_TUK-PP.xlsx` berformat Lembar Serah Terima (satu sheet per TUK). Hasil berupa **draft**; baris yang sudah ada dilewati.
+- **Data PP**: unggah daftar PP (nama, email, institusi, no HP, golongan). PP yang mendaftar dengan email yang sama otomatis terhubung ke PJ pengunggah (tanpa Kode PJ).
+- Template siap pakai: folder [`templates/`](templates) (`Template Data TUK.xlsx`, `Template Data PP.xlsx`) atau tombol unduh di menu Impor Data. **Nomor TUK** juga dapat diisi di formulir laporan.
+
 ## Mode demo (uji coba tanpa menyimpan data)
 Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk Firebase, dan hilang saat halaman dimuat ulang. Tersedia tombol masuk cepat sebagai Admin, PJ Keuangan, dan Pengawas Pusat (kata sandi demo: `demo123`).
 
@@ -65,7 +70,7 @@ git push -u origin main
 4. PP masuk → **Berkas Saya** → unduh per berkas atau ZIP.
 
 ## Keamanan
-`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (54 skenario).
+`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (73 skenario).
 
 ```bash
 npm i -D firebase-tools @firebase/rules-unit-testing

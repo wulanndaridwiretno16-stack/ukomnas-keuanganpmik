@@ -7,7 +7,7 @@
   window.APP_CONFIG = { firebase: { apiKey: 'demo', authDomain: 'demo', projectId: 'demo', appId: 'demo' }, ADMIN_EMAIL: 'admin@demo.test' };
   const U = window.UKOM;
   const clone = (x) => JSON.parse(JSON.stringify(x));
-  const store = { users: {}, reports: {}, pjCodes: {} };
+  const store = { users: {}, reports: {}, pjCodes: {}, roster: {} };
   const pass = {};
   let seq = 0; const newId = () => 'demo' + (++seq) + Math.random().toString(36).slice(2, 7);
 

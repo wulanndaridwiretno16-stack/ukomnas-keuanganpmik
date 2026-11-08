@@ -151,6 +151,9 @@
 
   /* ---------- Gambar ---------- */
   const PW = 210, M = 15;
+  const LINE = [70, 70, 70];
+  const HEAD = { fillColor: [226, 232, 240], textColor: 20, halign: 'center', fontStyle: 'bold' };
+  const FOOT = { fillColor: [239, 242, 247], textColor: 20, fontStyle: 'bold' };
   let YEAR = new Date().getFullYear();   // diisi dari r.tahun saat berkas dibuat
   const setYear = (r) => { YEAR = String((r && r.tahun) || new Date().getFullYear()); };
   const ctx = (r, pj, pp) => ({ r, pj, pp });
@@ -218,11 +221,8 @@
     doc.setFontSize(10); doc.setFont('helvetica', 'normal');
     doc.text(leftLabel || 'Yang memberikan,', xl, y);
     doc.text(rightLabel || 'Yang menerima,', xr, y);
-    doc.setFont('helvetica', 'bold');
-    const L = doc.splitTextToSize(left || '(................................)', W);
-    const R = doc.splitTextToSize(right || '(................................)', W);
-    doc.text(L, xl, y + 26); doc.text(R, xr, y + 26);
-    doc.setFont('helvetica', 'normal');
+    const L = doc.splitTextToSize(left || ' ', W), R = doc.splitTextToSize(right || ' ', W);
+    signName(doc, xl, y + 26, left || '', W); signName(doc, xr, y + 26, right || '', W);
     return y + 26 + 5 * Math.max(L.length, R.length) + 4;
   }
   const at = (doc) => doc.lastAutoTable.finalY;
@@ -271,6 +271,13 @@
     return y + 0.8;
   }
   const splitLines = (doc, t, w) => doc.splitTextToSize(t, w);
+  // nama penanda tangan: tebal + garis bawah (ruang tanda tangan di atasnya)
+  function signName(doc, x, y, text, w = 60) {
+    const ls = splitLines(doc, text || '', w); fontB(doc, 9.5);
+    ls.forEach((ln, j) => doc.text(ln, x, y + j * 4.6));
+    const yl = y + (ls.length - 1) * 4.6 + 1.2, lw = Math.max(doc.getTextWidth(ls[ls.length - 1] || ''), 32);
+    doc.setDrawColor(40); doc.setLineWidth(0.25); doc.line(x, yl, x + lw, yl); doc.setDrawColor(0); fontN(doc);
+  }
 
   function untukLines(r, g, extra) {
     const k = kindOf(g);
@@ -280,22 +287,22 @@
   const rincianKonsumsi = (r, g) => { const i = itm(r, g.items[0]); return `Rincian : ${NUM(i.qty)} orang x ${RP(i.nilai)} = ${RP(i.nilai * i.qty)}`; };
 
   function signCols(doc, y, cols) {
-    const W = 58, xs = [M, M + 62, M + 124];
+    const W = 50, xs = [M, M + 64, M + 128];
     cols.forEach((col, i) => {
       fontN(doc, 9.5); doc.text(col[0], xs[i], y); doc.text(col[1], xs[i], y + 5);
-      fontB(doc, 9.5); splitLines(doc, col[2] || '(................................)', W).forEach((ln, j) => doc.text(ln, xs[i], y + 28 + j * 4.6));
+      signName(doc, xs[i], y + 28, col[2] || '', W);
     });
     fontN(doc); return y + 40;
   }
 
   function pageSPb(doc, c, o) {
     const { r, pj } = c; let y = top(doc, 20);
-    fontB(doc, 13); doc.text('SURAT PERINTAH BAYAR', PW / 2, y, { align: 'center' });
+    fontB(doc, 13); doc.text('SURAT PERINTAH BAYAR', PW / 2, y, { align: 'center' }); { const tw = doc.getTextWidth('SURAT PERINTAH BAYAR'); doc.setLineWidth(0.3); doc.line(PW / 2 - tw / 2, y + 1.5, PW / 2 + tw / 2, y + 1.5); }
     fontN(doc); doc.text('Tanggal : ' + dots, 128, y + 9); doc.text('Nomor   : ' + dots, 128, y + 15);
     y += 28;
     doc.text('Saya yang bertanda tangan di bawah ini selaku Pejabat Pembuatan Komitmen memerintahkan', M, y);
     doc.text('Bendahara Pengeluaran Pembantu agar melakukan Pembayaran sejumlah', M, y + 5.6); y += 12;
-    doc.setLineWidth(0.3); doc.rect(M + 36, y, 70, 9); fontB(doc, 11); doc.text(RP(o.amount), M + 71, y + 6.3, { align: 'center' }); fontN(doc); y += 16;
+    doc.setLineWidth(0.3); doc.setFillColor(243, 246, 250); doc.rect(M + 36, y, 70, 9, 'FD'); fontB(doc, 11); doc.text(RP(o.amount), M + 71, y + 6.3, { align: 'center' }); fontN(doc); y += 16;
     y = kv(doc, y, 'Terbilang', cap(terbilang(o.amount)) + ' Rupiah');
     y = kv(doc, y, 'Kepada', o.kepada);
     y = kv(doc, y, 'Untuk Pembayaran', o.untuk);
@@ -327,7 +334,7 @@
     y += 6;
     fontN(doc); doc.text((o.tempat || 'Jakarta') + ', ' + dots + ' ' + YEAR, 128, y);
     doc.text(o.menerimaLabel || 'Yang Menerima', 128, y + 6);
-    fontB(doc, 10); splitLines(doc, o.penerima || '(................................)', 62).forEach((ln, j) => doc.text(ln, 128, y + 32 + j * 4.6));
+    signName(doc, 128, y + 32, o.penerima || '', 62);
     fontN(doc, 8); doc.text('Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, y + 38);
     if (o.withPPK) signCols(doc, y + 48, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name]]);
     fontN(doc);
@@ -341,7 +348,7 @@
     fontB(doc, 11);
     const ttl = `Daftar Penerimaan ${k === 'honor' ? 'Honorarium' : 'Transport Lokal'} sebagai ${g.sebagai || g.role} dalam rangka Uji Kompetensi ${PROGRAM.replace('/S.Tr', '/ S.Tr')}`;
     let y = top(doc, 18); splitLines(doc, ttl, PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5.5; });
-    fontN(doc); doc.text(periodeStr(r), M, y); y += 6; doc.text('TUK', M, y); doc.text(': ' + r.tuk_name, M + 14, y); y += 5;
+    fontN(doc); doc.text(periodeStr(r), M, y); y += 6; doc.text('TUK', M, y); doc.text(': ' + tukLabel(r), M + 14, y); y += 5;
     const names = who.length ? who : [''];
     const honor = k === 'honor';
     const head = honor
@@ -353,9 +360,9 @@
     if (!honor) foot[0] = [{ content: 'Jumlah', colSpan: 4, styles: { halign: 'right' } }, '=', RP(net * n), ''];
     const total = net * n;
     doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 8.5, minCellHeight: 11, valign: 'middle', cellPadding: 1.3, lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' },
-      head, body, foot, footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      startY: y, theme: 'grid', styles: { fontSize: 8.5, minCellHeight: 11, valign: 'middle', cellPadding: 1.3, lineColor: LINE, lineWidth: 0.15, textColor: 20 },
+      headStyles: HEAD,
+      head, body, foot, footStyles: FOOT,
       tableWidth: PW - 2 * M, columnStyles: honor ? { 0: { cellWidth: 8, halign: 'center' }, 1: { cellWidth: 40 }, 2: { cellWidth: 9, halign: 'center' }, 3: { cellWidth: 15 }, 4: { cellWidth: 21, halign: 'right' }, 5: { cellWidth: 21, halign: 'right' }, 6: { cellWidth: 20, halign: 'right' }, 7: { cellWidth: 21, halign: 'right' }, 8: { cellWidth: 25 } } : { 0: { cellWidth: 8, halign: 'center' }, 1: { cellWidth: 50 }, 2: { cellWidth: 10, halign: 'center' }, 3: { cellWidth: 20 }, 4: { cellWidth: 28, halign: 'right' }, 5: { cellWidth: 28, halign: 'right' }, 6: { cellWidth: 36 } },
     });
     y = at(doc) + 6; fontN(doc, 9.5); doc.text('Terbilang', M, y); doc.text(': ' + cap(terbilang(total)) + ' Rupiah', M + 22, y);
@@ -387,8 +394,8 @@
     doc.text('Hari, Tanggal', M, y + 6); doc.text(': ' + dots, M + 24, y + 6); doc.text('Tempat : ' + dots, 128, y + 6);
     const body = Array.from({ length: nRows }, (_, i) => [i + 1, names[i] || '', '', '']);
     doc.autoTable({
-      startY: y + 10, theme: 'grid', styles: { fontSize: 9, minCellHeight: 8.5, valign: 'middle', cellPadding: 1.2, lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No', 'Nama', 'Tanda Tangan', 'Asal Institusi']], body,
+      startY: y + 10, theme: 'grid', styles: { fontSize: 9, minCellHeight: 8.5, valign: 'middle', cellPadding: 1.2, lineColor: LINE, lineWidth: 0.15, textColor: 20 },
+      headStyles: HEAD, head: [['No', 'Nama', 'Tanda Tangan', 'Asal Institusi']], body,
       columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 48 }, 3: { cellWidth: 48 } },
     });
     return at(doc) + 8;
@@ -411,7 +418,7 @@
         y = hadirBlock(doc, y, `Pelaksanaan Uji Kompetensi Sesi ${s}`, n, names); perPage++;
       }
       fontN(doc); doc.text('Mengetahui', 145, Math.min(y + 4, 262)); doc.text('Pengawas Pusat', 145, Math.min(y + 9, 267));
-      fontB(doc, 9.5); splitLines(doc, pp.full_name || '', 52).forEach((ln, j) => doc.text(ln, 145, Math.min(y + 30, 276) + j * 4.6));
+      signName(doc, 145, Math.min(y + 30, 276), pp.full_name || '', 52);
     }
   }
   function pageNotaHadirKonsumsi(doc, c, g) {
@@ -421,8 +428,8 @@
     [['Kegiatan', g.kegiatan || g.untuk], ['Tanggal', fmtDate(r.tgl_pelaksanaan)], ['Pukul', dots], ['Tempat', r.tuk_name]].forEach(([l, v]) => { doc.text(l, M, y); doc.text(': ' + v, M + 26, y); y += 6; });
     const rows = Math.max(1, Number(it.qty) || 1);
     doc.autoTable({
-      startY: y + 2, theme: 'grid', styles: { fontSize: 9, minCellHeight: 8, valign: 'middle', cellPadding: 1.1, lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No', 'Nama', 'Asal Institusi', 'Tanda tangan', 'Kabupaten/Kota']],
+      startY: y + 2, theme: 'grid', styles: { fontSize: 9, minCellHeight: 8, valign: 'middle', cellPadding: 1.1, lineColor: LINE, lineWidth: 0.15, textColor: 20 },
+      headStyles: HEAD, head: [['No', 'Nama', 'Asal Institusi', 'Tanda tangan', 'Kabupaten/Kota']],
       body: Array.from({ length: rows }, (_, i) => [i + 1, '', '', '', '']), columnStyles: { 0: { cellWidth: 10, halign: 'center' } },
     });
   }
@@ -437,7 +444,7 @@
     doc.text(String(numberLabel || '1'), PW - M, y + 4, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     y = infoBlock(doc, y + 12, [
-      ['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', r.tuk_name],
+      ['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', tukLabel(r)],
       ['Jumlah Sesi', r.jumlah_sesi], ['Jumlah Hari', r.jumlah_hari],
     ]);
     const body = [];
@@ -448,12 +455,12 @@
     sec('KUITANSI SENDIRI');
     r.items.filter((i) => i.sec !== 'perjadin').forEach((i) => body.push(line(i)));
     doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.4, lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [245, 205, 250], textColor: 0, halign: 'center' },
+      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.4, lineColor: LINE, lineWidth: 0.15, textColor: 20 },
+      headStyles: HEAD,
       head: [['Komponen Biaya', 'Nilai (Rp)', 'Banyak', 'Jumlah Netto (Rp)', 'Keterangan']],
       body,
       foot: [[{ content: 'TOTAL', colSpan: 3, styles: { halign: 'left' } }, NUM(totalOf(r.items)), '']],
-      footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      footStyles: FOOT,
       columnStyles: { 1: { halign: 'right' }, 2: { halign: 'center', cellWidth: 16 }, 3: { halign: 'right' } },
     });
     doc.setFontSize(8.5); doc.setTextColor(60);
@@ -467,8 +474,9 @@
     const n = doc.getNumberOfPages();
     for (let i = 1; i <= n; i++) {
       doc.setPage(i);
+      doc.setDrawColor(190); doc.setLineWidth(0.2); doc.line(M, 281.2, PW - M, 281.2); doc.setDrawColor(0);
       doc.setFontSize(7); doc.setTextColor(90);
-      doc.text(`TUK: ${c.r.tuk_name} | PP: ${c.pp.full_name}`, M, 284);
+      doc.text(`TUK: ${tukLabel(c.r)} | PP: ${c.pp.full_name}`, M, 284);
       doc.text(`Sesi ${c.r.jumlah_sesi} / Hari ${c.r.jumlah_hari}`, M, 288);
       doc.text(`${label} - hal ${i}/${n}`, PW - M, 288, { align: 'right' });
       doc.setTextColor(0);
@@ -483,6 +491,7 @@
   const amtPP = (r, key) => { const v = pmAmt(r, key); return v === null ? anggaranOf(r, key) : v; };   // belum diisi PP -> pakai anggaran PJ
   const PP_FORM = ['tiket', 'hotel', 'ops_pp'];
   const dots = '.............................';
+  const tukLabel = (r) => (r.nomor_tuk ? r.nomor_tuk + ' - ' : '') + (r.tuk_name || '');
   const fmtDate = (s) => (s ? new Date(s + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : dots);
   const lamaHari = (a, b) => (a && b ? Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000) + 1) : null);
 
@@ -496,21 +505,21 @@
     fontB(doc, 13); doc.text('RINCIAN BIAYA PERJALANAN DINAS', PW / 2, 20 + K, { align: 'center' });
     fontN(doc); doc.text('Lampiran SPD Nomor : ' + (m.spd_nomor || dots), M, 32 + K); doc.text('Tanggal : ' + (m.spd_tanggal ? fmtDate(m.spd_tanggal) : dots), M, 38 + K);
     doc.autoTable({
-      startY: 43 + K, theme: 'grid', styles: { fontSize: 9.5, cellPadding: 1.8, lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['NO', 'PERINCIAN BIAYA', 'JUMLAH', 'KETERANGAN']],
+      startY: 43 + K, theme: 'grid', styles: { fontSize: 9.5, cellPadding: 1.8, lineColor: LINE, lineWidth: 0.15, textColor: 20 },
+      headStyles: HEAD, head: [['NO', 'PERINCIAN BIAYA', 'JUMLAH', 'KETERANGAN']],
       body: PP_ROWS.map(([k, l], i) => [i + 1, l, ppAmt(r, k) ? RP(ppAmt(r, k)) : 'Rp -', k === 'hotel' && m.hotel_nama ? `${m.hotel_nama}${m.hotel_malam ? ', ' + m.hotel_malam + ' malam' : ''}` : k === 'tiket' && m.moda ? m.moda : '']),
-      foot: [[{ content: 'Jumlah', colSpan: 2, styles: { halign: 'right' } }, RP(total), '']], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      foot: [[{ content: 'Jumlah', colSpan: 2, styles: { halign: 'right' } }, RP(total), '']], footStyles: FOOT,
       columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 2: { halign: 'right', cellWidth: 38 } },
     });
     let y = at(doc) + 7; fontN(doc); doc.text('Terbilang : ' + (total ? cap(terbilang(total)) + ' Rupiah' : '-'), M, y); y += 9;
     doc.text('Telah dibayar sejumlah', M, y); doc.text(RP(total), M + 50, y); doc.text((m.tempat || '(Kota CBT)') + ', ' + fmtDate(m.tgl_pulang || r.tgl_pelaksanaan), 120, y); y += 6;
     doc.text('Telah menerima jumlah uang sebesar ' + RP(total), 120, y); y += 6;
     doc.text('Bendahara Pengeluaran', M, y); doc.text('Yang Menerima,', 120, y);
-    fontB(doc, 9.5); doc.text(pj.full_name || '', M, y + 24); splitLines(doc, pp.full_name || '', 70).forEach((ln, j) => doc.text(ln, 120, y + 24 + j * 4.6)); y += 34; fontN(doc, 9.5);
+    signName(doc, M, y + 24, pj.full_name || '', 70); signName(doc, 120, y + 24, pp.full_name || '', 70); y += 34; fontN(doc, 9.5);
     doc.text('Ditetapkan sejumlah', M, y); doc.text(': ' + RP(total), M + 50, y); y += 5.5;
     doc.text('Yang telah dibayar semula', M, y); doc.text(': Rp -', M + 50, y); y += 5.5;
     doc.text('Sisa kurang/lebih', M, y); doc.text(': ' + RP(total), M + 50, y);
-    doc.text('Pejabat Pembuat Komitmen', 120, y - 4); fontB(doc, 9.5); doc.text(PPK(), 120, y + 20); fontN(doc);
+    doc.text('Pejabat Pembuat Komitmen', 120, y - 4); signName(doc, 120, y + 20, PPK(), 70);
   }
   // Daftar Pengeluaran Riil
   function pageRiil(doc, c) {
@@ -524,9 +533,9 @@
     doc.text('dengan ini kami menyatakan dengan sesungguhnya bahwa :', M, y); y += 6;
     doc.text('1', M, y); doc.text('Biaya transportasi pegawai dan / atau biaya penginapan di bawah ini yang tidak dapat diperoleh', M + 6, y); y += 5; doc.text('bukti - bukti pengeluarannya meliputi :', M + 6, y);
     doc.autoTable({
-      startY: y + 3, theme: 'grid', margin: { left: M + 6 }, styles: { fontSize: 9.5, cellPadding: 1.6, lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No', 'Uraian', 'Jumlah']],
-      body: rows.map(([l, v], i) => [i + 1, l, v ? RP(v) : 'Rp -']), foot: [[{ content: 'Jumlah', colSpan: 2, styles: { halign: 'right' } }, total ? RP(total) : 'Rp -']], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      startY: y + 3, theme: 'grid', margin: { left: M + 6 }, styles: { fontSize: 9.5, cellPadding: 1.6, lineColor: LINE, lineWidth: 0.15, textColor: 20 },
+      headStyles: HEAD, head: [['No', 'Uraian', 'Jumlah']],
+      body: rows.map(([l, v], i) => [i + 1, l, v ? RP(v) : 'Rp -']), foot: [[{ content: 'Jumlah', colSpan: 2, styles: { halign: 'right' } }, total ? RP(total) : 'Rp -']], footStyles: FOOT,
       columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 2: { halign: 'right', cellWidth: 40 } },
     });
     y = at(doc) + 6; fontN(doc); doc.text('Terbilang: ' + (total ? cap(terbilang(total)) + ' Rupiah' : '-'), M + 6, y); y += 8;
@@ -535,7 +544,7 @@
     y += 3; splitLines(doc, 'Demikian pernyataan ini kami buat dengan sebenarnya, untuk dapat dipergunakan sebagaimana mestinya.', PW - 2 * M).forEach((ln) => { doc.text(ln, M, y); y += 5; });
     y += 6; doc.text('Mengetahui / Menyetujui', M, y); doc.text((m.tempat || '(Kota CBT)') + ', ' + fmtDate(m.tgl_pulang || r.tgl_pelaksanaan), 120, y);
     doc.text('Pejabat Pembuat Komitmen', M, y + 6); doc.text('Pelaksana SPD,', 120, y + 6);
-    fontB(doc, 9.5); doc.text(PPK(), M, y + 30); splitLines(doc, pp.full_name || '', 70).forEach((ln, j) => doc.text(ln, 120, y + 30 + j * 4.6)); fontN(doc);
+    signName(doc, M, y + 30, PPK(), 70); signName(doc, 120, y + 30, pp.full_name || '', 70);
   }
 
   const CUSTOM = {
@@ -570,7 +579,7 @@
       para('Hasil Kegiatan', m.hasil); para('Tindak Lanjut', m.kendala);
       y += 6; if (y > 240) { doc.addPage(); y = top(doc, 22); }
       doc.text((m.tempat || '(Nama Kota CBT)') + ', ' + fmtDate(m.tgl_pulang || r.tgl_pelaksanaan), 128, y); doc.text('Yang Melaporkan', 128, y + 6);
-      fontB(doc, 10.5); splitLines(doc, pp.full_name || '', 70).forEach((ln, j) => doc.text(ln, 128, y + 32 + j * 5)); fontN(doc);
+      signName(doc, 128, y + 32, pp.full_name || '', 70);
       footers(doc, c, 'Laporan Perjalanan Dinas'); return doc;
     },
   };
@@ -592,7 +601,7 @@
       ['Taksi Asal', [], () => pmAmt(r, 'taksi_asal')], ['Taksi TUK', [], () => pmAmt(r, 'taksi_tujuan')], ['Pesawat', [], () => pmAmt(r, 'tiket')], ['Transport (dalam kota)', [], () => pmAmt(r, 'transport_darat')], ['Transport (luar kota)', []], ['', []], ['', []], ['', []],
     ];
     const K = top(doc, 0) + 1;
-    fontB(doc, 11); doc.text('Nama (PP) : ' + (pp.full_name || ''), M, 20 + K); doc.text('TUK : ' + (r.tuk_name || ''), M, 26 + K); doc.text('No Hp : ' + (m.no_hp || ''), M, 32 + K); fontN(doc);
+    fontB(doc, 11); doc.text('Nama (PP) : ' + (pp.full_name || ''), M, 20 + K); doc.text('TUK : ' + tukLabel(r), M, 26 + K); doc.text('No Hp : ' + (m.no_hp || ''), M, 32 + K); fontN(doc);
     let tg = 0, td = 0, tk = 0, tl = 0;
     const body = rows.map(([label, ks, fn], i) => {
       const g = given(ks), v = fn ? fn() : undefined, has = v !== undefined && v !== null && v !== '' && isFinite(Number(v)), out = has ? Number(v) : g;
@@ -601,16 +610,16 @@
       return [i + 1, label, show(g), has || g ? show(out) : '', K ? NUM(K) : '', L ? NUM(L) : ''];
     });
     doc.autoTable({
-      startY: 37 + K, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.2, minCellHeight: 6.2, lineColor: 0, lineWidth: 0.2, textColor: 0 },
-      headStyles: { fillColor: [255, 255, 255], textColor: 0, halign: 'center', fontStyle: 'bold' }, head: [['No.', 'Uang', 'Yang diberikan', 'Yang dikeluarkan', 'Kurang', 'Lebih']],
-      body, foot: [[{ content: 'Jumlah', colSpan: 2 }, NUM(tg), NUM(td), NUM(tk), NUM(tl)]], footStyles: { fillColor: [255, 255, 255], textColor: 0, fontStyle: 'bold' },
+      startY: 37 + K, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.2, minCellHeight: 6.2, lineColor: LINE, lineWidth: 0.2, textColor: 20 },
+      headStyles: HEAD, head: [['No.', 'Uang', 'Yang diberikan', 'Yang dikeluarkan', 'Kurang', 'Lebih']],
+      body, foot: [[{ content: 'Jumlah', colSpan: 2 }, NUM(tg), NUM(td), NUM(tk), NUM(tl)]], footStyles: FOOT,
       columnStyles: { 0: { cellWidth: 11, halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
     });
     let y = at(doc) + 9; fontN(doc, 10);
     const net = tg - td;
     doc.text('Jumlah yang diterima/dikembalikan  ' + (net === 0 ? '-' : (net > 0 ? 'dikembalikan ' : 'diterima ') + RP(Math.abs(net))), M, y);
     if (y > 240) { doc.addPage(); y = top(doc, 22); }
-    doc.text('Pengawas Pusat', 140, y + 10); fontB(doc, 10); splitLines(doc, '( ' + (pp.full_name || '') + ' )', 60).forEach((ln, j) => doc.text(ln, 140, y + 34 + j * 5)); fontN(doc);
+    doc.text('Pengawas Pusat', 140, y + 10); signName(doc, 140, y + 34, pp.full_name || '', 60);
     footers(doc, c, 'Form Kurleb');
     return doc;
   }
@@ -680,17 +689,17 @@
     setYear(r);
     const c = ctx(r, pj, pp), doc = newDoc();
     let y = title(doc, kop(doc), 'CHECKLIST KELENGKAPAN BERKAS', 'Checklist Keuangan UKOMNAS ' + YEAR);
-    y = infoBlock(doc, y, [['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', r.tuk_name]]);
+    y = infoBlock(doc, y, [['Nama PP', pp.full_name], ['Asal Institusi', r.pp_institusi], ['TUK', tukLabel(r)]]);
     const order = [['A', 'pp', 'BERKAS PENGAWAS PUSAT'], ['B', 'cbt', 'BERKAS CBT CENTER'], ['C', 'cocbt', 'BERKAS CO CBT'], ['D', 'admin', 'BERKAS ADMIN'], ['E', 'it', 'BERKAS IT LOKAL'], ['F', 'pl', 'BERKAS PENGAWAS LOKAL']];
     const body = [];
     order.forEach(([L, key, label]) => {
       const comp = COMPONENTS.find((x) => x.key === key);
-      body.push([{ content: `${L}. ${label}`, colSpan: 4, styles: { fillColor: [190, 245, 225], fontStyle: 'bold' } }]);
+      body.push([{ content: `${L}. ${label}`, colSpan: 4, styles: { fillColor: [214, 236, 226], fontStyle: 'bold' } }]);
       comp.checklist.forEach((t, i) => body.push([i + 1, t, '', '']));
     });
     doc.autoTable({
-      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, minCellHeight: 6.5, valign: 'middle', lineColor: 0, lineWidth: 0.15, textColor: 0 },
-      headStyles: { fillColor: [245, 205, 250], textColor: 0, halign: 'center' },
+      startY: y, theme: 'grid', styles: { fontSize: 8.5, cellPadding: 1.3, minCellHeight: 6.5, valign: 'middle', lineColor: LINE, lineWidth: 0.15, textColor: 20 },
+      headStyles: HEAD,
       head: [['No', 'Dokumen / Form', 'Ada', 'Tidak Ada']], body,
       columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 24 }, 3: { cellWidth: 24 } },
     });
@@ -708,7 +717,7 @@
 
   const safe = (s) => String(s || 'TUK').replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim();
   function fileList(r, pj, pp) {
-    const base = safe(r.tuk_name);
+    const base = safe(tukLabel(r));
     const pdf = (o, build) => Object.assign({ ext: 'pdf', build, make: async (t) => build().output(t) }, o);
     const list = [
       pdf({ id: 'serah', folder: '', name: `Lembar Serah Terima - ${base}.pdf`, label: 'Lembar Serah Terima (Rincian Operasional TUK)' }, () => buildSerahTerima(r, pj, pp)),
@@ -723,5 +732,5 @@
     return list;
   }
 
-  window.UKOM = { PP_FORM, actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
+  window.UKOM = { tukLabel, PP_FORM, actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
 })();

@@ -22,6 +22,7 @@
   const DB = {
     async user(uid) { const s = await F.getDoc(F.doc(db, 'users', uid)); return s.exists() ? snap(s) : null; },
     async users(...c) { const s = await F.getDocs(F.query(F.collection(db, 'users'), ...c)); return s.docs.map(snap); },
+    async docs(col, c) { const s = await F.getDocs(F.query(F.collection(db, col), ...c)); return s.docs.map(snap); },
     async reports(...c) { const s = await F.getDocs(F.query(F.collection(db, 'reports'), ...c)); return s.docs.map(snap); },
   };
   const randCode = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
@@ -60,10 +61,10 @@
     view = me.role === 'pp' ? 'berkas' : 'laporan';
     go(view);
   }
-  function go(v) { view = v; editing = null; renderNav(); ({ berkas: renderBerkas, laporan: renderLaporan, pp: renderPP, users: renderUsers }[v] || renderBerkas)(); }
+  function go(v) { view = v; editing = null; renderNav(); ({ berkas: renderBerkas, laporan: renderLaporan, impor: renderImpor, pp: renderPP, users: renderUsers }[v] || renderBerkas)(); }
   function renderNav() {
     if (!me) { nav.innerHTML = ''; return; }
-    const tabs = me.role === 'pp' ? [['berkas', 'Berkas Saya']] : [['laporan', 'Laporan TUK'], ['pp', 'PP Saya']].concat(me.role === 'admin' ? [['users', 'Pengguna']] : []);
+    const tabs = me.role === 'pp' ? [['berkas', 'Berkas Saya']] : [['laporan', 'Laporan TUK'], ['impor', 'Impor Data'], ['pp', 'PP Saya']].concat(me.role === 'admin' ? [['users', 'Pengguna']] : []);
     nav.innerHTML = tabs.map(([k, l]) => `<button data-v="${k}" class="${view === k ? 'active' : ''}">${l}</button>`).join('') +
       `<span class="muted" style="font-size:13px;margin-left:8px">${esc(me.full_name || me.email)} · ${ROLE[me.role]}</span><button id="out">Keluar</button>`;
     nav.querySelectorAll('[data-v]').forEach((b) => (b.onclick = () => go(b.dataset.v)));
@@ -103,9 +104,10 @@
         if (mode === 'login') { await F.signInWithEmailAndPassword(auth, f.email.trim(), f.password); return; }
         const code = (f.kode_pj || '').trim().toUpperCase();
         const cred = await F.createUserWithEmailAndPassword(auth, f.email.trim(), f.password);
-        let pj_id = null;
-        if (code) { try { const c = await F.getDoc(F.doc(db, 'pjCodes', code)); if (c.exists()) pj_id = c.data().pj_id; } catch (_) {} }
-        await F.setDoc(F.doc(db, 'users', cred.user.uid), { email: cred.user.email, full_name: f.full_name.trim(), institusi: (f.institusi || '').trim(), role: 'pp', pj_id, kode_used: pj_id ? code : null, kode_pj: null, created_at: Date.now() });
+        let pj_id = null, rost = null;
+        try { const rs = await F.getDoc(F.doc(db, 'roster', cred.user.email.toLowerCase())); if (rs.exists()) { rost = rs.data(); pj_id = rost.pj_id; } } catch (_) {}
+        if (!pj_id && code) { try { const c = await F.getDoc(F.doc(db, 'pjCodes', code)); if (c.exists()) pj_id = c.data().pj_id; } catch (_) {} }
+        await F.setDoc(F.doc(db, 'users', cred.user.uid), { email: cred.user.email, full_name: f.full_name.trim() || (rost && rost.nama) || '', institusi: (f.institusi || '').trim() || (rost && rost.institusi) || '', role: 'pp', pj_id, kode_used: rost ? null : (pj_id ? code : null), kode_pj: null, created_at: Date.now() });
         if ((cred.user.email || '').toLowerCase() === ADMIN) { try { await F.sendEmailVerification(cred.user); } catch (_) {} }
         if (code && !pj_id) toast('Kode PJ tidak dikenal; minta PJ menambahkan email Anda.');
         start();
@@ -213,7 +215,7 @@
     try { data = await DB.reports(F.where('pp_id', '==', me.id), F.where('status', '==', 'published')); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
     data.sort((a, b) => (b.published_at || 0) - (a.published_at || 0));
     if (!data.length) return (app.innerHTML = verifyBanner() + `<div class="card"><h2>Berkas Saya</h2><p class="muted">Belum ada dokumen. Dokumen akan tersedia setelah PJ Keuangan memasukkan nama TUK dan biaya komponen uji untuk Anda.</p>${me.pj_id ? '' : '<p class="err">Akun Anda belum terhubung ke PJ Keuangan. Minta PJ menambahkan email Anda di menu “PP Saya”.</p>'}</div>`) && bindBanner();
-    app.innerHTML = verifyBanner() + data.map((r, i) => `<div class="card" id="rep${i}"><div class="row between"><div><h2 style="margin:0">${esc(r.tuk_name)}</h2><span class="muted">Tahun ${esc(r.tahun || '')} · Sesi ${r.jumlah_sesi} · ${r.jumlah_hari} hari · terbit ${new Date(r.published_at).toLocaleDateString('id-ID')}</span></div><div><div class="total">${U.RP(r.total)}</div><button class="btn primary" data-zip>Unduh semua (ZIP)</button></div></div>${ppFormHtml(r)}<h3 style="margin-top:16px">Dokumen per komponen uji</h3>${filesHtml(r)}</div>`).join('');
+    app.innerHTML = verifyBanner() + data.map((r, i) => `<div class="card" id="rep${i}"><div class="row between"><div><h2 style="margin:0">${esc(r.nomor_tuk ? r.nomor_tuk + ' - ' : '')}${esc(r.tuk_name)}</h2><span class="muted">Tahun ${esc(r.tahun || '')} · Sesi ${r.jumlah_sesi} · ${r.jumlah_hari} hari · terbit ${new Date(r.published_at).toLocaleDateString('id-ID')}</span></div><div><div class="total">${U.RP(r.total)}</div><button class="btn primary" data-zip>Unduh semua (ZIP)</button></div></div>${ppFormHtml(r)}<h3 style="margin-top:16px">Dokumen per komponen uji</h3>${filesHtml(r)}</div>`).join('');
     bindBanner(); data.forEach((r, i) => { bindFiles($('#rep' + i), r); bindPPForm($('#rep' + i), r); });
   }
 
@@ -224,7 +226,7 @@
     try { data = me.role === 'admin' ? await DB.reports() : await DB.reports(F.where('pj_id', '==', me.id)); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
     data.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
     app.innerHTML = `<div class="card"><div class="row between"><h2 style="margin:0">Laporan TUK</h2><button class="btn primary" id="new">+ Tambah TUK</button></div>
-      ${data.length ? `<div class="tablewrap"><table><thead><tr><th>TUK</th><th>PP</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>${data.map((r) => `<tr><td>${esc(r.tuk_name || '(tanpa nama)')}</td><td>${esc((r.personnel || {}).pp_name)}</td><td class="num">${U.RP(r.total)}</td><td><span class="chip ${r.status === 'published' ? 'ok' : 'warn'}">${r.status === 'published' ? 'Terbit' : 'Draft'}</span></td><td class="num"><button class="btn sm" data-e="${r.id}">Ubah / Unduh</button> <button class="btn sm danger" data-d="${r.id}">Hapus</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Belum ada laporan. Tambahkan PP di menu “PP Saya”, lalu klik “Tambah TUK”.</p>'}</div>`;
+      ${data.length ? `<div class="tablewrap"><table><thead><tr><th>No. TUK</th><th>TUK</th><th>PP</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>${data.map((r) => `<tr><td>${esc(r.nomor_tuk || '')}</td><td>${esc(r.tuk_name || '(tanpa nama)')}</td><td>${esc((r.personnel || {}).pp_name)}</td><td class="num">${U.RP(r.total)}</td><td><span class="chip ${r.status === 'published' ? 'ok' : 'warn'}">${r.status === 'published' ? 'Terbit' : 'Draft'}</span></td><td class="num"><button class="btn sm" data-e="${r.id}">Ubah / Unduh</button> <button class="btn sm danger" data-d="${r.id}">Hapus</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Belum ada laporan. Tambahkan PP di menu “PP Saya”, lalu klik “Tambah TUK”.</p>'}</div>`;
     $('#new').onclick = newReport;
     app.querySelectorAll('[data-e]').forEach((b) => (b.onclick = () => openEditor(data.find((r) => r.id === b.dataset.e))));
     app.querySelectorAll('[data-d]').forEach((b) => (b.onclick = async () => {
@@ -253,6 +255,7 @@
       <div class="grid" style="margin-top:12px">
         <div><label>Pengawas Pusat (PP)</label><select id="pp">${pps.map((x) => `<option value="${x.id}" ${x.id === r.pp_id ? 'selected' : ''}>${esc(x.full_name || x.email)}</option>`).join('')}</select></div>
         <div><label>Asal institusi PP</label><input id="inst" value="${esc(r.pp_institusi)}"></div>
+        <div><label>Nomor TUK</label><input id="notuk" value="${esc(r.nomor_tuk || '')}" placeholder="mis. 001"></div>
         <div><label>Nama TUK *</label><input id="tuk" value="${esc(r.tuk_name)}" placeholder="mis. STIKES Wira Medika Bali"></div>
         <div><label>Tahun pelaksanaan * (tercetak di kop & nomor dokumen)</label><input id="tahun" type="number" min="2000" max="2200" value="${esc(r.tahun || new Date().getFullYear())}"></div>
         <div><label>Periode (mis. I / II)</label><input id="periode" value="${esc(r.periode || '')}"></div>
@@ -282,7 +285,7 @@
     $('#sesi').onchange = recalcStaff; $('#hari').onchange = recalcStaff;
     $('#back').onclick = () => go('laporan');
     const save = async (status) => {
-      r.pp_id = $('#pp').value; r.pp_institusi = $('#inst').value.trim(); r.tuk_name = $('#tuk').value.trim();
+      r.pp_id = $('#pp').value; r.pp_institusi = $('#inst').value.trim(); r.tuk_name = $('#tuk').value.trim(); r.nomor_tuk = ($('#notuk').value || '').trim();
       r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Math.max(0, Number($('#peserta').value) || 0);
       r.tahun = String($('#tahun').value || '').trim(); r.periode = ($('#periode').value || '').trim(); r.tgl_pelaksanaan = $('#tglpel').value || '';
       if (!/^\d{4}$/.test(r.tahun)) { $('#err').textContent = 'Isi tahun pelaksanaan dengan 4 angka, mis. 2026.'; return; }
@@ -290,7 +293,7 @@
       if (status === 'published' && (!r.tuk_name || total <= 0)) { $('#err').textContent = 'Untuk menerbitkan, isi nama TUK dan biaya komponen (total harus > 0).'; return; }
       const personnel = { ...r.personnel, pp_name: (x && x.full_name) || r.personnel.pp_name || '', pj_name: me.role === 'admin' && x && x.pj_id !== me.id ? ((await DB.user(x.pj_id)) || {}).full_name || '' : me.full_name };
       const now = Date.now();
-      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, tahun: r.tahun, periode: r.periode || '', tgl_pelaksanaan: r.tgl_pelaksanaan || '', jumlah_petugas: Object.fromEntries(['pl', 'admin', 'it_lokal', 'co_cbt'].map((k) => [k, U.headcount(r, k)])), items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
+      const row = { pj_id: me.role === 'admin' && x ? x.pj_id : (r.pj_id || me.id), pp_id: r.pp_id, tuk_name: r.tuk_name, nomor_tuk: r.nomor_tuk || '', pp_institusi: r.pp_institusi, jumlah_sesi: r.jumlah_sesi, jumlah_hari: r.jumlah_hari, jumlah_peserta: r.jumlah_peserta, tahun: r.tahun, periode: r.periode || '', tgl_pelaksanaan: r.tgl_pelaksanaan || '', jumlah_petugas: Object.fromEntries(['pl', 'admin', 'it_lokal', 'co_cbt'].map((k) => [k, U.headcount(r, k)])), items: r.items, personnel, total, status, updated_at: now, created_at: r.created_at || now, published_at: status === 'published' ? (r.status === 'published' && r.published_at ? r.published_at : now) : null };
       if (r.id) row.pj_id = r.pj_id || row.pj_id;
       try {
         let id = r.id;
@@ -305,7 +308,7 @@
   }
   function collect() {
     const r = editing;
-    r.tuk_name = $('#tuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value; r.tahun = $('#tahun').value; r.periode = $('#periode').value; r.tgl_pelaksanaan = $('#tglpel').value;
+    r.tuk_name = $('#tuk').value; r.nomor_tuk = $('#notuk').value; r.pp_institusi = $('#inst').value; r.jumlah_sesi = Math.max(1, Number($('#sesi').value) || 1); r.jumlah_hari = Math.max(1, Number($('#hari').value) || 1); r.jumlah_peserta = Number($('#peserta').value) || 0; r.pp_id = $('#pp').value; r.tahun = $('#tahun').value; r.periode = $('#periode').value; r.tgl_pelaksanaan = $('#tglpel').value;
   }
   function keepAndRender(pps, focusSel = '#peserta') {
     collect();
@@ -359,6 +362,182 @@
     }));
     app.querySelectorAll('[data-pj]').forEach((s) => (s.onchange = async () => { try { await F.updateDoc(F.doc(db, 'users', s.dataset.pj), { pj_id: s.value || null }); toast('Tersimpan'); } catch (e) { toast(msgOf(e)); } }));
   }
+
+  /* ---------------- Impor Data: data operasional TUK & data PP (Excel/CSV) ---------------- */
+  const nz = (s) => String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]/g, '');
+  const ALIAS = {
+    nomor_tuk: ['nomortuk', 'notuk', 'kodetuk', 'nomor', 'no'], nama_tuk: ['namatuk', 'tuk', 'tempatujikompetensi'], email_pp: ['emailpp', 'email', 'emailpengawaspusat'],
+    nama_pp: ['namapp', 'pp', 'pengawaspusat', 'namapengawaspusat'], institusi_pp: ['institusipp', 'asalinstitusi', 'institusi'], tahun: ['tahun', 'tahunpelaksanaan'], periode: ['periode'],
+    tgl_pelaksanaan: ['tanggalpelaksanaan', 'tglpelaksanaan', 'tanggal'], jumlah_sesi: ['jumlahsesi', 'sesi'], jumlah_hari: ['jumlahhari', 'hari'], jumlah_peserta: ['jumlahpeserta', 'peserta'],
+    jumlah_pl: ['jumlahpl', 'jumlahpengawaslokal', 'pl'], jumlah_admin: ['jumlahadmin', 'admin'], jumlah_it: ['jumlahit', 'jumlahitlokal', 'itlokal', 'it'], jumlah_cocbt: ['jumlahcocbt', 'cocbt'],
+    konsumsi_briefing: ['konsumsibriefing', 'porsikonsumsibriefing'], konsumsi_h1: ['konsumsih1', 'konsumsihari1'], konsumsi_h2: ['konsumsih2', 'konsumsihari2'],
+    tiket: ['tiket', 'tiketpp'], hotel: ['hotel'], ops_pp: ['opspp', 'biayaoperasionalpp'],
+  };
+  const ALIAS_PP = { nama: ['nama', 'namapp', 'namalengkap', 'namapengawaspusat'], email: ['email', 'emailpp'], institusi: ['institusi', 'asalinstitusi', 'institusipp'], no_hp: ['nohp', 'hp', 'telepon', 'nohp'], golongan: ['golongan', 'gol'] };
+  const num = (v) => { if (typeof v === 'number') return v; const s = String(v == null ? '' : v).replace(/rp/gi, '').replace(/\s/g, ''); if (s === '' || s === '-') return null; const n = Number(s.replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')); return isFinite(n) ? n : null; };
+  const isoDate = (v) => {
+    if (v instanceof Date && !isNaN(v)) return `${v.getFullYear()}-${String(v.getMonth() + 1).padStart(2, '0')}-${String(v.getDate()).padStart(2, '0')}`;
+    const s = String(v || '').trim(); if (!s) return ''; let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+    m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/); return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : '';
+  };
+  const readWb = (file) => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => { try { res(XLSX.read(fr.result, { type: 'array', cellDates: true })); } catch (e) { rej(e); } }; fr.onerror = () => rej(fr.error); fr.readAsArrayBuffer(file); });
+  const sheetRows = (ws) => XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+  // tabel datar: baris header cocok dengan alias
+  function parseFlat(wb, alias, must, minCols = 2) {
+    const out = [];
+    wb.SheetNames.forEach((sn) => {
+      const rows = sheetRows(wb.Sheets[sn]); if (rows.some((r) => r.some((c) => nz(c) === 'komponenbiaya'))) return; // format Lembar Serah Terima: dibaca parseLembar
+      const known = (r) => new Set(r.map((c) => Object.keys(alias).find((k) => alias[k].includes(nz(c)) || nz(c) === nz(k))).filter(Boolean));
+      const hi = rows.findIndex((r) => known(r).has(must) && known(r).size >= minCols);
+      if (hi < 0) return;
+      const col = {}; rows[hi].forEach((c, i) => { const k = Object.keys(alias).find((key) => alias[key].includes(nz(c)) || nz(c) === nz(key)); if (k && col[k] === undefined) col[k] = i; });
+      if (col[must] === undefined) return;
+      rows.slice(hi + 1).forEach((r, i) => { if (!r.some((c) => String(c).trim() !== '')) return; const o = { _sheet: sn, _row: hi + i + 2 }; Object.keys(col).forEach((k) => (o[k] = r[col[k]])); out.push(o); });
+    });
+    return out;
+  }
+  // lembar serah terima (satu sheet per TUK) seperti operasional_TUK-PP.xlsx
+  function parseLembar(wb) {
+    const labelKey = {}; U.defaultItems().forEach((it) => (labelKey[nz(it.label)] = it.key)); const out = [];
+    wb.SheetNames.forEach((sn) => {
+      const rows = sheetRows(wb.Sheets[sn]); const head = rows.findIndex((r) => r.some((c) => nz(c) === 'komponenbiaya')); if (head < 0) return;
+      const ci = (name) => rows[head].findIndex((c) => nz(c) === name);
+      const cN = ci('nilai'), cQ = ci('banyak'); if (cN < 0 || cQ < 0) return;
+      const o = { _sheet: sn, _row: 1, items: {} };
+      const after = (r, i) => { for (let j = i + 1; j < r.length; j++) if (String(r[j]).trim() !== '') return r[j]; return ''; };
+      rows.slice(0, head).forEach((r) => r.forEach((c, i) => {
+        const k = nz(c);
+        if (k === 'namapp') o.nama_pp = String(after(r, i)); else if (k === 'asalinstitusi') o.institusi_pp = String(after(r, i)); else if (k === 'tuk') o.nama_tuk = String(after(r, i));
+        else if (k === 'jumlahsesi') o.jumlah_sesi = num(after(r, i)); else if (k === 'jumlahhari') o.jumlah_hari = num(after(r, i));
+      }));
+      rows.slice(head + 1).forEach((r) => { const li = r.findIndex((c) => labelKey[nz(c)]); if (li < 0) return; const key = labelKey[nz(r[li])]; const nilai = num(r[cN]), qty = num(r[cQ]); o.items[key] = { nilai: nilai == null ? 0 : nilai, qty: qty == null ? 0 : qty }; });
+      if (o.nama_tuk) { const ops = o.items.ops_cbt; if (ops) o.jumlah_peserta = ops.qty; out.push(o); }
+    });
+    return out;
+  }
+  function parseTuk(wb) { const flat = parseFlat(wb, ALIAS, 'nama_tuk', 3), lem = parseLembar(wb); return flat.concat(lem); }
+  function buildDraft(row, pp, pjId) {
+    const sesi = Math.max(1, num(row.jumlah_sesi) || 1), hari = Math.max(1, num(row.jumlah_hari) || 1), peserta = Math.max(0, num(row.jumlah_peserta) || 0);
+    const r = { jumlah_sesi: sesi, jumlah_hari: hari, items: U.defaultItems({ peserta }) };
+    const set = (k, f) => { const it = r.items.find((i) => i.key === k); if (it) f(it); };
+    if (row.items && Object.keys(row.items).length) r.items.forEach((it) => { const v = row.items[it.key]; if (v) { it.nilai = v.nilai; it.qty = v.qty; } else it.qty = 0; });
+    else {
+      const cnt = { pl: num(row.jumlah_pl), admin: num(row.jumlah_admin), it_lokal: num(row.jumlah_it), co_cbt: num(row.jumlah_cocbt) }, def = { pl: 2, admin: 1, it_lokal: 1, co_cbt: 1 };
+      Object.keys(cnt).forEach((k) => U.applyHeadcount(r, k, cnt[k] || def[k]));
+      [['konsumsi_briefing', row.konsumsi_briefing], ['konsumsi_h1', row.konsumsi_h1], ['konsumsi_h2', row.konsumsi_h2]].forEach(([k, v]) => { const n = num(v); if (n != null) set(k, (it) => (it.qty = n)); });
+      [['tiket', row.tiket], ['hotel', row.hotel], ['ops_pp', row.ops_pp]].forEach(([k, v]) => { const n = num(v); if (n != null) set(k, (it) => (it.nilai = n)); });
+    }
+    const now = Date.now(), total = U.totalOf(r.items);
+    return { pj_id: pjId, pp_id: pp.id, nomor_tuk: String(row.nomor_tuk == null ? '' : row.nomor_tuk).trim(), tuk_name: String(row.nama_tuk || '').trim(), pp_institusi: String(row.institusi_pp || pp.institusi || '').trim(),
+      jumlah_sesi: sesi, jumlah_hari: hari, jumlah_peserta: peserta, tahun: String(num(row.tahun) || new Date().getFullYear()), periode: String(row.periode == null ? '' : row.periode).trim(), tgl_pelaksanaan: isoDate(row.tgl_pelaksanaan),
+      jumlah_petugas: Object.fromEntries(['pl', 'admin', 'it_lokal', 'co_cbt'].map((k) => [k, U.headcount(r, k)])), items: r.items, personnel: { pp_name: pp.full_name || '', pj_name: '' }, total, status: 'draft', petugas: {}, realisasi: {}, pp_mandiri: {}, updated_at: now, created_at: now, published_at: null };
+  }
+  const dl = (wb, name) => XLSX.writeFile(wb, name);
+  const sheetFrom = (aoa, widths) => { const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!cols'] = widths.map((w) => ({ wch: w })); return ws; };
+  function buildTemplateTuk() {
+    const wb = XLSX.utils.book_new(), y = new Date().getFullYear();
+    const head = ['nomor_tuk', 'nama_tuk', 'email_pp', 'nama_pp', 'institusi_pp', 'tahun', 'periode', 'tanggal_pelaksanaan', 'jumlah_sesi', 'jumlah_hari', 'jumlah_peserta', 'jumlah_pl', 'jumlah_admin', 'jumlah_it', 'jumlah_cocbt', 'konsumsi_briefing', 'konsumsi_h1', 'konsumsi_h2', 'tiket', 'hotel', 'ops_pp'];
+    XLSX.utils.book_append_sheet(wb, sheetFrom([head,
+      ['001', 'STIKES Wira Medika Bali', 'pp1@contoh.id', 'Dr I Made Sudarma Adiputra, S.Kep., Ns., M.Kes', 'STIKES Wira Medika Bali', y, 'II', '2026-08-15', 1, 1, 44, 2, 1, 1, 1, 6, 6, 0, 0, 0, 500000],
+      ['002', 'Universitas Contoh', 'pp2@contoh.id', 'Contoh Pengawas Kedua, S.KM., M.Kes', 'Universitas Lain', y, 'II', '2026-08-16', 2, 2, 80, 3, 2, 1, 1, 8, 8, 8, 1200000, 900000, 500000]],
+      [10, 28, 24, 36, 28, 8, 9, 20, 11, 11, 14, 10, 12, 9, 12, 16, 12, 12, 11, 11, 11]), 'Data TUK');
+    XLSX.utils.book_append_sheet(wb, sheetFrom([['Kolom', 'Wajib?', 'Contoh', 'Keterangan'],
+      ['nomor_tuk', 'Disarankan', '001', 'Nomor TUK; tercetak di dokumen dan nama file'],
+      ['nama_tuk', 'WAJIB', 'STIKES Wira Medika Bali', 'Nama Tempat Uji Kompetensi'],
+      ['email_pp', 'WAJIB*', 'pp1@contoh.id', 'Email akun PP (untuk mencocokkan PP). *Boleh diganti nama_pp bila email kosong'],
+      ['nama_pp', 'Opsional', 'Dr Contoh, S.Kep., M.Kes', 'Dipakai bila email_pp kosong (harus sama dengan nama akun PP)'],
+      ['institusi_pp', 'Opsional', 'STIKES Wira Medika Bali', 'Asal institusi PP; kosong = ikut data akun PP'],
+      ['tahun', 'Opsional', y, '4 angka; kosong = tahun berjalan'],
+      ['periode', 'Opsional', 'II', 'Periode ujian (I, II, ...)'],
+      ['tanggal_pelaksanaan', 'Opsional', '2026-08-15', 'Format tahun-bulan-tanggal atau hh/bb/tttt'],
+      ['jumlah_sesi', 'Opsional', 1, 'Kosong = 1'], ['jumlah_hari', 'Opsional', 1, 'Kosong = 1'], ['jumlah_peserta', 'Opsional', 44, 'Menentukan Biaya Operasional CBT (Rp 40.000 / peserta)'],
+      ['jumlah_pl', 'Opsional', 2, 'Banyak Pengawas Lokal; kosong = 2. Honor (× sesi) & transport (× hari) otomatis'],
+      ['jumlah_admin', 'Opsional', 1, 'Kosong = 1'], ['jumlah_it', 'Opsional', 1, 'Kosong = 1'], ['jumlah_cocbt', 'Opsional', 1, 'Kosong = 1'],
+      ['konsumsi_briefing', 'Opsional', 6, 'Jumlah porsi konsumsi briefing; kosong = 6'], ['konsumsi_h1', 'Opsional', 6, 'Porsi konsumsi hari 1; kosong = 6'], ['konsumsi_h2', 'Opsional', 0, 'Porsi konsumsi hari 2; kosong = 0'],
+      ['tiket / hotel / ops_pp', 'Opsional', 500000, 'Rupiah (at cost). Kosong = 0 (diisi PP di dokumen mandiri)'],
+      [], ['Cara lain', '', '', 'Anda juga dapat mengunggah file operasional_TUK-PP.xlsx berformat Lembar Serah Terima (satu sheet per TUK) tanpa memakai template ini.'],
+      ['Catatan', '', '', 'Hasil impor berupa DRAFT. Periksa lalu terbitkan dari menu Laporan TUK. Baris yang sudah ada (nomor + nama TUK + PP sama) dilewati.']],
+      [26, 13, 28, 90]), 'Petunjuk');
+    return wb;
+  }
+  function buildTemplatePP() {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, sheetFrom([['nama', 'email', 'institusi', 'no_hp', 'golongan'],
+      ['Dr I Made Sudarma Adiputra, S.Kep., Ns., M.Kes', 'pp1@contoh.id', 'STIKES Wira Medika Bali', '08123456789', 'III/b'],
+      ['Contoh Pengawas Kedua, S.KM., M.Kes', 'pp2@contoh.id', 'Universitas Contoh', '08129876543', 'III/a']], [44, 28, 30, 16, 10]), 'Data PP');
+    XLSX.utils.book_append_sheet(wb, sheetFrom([['Kolom', 'Wajib?', 'Keterangan'],
+      ['nama', 'Disarankan', 'Nama lengkap beserta gelar'], ['email', 'WAJIB', 'Email yang akan dipakai PP untuk mendaftar (huruf kecil). Dipakai juga untuk mencocokkan impor TUK'],
+      ['institusi', 'Opsional', 'Asal institusi'], ['no_hp', 'Opsional', 'Nomor HP'], ['golongan', 'Opsional', 'Golongan, mis. III/b'],
+      [], ['Catatan', '', 'PP yang mendaftar dengan email yang sama otomatis terhubung ke PJ yang mengunggah data ini, tanpa Kode PJ.']], [14, 13, 100]), 'Petunjuk');
+    return wb;
+  }
+  const templateTuk = () => dl(buildTemplateTuk(), 'Template Data TUK.xlsx');
+  const templatePP = () => dl(buildTemplatePP(), 'Template Data PP.xlsx');
+
+  let imp = { rows: [], sel: new Set(), pps: [], free: {}, existing: [] };
+  async function renderImpor() {
+    app.innerHTML = '<p class="muted center">Memuat…</p>';
+    let pps, roster, reps;
+    try { pps = await myPPs(); roster = await DB.docs('roster', me.role === 'admin' ? [] : [F.where('pj_id', '==', me.id)]); reps = me.role === 'admin' ? await DB.reports() : await DB.reports(F.where('pj_id', '==', me.id)); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
+    imp.pps = pps; imp.existing = reps;
+    const regd = new Set(pps.map((p) => (p.email || '').toLowerCase()));
+    app.innerHTML = `<div class="card"><h2>Impor Data Operasional TUK</h2>
+      <p class="muted" style="margin:0 0 8px">Unggah file Excel/CSV berisi nomor TUK, nama TUK, PP, dan data operasional. Laporan dibuat sebagai <strong>draft</strong>; periksa lalu terbitkan dari menu Laporan TUK. Mendukung template di bawah, atau file <em>operasional_TUK-PP.xlsx</em> (Lembar Serah Terima, satu sheet per TUK).</p>
+      <div class="row"><button class="btn" id="tpl1">Unduh template Data TUK</button><input type="file" id="f1" accept=".xlsx,.xls,.csv" style="max-width:320px"></div><div class="err" id="err1"></div><div id="prev"></div></div>
+      <div class="card"><h2>Data PP (Pengawas Pusat)</h2>
+      <p class="muted" style="margin:0 0 8px">Unggah daftar PP (nama, email, institusi, no HP, golongan). PP yang <strong>mendaftar dengan email yang sama</strong> otomatis terhubung ke Anda tanpa Kode PJ. Impor TUK mencocokkan PP lewat email.</p>
+      <div class="row"><button class="btn" id="tpl2">Unduh template Data PP</button><input type="file" id="f2" accept=".xlsx,.xls,.csv" style="max-width:320px"></div><div class="err" id="err2"></div>
+      <div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Nama</th><th>Email</th><th>Institusi</th><th>No HP</th><th>Gol</th><th>Status</th><th></th></tr></thead><tbody>${roster.map((x) => `<tr><td>${esc(x.nama)}</td><td>${esc(x.email)}</td><td>${esc(x.institusi)}</td><td>${esc(x.no_hp)}</td><td>${esc(x.golongan)}</td><td><span class="chip ${regd.has((x.email || '').toLowerCase()) ? 'ok' : 'warn'}">${regd.has((x.email || '').toLowerCase()) ? 'Terdaftar' : 'Belum mendaftar'}</span></td><td class="num"><button class="btn sm danger" data-rd="${esc(x.id)}">Hapus</button></td></tr>`).join('') || '<tr><td colspan="7" class="muted">Belum ada data PP.</td></tr>'}</tbody></table></div></div>`;
+    $('#tpl1').onclick = templateTuk; $('#tpl2').onclick = templatePP;
+    $('#f1').onchange = async (e) => { const f = e.target.files[0]; if (!f) return; $('#err1').textContent = ''; try { await previewTuk(f); } catch (x) { $('#err1').textContent = 'Gagal membaca file: ' + msgOf(x); } };
+    $('#f2').onchange = async (e) => { const f = e.target.files[0]; if (!f) return; $('#err2').textContent = ''; try { await importRoster(f); } catch (x) { $('#err2').textContent = msgOf(x); } };
+    app.querySelectorAll('[data-rd]').forEach((b) => (b.onclick = async () => { if (!confirm('Hapus PP ini dari daftar?')) return; try { await F.deleteDoc(F.doc(db, 'roster', b.dataset.rd)); renderImpor(); } catch (x) { toast(msgOf(x)); } }));
+  }
+  async function importRoster(file) {
+    const wb = await readWb(file), rows = parseFlat(wb, ALIAS_PP, 'email');
+    if (!rows.length) throw new Error('Kolom "email" tidak ditemukan. Gunakan template Data PP.');
+    let n = 0, bad = 0;
+    for (const r of rows) {
+      const email = String(r.email || '').trim().toLowerCase(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { bad++; continue; }
+      await F.setDoc(F.doc(db, 'roster', email), { pj_id: me.id, email, nama: String(r.nama || '').trim(), institusi: String(r.institusi || '').trim(), no_hp: String(r.no_hp == null ? '' : r.no_hp).trim(), golongan: String(r.golongan == null ? '' : r.golongan).trim(), created_at: Date.now() }); n++;
+    }
+    toast(`${n} PP disimpan${bad ? `, ${bad} baris dilewati (email tidak valid)` : ''}`); renderImpor();
+  }
+  async function previewTuk(file) {
+    const wb = await readWb(file), rows = parseTuk(wb);
+    if (!rows.length) throw new Error('Data TUK tidak ditemukan. Pastikan ada kolom nama_tuk atau gunakan format Lembar Serah Terima.');
+    const mine = imp.pps, byEmail = {}, byName = {}; mine.forEach((p) => { byEmail[(p.email || '').toLowerCase()] = p; byName[nz(p.full_name)] = p; });
+    imp.free = {}; imp.rows = [];
+    for (const [i, r] of rows.entries()) {
+      const email = String(r.email_pp || '').trim().toLowerCase(); let pp = byEmail[email] || byName[nz(r.nama_pp)], note = '', ok = true;
+      if (!pp && email) { try { const f = await DB.users(F.where('email', '==', email), F.where('role', '==', 'pp'), F.where('pj_id', '==', null)); if (f.length) { pp = f[0]; imp.free[pp.id] = true; note = 'PP akan ditautkan ke Anda'; } } catch (_) {} }
+      if (!r.nama_tuk || !String(r.nama_tuk).trim()) { ok = false; note = 'Nama TUK kosong'; } else if (!pp) { ok = false; note = 'PP belum mendaftar / tidak ditemukan'; }
+      else if (imp.existing.some((x) => x.pp_id === pp.id && (String(x.nomor_tuk || '') === String(r.nomor_tuk || '') && String(x.tuk_name || '').toLowerCase() === String(r.nama_tuk).trim().toLowerCase()))) { ok = false; note = 'Sudah ada (duplikat)'; }
+      imp.rows.push({ ...r, _pp: pp, _ok: ok, _note: note || 'Siap diimpor', _i: i });
+    }
+    imp.sel = new Set(imp.rows.filter((x) => x._ok).map((x) => x._i));
+    drawPreview();
+  }
+  function drawPreview() {
+    const box = $('#prev'); const okn = imp.rows.filter((x) => x._ok).length;
+    box.innerHTML = `<h3 style="margin:14px 0 6px">Pratinjau (${imp.rows.length} baris, ${okn} siap)</h3><div class="tablewrap"><table><thead><tr><th></th><th>No. TUK</th><th>TUK</th><th>PP</th><th>Tahun/Periode</th><th>Sesi/Hari</th><th class="num">Peserta</th><th>Status</th></tr></thead><tbody>${imp.rows.map((x) => `<tr><td><input type="checkbox" data-sel="${x._i}" ${x._ok ? '' : 'disabled'} ${imp.sel.has(x._i) ? 'checked' : ''}></td><td>${esc(x.nomor_tuk)}</td><td>${esc(x.nama_tuk)}</td><td>${esc(x._pp ? x._pp.full_name : x.nama_pp || x.email_pp || '')}</td><td>${esc(x.tahun || '')} ${esc(x.periode || '')}</td><td>${esc(x.jumlah_sesi || 1)} / ${esc(x.jumlah_hari || 1)}</td><td class="num">${esc(x.jumlah_peserta || 0)}</td><td><span class="chip ${x._ok ? 'ok' : 'warn'}">${esc(x._note)}</span></td></tr>`).join('')}</tbody></table></div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="go1" ${okn ? '' : 'disabled'}>Impor yang dipilih sebagai draft</button></div><div class="err" id="err3"></div>`;
+    box.querySelectorAll('[data-sel]').forEach((c) => (c.onchange = () => { const i = Number(c.dataset.sel); c.checked ? imp.sel.add(i) : imp.sel.delete(i); }));
+    $('#go1').onclick = async () => {
+      const picks = imp.rows.filter((x) => imp.sel.has(x._i)); if (!picks.length) return;
+      $('#go1').disabled = true; let n = 0;
+      try {
+        for (const x of picks) {
+          if (imp.free[x._pp.id]) { await F.updateDoc(F.doc(db, 'users', x._pp.id), { pj_id: me.id }); x._pp.pj_id = me.id; delete imp.free[x._pp.id]; }
+          const pjId = me.role === 'admin' ? x._pp.pj_id : me.id, d = buildDraft(x, x._pp, pjId);
+          d.personnel.pj_name = me.role === 'admin' ? ((await DB.user(pjId)) || {}).full_name || '' : me.full_name;
+          await F.addDoc(F.collection(db, 'reports'), d); n++;
+        }
+        toast(`${n} laporan draft dibuat`); go('laporan');
+      } catch (e) { $('#err3').textContent = `Berhenti setelah ${n} laporan: ${msgOf(e)}`; $('#go1').disabled = false; }
+    };
+  }
+
 
   boot();
 })();

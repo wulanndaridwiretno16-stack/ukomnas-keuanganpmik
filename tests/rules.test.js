@@ -52,6 +52,19 @@ const fs = require('fs');
   await t('PP petugas must be map', assertFails(pp1.doc('reports/r1').update({petugas:'x'})));
   await t('PP cannot update draft', assertFails(pp1.doc('reports/r2').update({petugas:{}})));
   await t('other PP cannot update petugas', assertFails(pp2.doc('reports/r1').update({petugas:{}})));
+  // roster (data PP yang diunggah PJ)
+  await env.withSecurityRulesDisabled(async (c)=>c.firestore().doc('roster/rost@x').set({pj_id:'pj1',email:'rost@x',nama:'R'}));
+  await t('PJ writes own roster', assertSucceeds(pj1.doc('roster/new@x').set({pj_id:'pj1',email:'new@x',nama:'N'})));
+  await t('PJ cannot write roster for other PJ', assertFails(pj1.doc('roster/bad@x').set({pj_id:'pj2',email:'bad@x'})));
+  await t('roster id must match email', assertFails(pj1.doc('roster/a@x').set({pj_id:'pj1',email:'b@x'})));
+  await t('PP cannot write roster', assertFails(pp1.doc('roster/pp@x').set({pj_id:'pj1',email:'pp@x'})));
+  await t('PJ lists own roster', assertSucceeds(pj1.collection('roster').where('pj_id','==','pj1').get()));
+  await t('PJ2 cannot list PJ1 roster', assertFails(pj2.collection('roster').get()));
+  await t('PP cannot list roster', assertFails(pp1.collection('roster').get()));
+  await t('signup reads own roster', assertSucceeds(as('r1','rost@x').doc('roster/rost@x').get()));
+  await t('signup via roster ok', assertSucceeds(as('r1','rost@x').doc('users/r1').set({email:'rost@x',role:'pp',pj_id:'pj1',kode_used:null})));
+  await t('signup via roster forged pj', assertFails(as('r2','rost@x').doc('users/r2').set({email:'rost@x',role:'pp',pj_id:'pj2',kode_used:null})));
+  await t('reads other roster denied', assertFails(as('r3','zzz@x').doc('roster/rost@x').get()));
   // jumlah nama petugas dibatasi oleh hitungan PJ
   await t('PP: admin 1 of 1 ok', assertSucceeds(pp1.doc('reports/r3').update({petugas:{admin:['A']},petugas_at:1})));
   await t('PP: admin 2 of 1 denied', assertFails(pp1.doc('reports/r3').update({petugas:{admin:['A','B']},petugas_at:1})));

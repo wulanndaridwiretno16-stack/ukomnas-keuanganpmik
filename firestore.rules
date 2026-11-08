@@ -28,6 +28,10 @@ service cloud.firestore {
         && request.resource.data.role == 'pp'
         && request.resource.data.email == request.auth.token.email
         && (request.resource.data.pj_id == null
+            // PP yang emailnya sudah diunggah PJ (koleksi roster) otomatis terhubung ke PJ tersebut
+            || (exists(/databases/$(database)/documents/roster/$(request.auth.token.email.lower()))
+                && get(/databases/$(database)/documents/roster/$(request.auth.token.email.lower())).data.pj_id
+                   == request.resource.data.pj_id)
             || (request.resource.data.kode_used is string
                 && exists(/databases/$(database)/documents/pjCodes/$(request.resource.data.kode_used))
                 && get(/databases/$(database)/documents/pjCodes/$(request.resource.data.kode_used)).data.pj_id
@@ -60,6 +64,16 @@ service cloud.firestore {
       allow list: if false;
       allow create: if isAdmin();
       allow update, delete: if isAdmin();
+    }
+
+    // Daftar PP yang diunggah PJ (id dokumen = email huruf kecil)
+    match /roster/{em} {
+      allow get: if signedIn() && (em == request.auth.token.email.lower()
+                    || isAdmin() || (isPJ() && resource.data.pj_id == request.auth.uid));
+      allow list: if isAdmin() || (isPJ() && resource.data.pj_id == request.auth.uid);
+      allow create, update: if isPJ() && (request.resource.data.pj_id == request.auth.uid || isAdmin())
+                              && request.resource.data.email.lower() == em;
+      allow delete: if isPJ() && (resource.data.pj_id == request.auth.uid || isAdmin());
     }
 
     match /reports/{id} {
