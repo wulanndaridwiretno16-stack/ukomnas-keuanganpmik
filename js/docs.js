@@ -287,7 +287,7 @@
   const rincianKonsumsi = (r, g) => { const i = itm(r, g.items[0]); return `Rincian : ${NUM(i.qty)} orang x ${RP(i.nilai)} = ${RP(i.nilai * i.qty)}`; };
 
   function signCols(doc, y, cols) {
-    const W = 50, xs = [M, M + 64, M + 128];
+    const W = 48, xs = [M, M + 76, M + 132];
     cols.forEach((col, i) => {
       fontN(doc, 9.5); doc.text(col[0], xs[i], y); doc.text(col[1], xs[i], y + 5);
       signName(doc, xs[i], y + 28, col[2] || '', W);
@@ -313,7 +313,7 @@
     doc.text('diberikan pada', M, y); y += 5.5;
     doc.text('Kegiatan/output/MAK', M, y); doc.text(': ' + dots, M + 40, y); y += 5.5;
     doc.text('Kode', M, y); doc.text(': ' + dots, M + 40, y); y += 10;
-    signCols(doc, y, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name], ['diterima tanggal ' + dots, 'penerima uang/uang Muka kerja', o.penerima || '']]);
+    signCols(doc, y, [['An. Kuasa Pengguna Anggaran', 'Pejabat Pembuat Komitmen', PPK()], ['Setuju dibayar', 'Bendahara Pengeluaran', pj.full_name], ['diterima tanggal ...............', 'penerima uang/uang Muka kerja', o.penerima || '']]);
   }
 
   function pageKwitansi(doc, c, o) {
