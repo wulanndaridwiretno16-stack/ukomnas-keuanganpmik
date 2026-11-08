@@ -14,6 +14,9 @@ Menu **Panduan** menyediakan dua halaman terpisah: **Panduan PJ Keuangan** dan *
 - **Data PP**: unggah daftar PP (nama, email, institusi, no HP, golongan). PP yang mendaftar dengan email yang sama otomatis terhubung ke PJ pengunggah (tanpa Kode PJ).
 - Template siap pakai: folder [`templates/`](templates) (`Template Data TUK.xlsx`, `Template Data PP.xlsx`) atau tombol unduh di menu Impor Data. **Nomor TUK** juga dapat diisi di formulir laporan.
 
+## Materi sosialisasi (PPT)
+Folder [`sosialisasi/`](sosialisasi) berisi dua presentasi terpisah (13 slide, dengan catatan pembicara): `Sosialisasi Aplikasi - PJ Keuangan.pptx` dan `Sosialisasi Aplikasi - Pengawas Pusat.pptx`. Menu **Panduan** di aplikasi mengikuti akun: PJ hanya melihat panduan PJ, PP hanya panduan PP (Admin dan halaman publik: keduanya).
+
 ## Mode demo (uji coba tanpa menyimpan data)
 Buka `https://<situs>/?demo=1`. Semua data hanya di memori browser, tidak masuk Firebase, dan hilang saat halaman dimuat ulang. Tersedia tombol masuk cepat sebagai Admin, PJ Keuangan, dan Pengawas Pusat (kata sandi demo: `demo123`).
 

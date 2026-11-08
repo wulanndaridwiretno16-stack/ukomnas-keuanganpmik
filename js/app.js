@@ -552,13 +552,14 @@
   /* ---------------- Panduan / sosialisasi ---------------- */
   let guideKind = null;
   function renderPanduan(kind) {
-    const G = window.PANDUAN, pub = !me, onlyPP = me && me.role === 'pp';
-    kind = onlyPP ? 'pp' : (kind || guideKind || 'pj'); guideKind = kind;
+    const G = window.PANDUAN, pub = !me, onlyPP = me && me.role === 'pp', onlyPJ = me && me.role === 'pj', single = onlyPP || onlyPJ;
+    // panduan mengikuti akun: PJ hanya panduan PJ, PP hanya panduan PP (Admin & halaman publik: kedua panduan)
+    kind = onlyPP ? 'pp' : onlyPJ ? 'pj' : (kind || guideKind || 'pj'); guideKind = kind;
     const g = G[kind], md = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     const link = location.origin + location.pathname + '#/panduan-' + kind;
     app.innerHTML = `<div class="card"><div class="row between"><h2 style="margin:0">${esc(g.title)}</h2>
       <div class="row">${pub ? '<button class="btn" id="gback">← Masuk</button>' : ''}<button class="btn primary" id="gpdf">Unduh PDF (A4)</button></div></div>
-      ${onlyPP ? '' : `<div class="tabs" style="margin-top:14px"><button class="btn ${kind === 'pj' ? 'primary' : ''}" data-gk="pj">Panduan PJ Keuangan</button><button class="btn ${kind === 'pp' ? 'primary' : ''}" data-gk="pp">Panduan Pengawas Pusat</button></div>`}
+      ${single ? '' : `<div class="tabs" style="margin-top:14px"><button class="btn ${kind === 'pj' ? 'primary' : ''}" data-gk="pj">Panduan PJ Keuangan</button><button class="btn ${kind === 'pp' ? 'primary' : ''}" data-gk="pp">Panduan Pengawas Pusat</button></div>`}
       <p style="margin:14px 0 0">${md(g.intro)}</p>
       <div class="row" style="margin-top:10px"><span class="muted" style="font-size:13px">Tautan untuk dibagikan:</span><input id="glink" readonly value="${esc(link)}" style="max-width:420px"><button class="btn sm" id="gcopy">Salin</button></div></div>
       ${g.sections.map((s) => `<div class="card"><h3>${esc(s.h)}</h3><ol class="guide">${s.steps.map((t) => `<li>${md(t)}</li>`).join('')}</ol>${s.tip ? `<div class="tip"><strong>Catatan:</strong> ${md(s.tip)}</div>` : ''}</div>`).join('')}`;
