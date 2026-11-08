@@ -1,0 +1,73 @@
+const { initializeTestEnvironment, assertSucceeds, assertFails } = require('@firebase/rules-unit-testing');
+const fs = require('fs');
+(async () => {
+  const env = await initializeTestEnvironment({ projectId: 'demo-ukom', firestore: { rules: fs.readFileSync('firestore.rules','utf8'), host:'127.0.0.1', port:8085 } });
+  let pass=0, fail=0; const t=async(n,p)=>{ try{await p;pass++;console.log('ok  ',n);}catch(e){fail++;console.log('FAIL',n,String(e.message).slice(0,90));}};
+  const ADM='wulanndari.dwiretno16@gmail.com';
+  await env.withSecurityRulesDisabled(async (c)=>{ const d=c.firestore();
+    await d.doc('users/admin').set({email:ADM,role:'admin',pj_id:null,kode_pj:'ADMC',full_name:'A'});
+    await d.doc('users/pj1').set({email:'pj1@x',role:'pj',pj_id:null,kode_pj:'PJ1C',full_name:'PJ1'});
+    await d.doc('users/pj2').set({email:'pj2@x',role:'pj',pj_id:null,kode_pj:'PJ2C',full_name:'PJ2'});
+    await d.doc('users/pp1').set({email:'pp1@x',role:'pp',pj_id:'pj1',full_name:'PP1'});
+    await d.doc('users/pp2').set({email:'pp2@x',role:'pp',pj_id:'pj2',full_name:'PP2'});
+    await d.doc('users/pp3').set({email:'pp3@x',role:'pp',pj_id:null,full_name:'PP3'});
+    await d.doc('pjCodes/PJ1C').set({pj_id:'pj1'});
+    await d.doc('reports/r1').set({pj_id:'pj1',pp_id:'pp1',tuk_name:'T',items:[],total:100,status:'published'});
+    await d.doc('reports/r2').set({pj_id:'pj1',pp_id:'pp1',tuk_name:'T2',items:[],total:100,status:'draft'});
+  });
+  const as=(uid,email,v=true)=>env.authenticatedContext(uid,{email,email_verified:v}).firestore();
+  const pj1=as('pj1','pj1@x'), pp1=as('pp1','pp1@x'), pp2=as('pp2','pp2@x'), pj2=as('pj2','pj2@x'), adm=as('admin',ADM);
+  const R=(o={})=>({pj_id:'pj1',pp_id:'pp1',tuk_name:'X',items:[],total:5,status:'draft',...o});
+  // reports
+  await t('PP reads own published', assertSucceeds(pp1.collection('reports').where('pp_id','==','pp1').where('status','==','published').get()));
+  await t('PP cannot read draft', assertFails(pp1.doc('reports/r2').get()));
+  await t('PP cannot list all reports', assertFails(pp1.collection('reports').get()));
+  await t('other PP cannot read r1', assertFails(pp2.doc('reports/r1').get()));
+  await t('PJ lists own', assertSucceeds(pj1.collection('reports').where('pj_id','==','pj1').get()));
+  await t('PJ2 cannot read PJ1 report', assertFails(pj2.doc('reports/r1').get()));
+  await t('PJ1 creates for own PP', assertSucceeds(pj1.collection('reports').add(R())));
+  await t('PJ1 cannot create for other PJ PP', assertFails(pj1.collection('reports').add(R({pp_id:'pp2'}))));
+  await t('PJ1 cannot create as pj2', assertFails(pj1.collection('reports').add(R({pj_id:'pj2',pp_id:'pp2'}))));
+  await t('publish needs tuk+total', assertFails(pj1.collection('reports').add(R({status:'published',total:0}))));
+  await t('publish ok', assertSucceeds(pj1.collection('reports').add(R({status:'published'}))));
+  await t('PP cannot create report', assertFails(pp1.collection('reports').add(R())));
+  await t('PP cannot update report', assertFails(pp1.doc('reports/r1').update({total:1})));
+  await t('PJ updates own', assertSucceeds(pj1.doc('reports/r1').update({tuk_name:'New'})));
+  await t('PJ2 cannot update', assertFails(pj2.doc('reports/r1').update({tuk_name:'Hack'})));
+  await t('PJ2 cannot delete', assertFails(pj2.doc('reports/r1').delete()));
+  await t('admin reads all', assertSucceeds(adm.collection('reports').get()));
+  // users
+  await t('PP reads self', assertSucceeds(pp1.doc('users/pp1').get()));
+  await t('PP cannot read other', assertFails(pp1.doc('users/pp2').get()));
+  await t('PP cannot list users', assertFails(pp1.collection('users').get()));
+  await t('PJ lists own PPs', assertSucceeds(pj1.collection('users').where('pj_id','==','pj1').get()));
+  await t('PJ finds free PP', assertSucceeds(pj1.collection('users').where('email','==','pp3@x').where('role','==','pp').where('pj_id','==',null).get()));
+  await t('PJ cannot list all users', assertFails(pj1.collection('users').get()));
+  await t('PJ claims free PP', assertSucceeds(pj1.doc('users/pp3').update({pj_id:'pj1'})));
+  await t('PJ cannot steal PP of PJ2', assertFails(pj1.doc('users/pp2').update({pj_id:'pj1'})));
+  await t('PJ releases own PP', assertSucceeds(pj1.doc('users/pp3').update({pj_id:null})));
+  await t('PP cannot self-promote', assertFails(pp1.doc('users/pp1').update({role:'admin'})));
+  await t('PP cannot change pj_id', assertFails(pp1.doc('users/pp1').update({pj_id:'pj2'})));
+  await t('PP edits own name', assertSucceeds(pp1.doc('users/pp1').update({full_name:'New'})));
+  await t('PJ cannot make PP admin', assertFails(pj1.doc('users/pp3').update({role:'admin'})));
+  await t('admin sets role', assertSucceeds(adm.doc('users/pp3').update({role:'pj',kode_pj:'ZZ'})));
+  // signup
+  const nu=as('new1','new1@x');
+  await t('signup as pp', assertSucceeds(nu.doc('users/new1').set({email:'new1@x',role:'pp',pj_id:null,kode_used:null})));
+  const nu2=as('new2','new2@x');
+  await t('signup as admin denied', assertFails(nu2.doc('users/new2').set({email:'new2@x',role:'admin',pj_id:null})));
+  await t('signup w/ valid code', assertSucceeds(as('new3','new3@x').doc('users/new3').set({email:'new3@x',role:'pp',pj_id:'pj1',kode_used:'PJ1C'})));
+  await t('signup w/ forged pj', assertFails(as('new4','new4@x').doc('users/new4').set({email:'new4@x',role:'pp',pj_id:'pj2',kode_used:'PJ1C'})));
+  await t('signup w/ pj no code', assertFails(as('new5','new5@x').doc('users/new5').set({email:'new5@x',role:'pp',pj_id:'pj2',kode_used:null})));
+  await t('signup spoof other email', assertFails(as('new6','new6@x').doc('users/new6').set({email:'other@x',role:'pp',pj_id:null})));
+  // admin self-promotion
+  await env.withSecurityRulesDisabled(async (c)=>c.firestore().doc('users/ownr').set({email:ADM,role:'pp',pj_id:null,kode_pj:null}));
+  await t('admin email unverified denied', assertFails(as('ownr',ADM,false).doc('users/ownr').update({role:'admin',kode_pj:'AB'})));
+  await t('admin email verified ok', assertSucceeds(as('ownr',ADM,true).doc('users/ownr').update({role:'admin',kode_pj:'AB'})));
+  await t('then create pjCode', assertSucceeds(as('ownr',ADM,true).doc('pjCodes/AB').set({pj_id:'ownr'})));
+  // pjCodes
+  await t('PP cannot list pjCodes', assertFails(pp1.collection('pjCodes').get()));
+  await t('PJ cannot create pjCode', assertFails(pj1.doc('pjCodes/HAX').set({pj_id:'pj1'})));
+  await t('signed-in get pjCode', assertSucceeds(nu.doc('pjCodes/PJ1C').get()));
+  console.log(`\n${pass} passed, ${fail} failed`); await env.cleanup(); process.exit(fail?1:0);
+})();

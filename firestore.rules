@@ -1,0 +1,94 @@
+rules_version = '2';
+// UKOMNAS RMIK 2026 - Keuangan TUK
+// Peran: admin | pj (PJ Keuangan) | pp (Pengawas Pusat)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Email yang berhak menjadi admin (harus terverifikasi). Ubah bila perlu.
+    function adminEmail() {
+      return request.auth.token.email == 'wulanndari.dwiretno16@gmail.com'
+          && request.auth.token.email_verified == true;
+    }
+    function signedIn() { return request.auth != null; }
+    function mePath() { return /databases/$(database)/documents/users/$(request.auth.uid); }
+    function myRole() { return exists(mePath()) ? get(mePath()).data.role : 'none'; }
+    function isAdmin() { return signedIn() && myRole() == 'admin'; }
+    function isPJ()    { return signedIn() && (myRole() == 'pj' || myRole() == 'admin'); }
+
+    match /users/{uid} {
+      allow get, list: if signedIn() && (
+        uid == request.auth.uid
+        || isAdmin()
+        || resource.data.pj_id == request.auth.uid
+        // PJ mencari PP yang belum punya PJ (query harus memuat role=='pp' & pj_id==null)
+        || (isPJ() && resource.data.role == 'pp' && resource.data.pj_id == null));
+
+      // Pendaftaran: selalu sebagai PP. pj_id boleh terisi hanya jika sesuai kode PJ.
+      allow create: if signedIn() && uid == request.auth.uid
+        && request.resource.data.role == 'pp'
+        && request.resource.data.email == request.auth.token.email
+        && (request.resource.data.pj_id == null
+            || (request.resource.data.kode_used is string
+                && exists(/databases/$(database)/documents/pjCodes/$(request.resource.data.kode_used))
+                && get(/databases/$(database)/documents/pjCodes/$(request.resource.data.kode_used)).data.pj_id
+                   == request.resource.data.pj_id));
+
+      allow update: if signedIn() && (
+        isAdmin()
+        // ubah profil sendiri
+        || (uid == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['full_name','institusi']))
+        // pemilik email admin (terverifikasi) menjadikan dirinya admin
+        || (uid == request.auth.uid && adminEmail()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role','kode_pj'])
+            && request.resource.data.role == 'admin')
+        // PJ mengampu PP yang belum punya PJ
+        || (isPJ() && resource.data.role == 'pp' && resource.data.pj_id == null
+            && request.resource.data.pj_id == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pj_id']))
+        // PJ melepas PP miliknya
+        || (isPJ() && resource.data.role == 'pp' && resource.data.pj_id == request.auth.uid
+            && request.resource.data.pj_id == null
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pj_id']))
+      );
+      allow delete: if false;
+    }
+
+    // Kode PJ -> id PJ (dipakai saat PP mendaftar). Hanya dibaca per-dokumen.
+    match /pjCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    match /reports/{id} {
+      function ppBelongsToPj(d) {
+        return exists(/databases/$(database)/documents/users/$(d.pp_id))
+          && get(/databases/$(database)/documents/users/$(d.pp_id)).data.role == 'pp'
+          && get(/databases/$(database)/documents/users/$(d.pp_id)).data.pj_id == d.pj_id;
+      }
+      function valid(d) {
+        return d.status in ['draft','published']
+          && d.tuk_name is string && d.items is list && d.total is number
+          && (d.status == 'draft' || (d.tuk_name.size() > 0 && d.total > 0));
+      }
+
+      allow get, list: if signedIn() && (
+        resource.data.pj_id == request.auth.uid
+        || isAdmin()
+        || (resource.data.pp_id == request.auth.uid && resource.data.status == 'published'));
+
+      allow create: if isPJ() && valid(request.resource.data)
+        && (request.resource.data.pj_id == request.auth.uid || isAdmin())
+        && ppBelongsToPj(request.resource.data);
+
+      allow update: if isPJ() && (resource.data.pj_id == request.auth.uid || isAdmin())
+        && valid(request.resource.data)
+        && request.resource.data.pj_id == resource.data.pj_id
+        && ppBelongsToPj(request.resource.data);
+
+      allow delete: if isPJ() && (resource.data.pj_id == request.auth.uid || isAdmin());
+    }
+  }
+}
