@@ -739,6 +739,72 @@
     return list;
   }
 
+  /* ---------- Invoice & kuitansi PENDAFTARAN UKOMNAS (kampus) ---------- */
+  const fmtMs = (ms) => (ms ? new Date(Number(ms)).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-');
+  const REG_DEF = { kegiatan: 'Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan', kota: 'Jakarta', penandatangan_nama: 'Dwi Retno Wulandari A.Md.Perkes., SKM., M.H', penandatangan_jabatan: 'Bendahara Pengeluaran' };
+  const regInfo = (reg, cfg) => Object.assign({}, REG_DEF, cfg || {}, reg || {});
+  const regFooter = (doc, label) => {
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setDrawColor(190); doc.setLineWidth(0.2); doc.line(M, 281.2, PW - M, 281.2); doc.setDrawColor(0); doc.setFontSize(7.5); doc.setTextColor(90); doc.text(label, M, 286); doc.text(`hal ${i}/${n}`, PW - M, 286, { align: 'right' }); doc.setTextColor(20); }
+  };
+  function invoicePdf(reg, cfg) {
+    const R = regInfo(reg, cfg); setYear({ tahun: R.tahun });
+    const doc = newDoc(); let y = kop(doc) + 6;
+    fontB(doc, 18); doc.setTextColor(18, 53, 91); doc.text('INVOICE', M, y + 2); doc.setTextColor(20);
+    kvTop(doc, 118, y - 2, [['Nomor', R.nomor_invoice || '-'], ['Tanggal', fmtMs(R.tgl_invoice || R.created_at)], ['Jatuh tempo', fmtMs(R.jatuh_tempo)]], 6);
+    y += 22;
+    fontN(doc, 10); doc.text('Kepada Yth.', M, y); y += 6;
+    fontB(doc, 11.5); splitLines(doc, R.kampus_nama || '', 100).forEach((ln) => { doc.text(ln, M, y); y += 5.8; });
+    fontN(doc, 10.5);
+    [R.alamat, R.kota_kampus || R.kota_kmp, R.kontak_nama ? 'u.p. ' + R.kontak_nama : '', [R.kontak_hp, R.kontak_email].filter(Boolean).join('  |  ')].filter(Boolean).forEach((t) => splitLines(doc, t, 100).forEach((ln) => { doc.text(ln, M, y); y += 5.4; }));
+    y += 6;
+    const uraian = `Biaya pendaftaran ${R.kegiatan}${R.periode ? ' Periode ' + R.periode : ''} Tahun ${R.tahun || YEAR}`;
+    doc.autoTable({
+      startY: y, theme: 'grid', styles: { fontSize: 10, cellPadding: 2.4, lineColor: LINE, lineWidth: 0.2, textColor: 20 }, headStyles: HEAD, footStyles: FOOT,
+      head: [['No', 'Uraian', 'Jumlah peserta', 'Biaya per peserta', 'Jumlah']],
+      body: [[1, uraian, NUM(R.jumlah_peserta), RP(R.tarif), RP(R.total)]],
+      foot: [[{ content: 'TOTAL TAGIHAN', colSpan: 4, styles: { halign: 'right' } }, RP(R.total)]],
+      columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'center', cellWidth: 28 }, 3: { halign: 'right', cellWidth: 36 }, 4: { halign: 'right', cellWidth: 36 } },
+    });
+    y = at(doc) + 7; fontN(doc, 10.5); doc.text('Terbilang', M, y); fontB(doc, 10.5); doc.text(': ' + cap(terbilang(R.total)) + ' rupiah', M + 22, y); y += 11;
+    const rek = R.rek || {}, prow = [['Bank', rek.bank || '-'], ['No. rekening', rek.no || '-'], ['Atas nama', rek.atas_nama || '-']];
+    fontN(doc, 10); const wrapped = prow.map(([l, v]) => [l, splitLines(doc, String(v), 84)]), nl = wrapped.reduce((n, x) => n + x[1].length, 0), bh = 17 + nl * 5.2;
+    doc.setFillColor(243, 246, 250); doc.setDrawColor(150); doc.setLineWidth(0.2); doc.rect(M, y - 5, 126, bh, 'FD'); doc.setDrawColor(0);
+    fontB(doc, 10.5); doc.text('Cara pembayaran', M + 4, y + 1); fontN(doc, 10); let by = y + 8;
+    wrapped.forEach(([l, ls]) => { doc.text(l, M + 4, by); doc.text(':', M + 29, by); ls.forEach((ln) => { doc.text(ln, M + 32, by); by += 5.2; }); });
+    fontN(doc, 8.5); doc.setTextColor(70); doc.text('Cantumkan nomor invoice pada berita transfer, lalu unggah bukti transfer di aplikasi.', M + 4, by + 1.5); doc.setTextColor(20);
+    // status
+    const lunas = R.status === 'lunas';
+    doc.setDrawColor(...(lunas ? [23, 121, 90] : [168, 101, 12])); doc.setTextColor(...(lunas ? [23, 121, 90] : [168, 101, 12])); doc.setLineWidth(0.8);
+    fontB(doc, 12.5); doc.roundedRect(146, y - 4, 49, 12, 1.5, 1.5); doc.text(lunas ? 'LUNAS' : 'BELUM LUNAS', 170.5, y + 3.8, { align: 'center' }); doc.setDrawColor(0); doc.setTextColor(20); doc.setLineWidth(0.2);
+    y += bh + 10;
+    fontN(doc, 10.5); doc.text(`${R.kota}, ${fmtMs(R.tgl_invoice || R.created_at)}`, 128, y); doc.text(R.penandatangan_jabatan, 128, y + 6);
+    signName(doc, 128, y + 34, R.penandatangan_nama, 66);
+    regFooter(doc, `Invoice ${R.nomor_invoice || ''} - ${R.kampus_nama || ''}`);
+    return doc;
+  }
+  function kuitansiDaftarPdf(reg, cfg) {
+    const R = regInfo(reg, cfg); setYear({ tahun: R.tahun });
+    const doc = newDoc(); let y = top(doc, 20);
+    kvTop(doc, 112, y, [['Tahun Anggaran', R.tahun || YEAR], ['Nomor Bukti', R.nomor_kuitansi || '-'], ['Mata Anggaran', dots]]);
+    fontB(doc, 13); doc.text('KWITANSI BUKTI / PEMBAYARAN', PW / 2, y + 26, { align: 'center' });
+    { const w = doc.getTextWidth('KWITANSI BUKTI / PEMBAYARAN'); doc.setLineWidth(0.3); doc.line(PW / 2 - w / 2, y + 27.5, PW / 2 + w / 2, y + 27.5); }
+    y += 40;
+    const amount = Number(R.jumlah_dibayar) > 0 ? Number(R.jumlah_dibayar) : Number(R.total);
+    y = kv(doc, y, 'Sudah terima dari', R.kampus_nama, { lw: 34 });
+    y = kv(doc, y, 'Jumlah uang', RP(amount), { lw: 34 });
+    y = kv(doc, y, 'Terbilang', cap(terbilang(amount)) + ' Rupiah', { lw: 34 });
+    y = kv(doc, y, 'Untuk membayar', [`Biaya pendaftaran ${R.kegiatan}${R.periode ? ' Periode ' + R.periode : ''} Tahun ${R.tahun || YEAR}`, `${NUM(R.jumlah_peserta)} peserta x ${RP(R.tarif)} = ${RP(R.total)}`, `Sesuai Invoice Nomor ${R.nomor_invoice || '-'}`], { lw: 34 });
+    y = kv(doc, y, 'Tanggal pembayaran', R.tgl_bayar ? fmtDate(R.tgl_bayar) : fmtMs(R.tgl_lunas), { lw: 34 });
+    y += 6;
+    doc.setDrawColor(23, 121, 90); doc.setTextColor(23, 121, 90); doc.setLineWidth(0.8); fontB(doc, 16); doc.roundedRect(M, y - 6, 42, 14, 2, 2); doc.text('LUNAS', M + 21, y + 3.4, { align: 'center' }); doc.setDrawColor(0); doc.setTextColor(20); doc.setLineWidth(0.2);
+    fontN(doc, 10.5); doc.text(`${R.kota}, ${fmtMs(R.tgl_lunas || R.updated_at)}`, 128, y); doc.text('Yang Menerima,', 128, y + 6.5); doc.text(R.penandatangan_jabatan, 128, y + 12);
+    signName(doc, 128, y + 40, R.penandatangan_nama, 66);
+    fontN(doc, 8); doc.text(amount >= 5000000 ? 'Kuitansi ini memerlukan meterai (nilai di atas Rp 5.000.000).' : 'Meterai diperlukan apabila nilai di atas Rp 5.000.000', M, y + 46);
+    regFooter(doc, `Kuitansi ${R.nomor_kuitansi || ''} - ${R.kampus_nama || ''}`);
+    return doc;
+  }
+
   // PDF panduan penggunaan (A4, berkop) untuk dicetak saat sosialisasi
   function panduanPdf(g) {
     setYear({});
@@ -767,5 +833,5 @@
     return doc;
   }
 
-  window.UKOM = { panduanPdf, tukLabel, PP_FORM, actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
+  window.UKOM = { invoicePdf, kuitansiDaftarPdf, fmtMs, panduanPdf, tukLabel, PP_FORM, actualCount, PP_OWN, headcount, applyHeadcount, RP, NUM, terbilang, defaultItems, totalOf, COMPONENTS, fileList, safe };
 })();

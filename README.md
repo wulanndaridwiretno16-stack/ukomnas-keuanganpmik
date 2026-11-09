@@ -6,6 +6,12 @@ Aplikasi web untuk Tim Ad Hoc PMIK. **PJ Keuangan** memasukkan nama TUK dan biay
 - **Database + login**: Firebase (Authentication + Firestore, paket gratis *Spark*)
 - **PDF**: dibuat di browser (jsPDF), tidak perlu server/Storage
 
+## Pendaftaran UKOMNAS, invoice, dan kuitansi (peran **Kampus**)
+- Kampus mendaftar di halaman Daftar dengan memilih **Kampus — pendaftar UKOMNAS**, lalu mengisi data dan **jumlah peserta**. **Biaya per peserta** ditetapkan Admin (menu **Pendaftaran UKOMNAS → Pengaturan**); total terhitung otomatis dan **invoice bernomor berurutan** (`INV/UKOMNAS/<tahun>/0001`) langsung terbit sebagai PDF A4 berkop berlogo.
+- Pembayaran dilakukan di aplikasi lain. Kampus **mengunggah foto bukti transfer** (dikompresi otomatis dan disimpan di Firestore, tanpa Firebase Storage/Blaze). Admin memeriksa bukti: **Setujui** (status Lunas + **kuitansi** `KWT/UKOMNAS/<tahun>/0001`) atau **Tolak** dengan alasan (kampus dapat mengunggah ulang).
+- Admin dapat mengubah biaya/jumlah per pendaftaran, memfilter status, dan **mengekspor rekap ke Excel**. Kampus tidak dapat menurunkan harga sendiri (dikunci di `firestore.rules`).
+- Panduan khusus kampus tersedia di menu **Panduan** dan di tautan `…/#/panduan-kampus`.
+
 ## Panduan / sosialisasi
 Menu **Panduan** menyediakan dua halaman terpisah: **Panduan PJ Keuangan** dan **Panduan Pengawas Pusat** (PP hanya melihat panduannya sendiri). Keduanya dapat dibuka **tanpa login** lewat tautan di halaman masuk atau tautan langsung `…/#/panduan-pj` dan `…/#/panduan-pp`, dan dapat diunduh sebagai PDF A4 untuk dicetak. Isi materi ada di `js/panduan.js`.
 
@@ -76,7 +82,7 @@ git push -u origin main
 4. PP masuk → **Berkas Saya** → unduh per berkas atau ZIP.
 
 ## Keamanan
-`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (73 skenario).
+`apiKey` Firebase di `config.js` memang publik; data dilindungi `firestore.rules` (PP hanya membaca laporan *terbit* miliknya; PJ hanya laporan & PP miliknya; peran tidak bisa diubah sendiri). Aturan diuji di emulator: `tests/rules.test.js` (114 skenario).
 
 ```bash
 npm i -D firebase-tools @firebase/rules-unit-testing

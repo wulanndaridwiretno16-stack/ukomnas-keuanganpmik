@@ -95,4 +95,34 @@ window.PANDUAN = {
         '**Lupa kata sandi?** Gunakan tautan Lupa kata sandi di halaman masuk.'] },
     ],
   },
+  kampus: {
+    key: 'kampus', short: 'Kampus (Pendaftar)', title: 'Panduan Pendaftaran UKOMNAS untuk Kampus',
+    intro: 'Kampus mendaftarkan peserta Uji Kompetensi Nasional secara kolektif: satu pendaftaran dan satu invoice untuk banyak mahasiswa. Biaya dihitung otomatis dari jumlah peserta. Pembayaran dilakukan lewat aplikasi lain; di sini kampus mengunggah bukti transfer dan mengunduh invoice serta kuitansi.',
+    sections: [
+      { h: '1. Membuat akun kampus', steps: [
+        'Buka alamat aplikasi, klik **Daftar**, lalu pilih **Daftar sebagai: Kampus - pendaftar UKOMNAS**.',
+        'Isi nama penanggung jawab, **nama kampus**, email, dan kata sandi. Kolom Kode PJ tidak perlu diisi.',
+        'Masuk dengan email dan kata sandi tadi. Menu **Pendaftaran Saya** akan tampil.'],
+        tip: 'Gunakan email resmi yang aktif. Nama kampus tercetak pada invoice dan kuitansi.' },
+      { h: '2. Mengajukan pendaftaran dan invoice', steps: [
+        'Buka **Pendaftaran Saya**. Lengkapi nama kampus, alamat, kota, nama kontak, no HP, dan email.',
+        'Isi **Jumlah peserta uji**. **Biaya per peserta** ditetapkan Admin; **total tagihan terhitung otomatis** beserta terbilangnya.',
+        'Klik **Ajukan pendaftaran & terbitkan invoice**. Invoice bernomor berurutan langsung terbit dan terunduh dalam bentuk PDF A4.'],
+        tip: 'Jumlah peserta dan data kontak masih bisa diubah (tombol Ubah) selama belum ada bukti pembayaran. Biaya per peserta tidak dapat diubah kampus.' },
+      { h: '3. Membayar dan mengunggah bukti transfer', steps: [
+        'Lakukan pembayaran sesuai rekening pada invoice melalui aplikasi pembayaran Anda. Cantumkan **nomor invoice** pada berita transfer.',
+        'Di tabel **Pendaftaran saya**, klik **Unggah bukti**. Isi tanggal pembayaran dan jumlah dibayar, lalu pilih **foto bukti transfer** (foto atau tangkapan layar).',
+        'Klik **Kirim bukti pembayaran**. Status menjadi **Menunggu verifikasi**.'],
+        tip: 'Foto dikecilkan otomatis. Pastikan nominal, tanggal, dan nama rekening terbaca jelas.' },
+      { h: '4. Verifikasi dan kuitansi', steps: [
+        'Admin memeriksa bukti. Bila sesuai, status menjadi **Lunas** dan **kuitansi pendaftaran** bernomor terbit.',
+        'Klik **Kuitansi** pada baris pendaftaran untuk mengunduh PDF A4 berkop. Invoice yang sudah lunas menampilkan tanda LUNAS.',
+        'Bila bukti **ditolak**, alasan tampil pada baris pendaftaran. Klik **Unggah bukti** untuk mengirim ulang.'] },
+      { h: '5. Pertanyaan yang sering muncul', steps: [
+        '**Biaya belum muncul?** Admin belum menetapkan biaya per peserta, atau pendaftaran sedang ditutup.',
+        '**Jumlah peserta berubah setelah invoice terbit?** Ubah selama belum mengunggah bukti, lalu unduh ulang invoice. Setelah itu hubungi Admin.',
+        '**Nominal transfer berbeda dengan tagihan?** Isi jumlah yang sebenarnya dibayar; Admin akan memeriksanya.',
+        '**Lupa kata sandi?** Gunakan tautan Lupa kata sandi di halaman masuk.'] },
+    ],
+  },
 };
