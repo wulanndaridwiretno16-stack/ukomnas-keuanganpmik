@@ -288,7 +288,13 @@
     app.querySelectorAll('[data-p]').forEach((el) => (el.oninput = () => (r.personnel[el.dataset.p] = el.value)));
     app.querySelectorAll('[data-pl]').forEach((el) => (el.oninput = () => { r.personnel.pl = r.personnel.pl || []; r.personnel.pl[+el.dataset.pl] = el.value; }));
     $('#pp').onchange = (e) => { r.pp_id = e.target.value; const x = pps.find((q) => q.id === r.pp_id); if (x && !$('#inst').value) $('#inst').value = x.institusi || ''; };
-    $('#peserta').oninput = (e) => { const it = r.items.find((i) => i.key === 'ops_cbt'); it.qty = Number(e.target.value) || 0; setTimeout(() => keepAndRender(pps), 0); };
+    // jumlah peserta -> Banyak Biaya Operasional CBT; diperbarui di tempat (tanpa menggambar ulang) agar angka besar bisa diketik lancar
+    $('#peserta').oninput = (e) => {
+      const n = Math.max(0, Math.floor(Number(e.target.value)) || 0); r.jumlah_peserta = n;
+      const idx = r.items.findIndex((i) => i.key === 'ops_cbt');
+      if (idx >= 0) { r.items[idx].qty = n; const qi = app.querySelector(`[data-i="${idx}"][data-f="qty"]`); if (qi) qi.value = n; }
+      sync();
+    };
     app.querySelectorAll('[data-hc]').forEach((el) => (el.onchange = () => { collect(); U.applyHeadcount(r, el.dataset.hc, el.value); setTimeout(() => keepAndRender(pps, null), 0); }));
     const recalcStaff = () => { const old = {}; ['pl', 'admin', 'it_lokal', 'co_cbt'].forEach((k) => (old[k] = U.headcount(r, k))); collect(); ['pl', 'admin', 'it_lokal', 'co_cbt'].forEach((k) => U.applyHeadcount(r, k, old[k])); setTimeout(() => keepAndRender(pps, null), 0); };
     $('#sesi').onchange = recalcStaff; $('#hari').onchange = recalcStaff;
