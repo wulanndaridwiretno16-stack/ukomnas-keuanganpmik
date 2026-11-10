@@ -13,7 +13,6 @@ service cloud.firestore {
     function mePath() { return /databases/$(database)/documents/users/$(request.auth.uid); }
     function myRole() { return exists(mePath()) ? get(mePath()).data.role : 'none'; }
     function isAdmin() { return signedIn() && myRole() == 'admin'; }
-    function isKampus() { return signedIn() && myRole() == 'kampus'; }
     function isPJ()    { return signedIn() && (myRole() == 'pj' || myRole() == 'admin'); }
 
     match /users/{uid} {
@@ -26,8 +25,7 @@ service cloud.firestore {
 
       // Pendaftaran: selalu sebagai PP. pj_id boleh terisi hanya jika sesuai kode PJ.
       allow create: if signedIn() && uid == request.auth.uid
-        && request.resource.data.role in ['pp','kampus']
-        && (request.resource.data.role == 'pp' || request.resource.data.pj_id == null)
+        && request.resource.data.role == 'pp'
         && request.resource.data.email == request.auth.token.email
         && (request.resource.data.pj_id == null
             // PP yang emailnya sudah diunggah PJ (koleksi roster) otomatis terhubung ke PJ tersebut
@@ -121,50 +119,6 @@ service cloud.firestore {
         && (!('pp_mandiri' in request.resource.data) || request.resource.data.pp_mandiri is map);
 
       allow delete: if isPJ() && (resource.data.pj_id == request.auth.uid || isAdmin());
-    }
-
-    // ===== Pendaftaran UKOMNAS oleh kampus: pengaturan, nomor berurutan, pendaftaran/invoice, bukti bayar =====
-    match /config/{id} {
-      allow get: if signedIn();
-      allow list: if false;
-      allow write: if isAdmin();
-    }
-    // penghitung nomor invoice/kuitansi: hanya boleh naik tepat 1
-    match /counters/{id} {
-      allow get: if signedIn();
-      allow create: if (isKampus() || isAdmin()) && request.resource.data.n == 1;
-      allow update: if (isKampus() || isAdmin()) && request.resource.data.n == resource.data.n + 1;
-    }
-    match /pendaftaran/{id} {
-      allow get, list: if signedIn() && (resource.data.kampus_id == request.auth.uid || isAdmin());
-      // kampus: tarif harus sama dengan tarif yang ditetapkan Admin; total = tarif x jumlah peserta
-      allow create: if isAdmin() || (isKampus()
-        && request.resource.data.kampus_id == request.auth.uid
-        && request.resource.data.status == 'menunggu_pembayaran'
-        && request.resource.data.jumlah_peserta is int && request.resource.data.jumlah_peserta > 0
-        && request.resource.data.tarif == get(/databases/$(database)/documents/config/pendaftaran).data.tarif
-        && request.resource.data.total == request.resource.data.tarif * request.resource.data.jumlah_peserta);
-      allow update: if isAdmin() || (signedIn() && resource.data.kampus_id == request.auth.uid && (
-        // 1) ubah data/jumlah peserta selama belum bayar (tarif tidak boleh berubah)
-        (resource.data.status == 'menunggu_pembayaran'
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['jumlah_peserta','total','kontak_nama','kontak_hp','kontak_email','alamat','kota','catatan','updated_at'])
-          && request.resource.data.jumlah_peserta is int && request.resource.data.jumlah_peserta > 0
-          && request.resource.data.total == resource.data.tarif * request.resource.data.jumlah_peserta)
-        // 2) kirim bukti bayar -> menunggu verifikasi
-        || (resource.data.status in ['menunggu_pembayaran','ditolak']
-          && request.resource.data.status == 'menunggu_verifikasi'
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','tgl_bayar','jumlah_dibayar','catatan_bayar','bukti_at','updated_at']))));
-      allow delete: if isAdmin() || (signedIn() && resource.data.kampus_id == request.auth.uid && resource.data.status == 'menunggu_pembayaran');
-    }
-    // foto bukti transfer (dikompresi, disimpan sebagai teks); id dokumen = id pendaftaran
-    match /bukti/{id} {
-      allow get: if signedIn() && (resource.data.kampus_id == request.auth.uid || isAdmin());
-      allow list: if false;
-      allow create, update: if signedIn() && request.resource.data.kampus_id == request.auth.uid
-        && get(/databases/$(database)/documents/pendaftaran/$(id)).data.kampus_id == request.auth.uid
-        && get(/databases/$(database)/documents/pendaftaran/$(id)).data.status in ['menunggu_pembayaran','ditolak','menunggu_verifikasi']
-        && request.resource.data.data is string && request.resource.data.data.size() < 700000;
-      allow delete: if isAdmin();
     }
   }
 }

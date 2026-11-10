@@ -4,7 +4,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const app = $('#app'), nav = $('#nav');
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const ROLE = { admin: 'Admin', pj: 'PJ Keuangan', pp: 'Pengawas Pusat', kampus: 'Kampus (Pendaftar)' };
+  const ROLE = { admin: 'Admin', pj: 'PJ Keuangan', pp: 'Pengawas Pusat' };
   const cfg = window.APP_CONFIG || {};
   const configured = cfg.firebase && cfg.firebase.apiKey && !cfg.firebase.apiKey.startsWith('ISI_');
   const ADMIN = String(cfg.ADMIN_EMAIL || '').toLowerCase();
@@ -39,7 +39,7 @@
   let startSeq = 0;
   async function start() {
     const seq = ++startSeq; me = null; editing = null;
-    if (!user) { renderNav(); const m = /^#\/panduan-(pj|pp|kampus)$/.exec(location.hash); if (m) renderPanduan(m[1]); else renderAuth(); return; }
+    if (!user) { renderNav(); const m = /^#\/panduan-(pj|pp)$/.exec(location.hash); if (m) renderPanduan(m[1]); else renderAuth(); return; }
     app.innerHTML = '<p class="muted center">Memuat…</p>';
     try {
       let p = null;
@@ -59,13 +59,13 @@
       }
       me = p;
     } catch (e) { app.innerHTML = `<div class="card"><p class="err">${esc(msgOf(e))}</p><button class="btn" id="out">Keluar</button></div>`; $('#out').onclick = () => F.signOut(auth); return; }
-    view = me.role === 'kampus' ? 'reg_saya' : me.role === 'pp' ? 'berkas' : 'laporan';
+    view = me.role === 'pp' ? 'berkas' : 'laporan';
     go(view);
   }
-  function go(v) { view = v; editing = null; renderNav(); ({ berkas: renderBerkas, laporan: renderLaporan, impor: renderImpor, pp: renderPP, users: renderUsers, reg_saya: renderRegKampus, reg_admin: renderRegAdmin, panduan: () => { guideKind = null; renderPanduan(); } }[v] || renderBerkas)(); }
+  function go(v) { view = v; editing = null; renderNav(); ({ berkas: renderBerkas, laporan: renderLaporan, impor: renderImpor, pp: renderPP, users: renderUsers, panduan: () => { guideKind = null; renderPanduan(); } }[v] || renderBerkas)(); }
   function renderNav() {
     if (!me) { nav.innerHTML = ''; return; }
-    const tabs = (me.role === 'kampus' ? [['reg_saya', 'Pendaftaran Saya']] : me.role === 'pp' ? [['berkas', 'Berkas Saya']] : [['laporan', 'Laporan TUK'], ['impor', 'Impor Data'], ['pp', 'PP Saya']].concat(me.role === 'admin' ? [['reg_admin', 'Pendaftaran UKOMNAS'], ['users', 'Pengguna']] : [])).concat([['panduan', 'Panduan']]);
+    const tabs = (me.role === 'pp' ? [['berkas', 'Berkas Saya']] : [['laporan', 'Laporan TUK'], ['impor', 'Impor Data'], ['pp', 'PP Saya']].concat(me.role === 'admin' ? [['users', 'Pengguna']] : [])).concat([['panduan', 'Panduan']]);
     nav.innerHTML = tabs.map(([k, l]) => `<button data-v="${k}" class="${view === k ? 'active' : ''}">${l}</button>`).join('') +
       `<span class="who">${esc(me.full_name || me.email)} · ${ROLE[me.role]}</span><button id="out">Keluar</button>`;
     nav.querySelectorAll('[data-v]').forEach((b) => (b.onclick = () => go(b.dataset.v)));
@@ -88,34 +88,31 @@
       <div class="card auth">
       <div class="tabs"><button class="btn ${mode === 'login' ? 'primary' : ''}" data-m="login">Masuk</button><button class="btn ${mode === 'daftar' ? 'primary' : ''}" data-m="daftar">Daftar</button></div>
       <form id="f" class="grid" style="grid-template-columns:1fr">
-        ${mode === 'daftar' ? `<div><label>Daftar sebagai</label><select name="peran"><option value="pp">Pengawas Pusat (PP)</option><option value="kampus">Kampus — pendaftar UKOMNAS</option></select></div>
-        <div><label id="l_nama">Nama lengkap (beserta gelar)</label><input name="full_name" required></div>
-        <div><label id="l_inst">Asal institusi</label><input name="institusi"></div>` : ''}
+        ${mode === 'daftar' ? `<div><label>Nama lengkap (beserta gelar)</label><input name="full_name" required></div>
+        <div><label>Asal institusi</label><input name="institusi"></div>` : ''}
         <div><label>Email</label><input name="email" type="email" required autocomplete="username"></div>
         <div><label>Kata sandi</label><input name="password" type="password" minlength="6" required autocomplete="${mode === 'login' ? 'current-password' : 'new-password'}"></div>
-        ${mode === 'daftar' ? `<div id="kodewrap"><label>Kode PJ Keuangan (dari PJ Anda)</label><input name="kode_pj" placeholder="mis. A2B3C4" style="text-transform:uppercase"></div>
+        ${mode === 'daftar' ? `<div><label>Kode PJ Keuangan (dari PJ Anda)</label><input name="kode_pj" placeholder="mis. A2B3C4" style="text-transform:uppercase"></div>
         <p class="muted" style="margin:0;font-size:13px">Pendaftaran berperan sebagai Pengawas Pusat (PP). Akun PJ Keuangan ditetapkan oleh Admin.</p>` : ''}
         ${err ? `<div class="err">${esc(err)}</div>` : ''}
         <button class="btn primary" id="go">${mode === 'login' ? 'Masuk' : 'Daftar'}</button>
         ${mode === 'login' ? '<button type="button" class="btn sm" id="reset">Lupa kata sandi</button>' : ''}
       </form>
-      ${window.DEMO ? `<div style="margin-top:14px"><p class="muted" style="margin:0 0 6px;font-size:13px">Masuk cepat (kata sandi demo: demo123):</p><div class="row"><button class="btn sm" data-q="admin@demo.test">Admin</button><button class="btn sm" data-q="pj@demo.test">PJ Keuangan</button><button class="btn sm" data-q="pp1@demo.test">Pengawas Pusat</button><button class="btn sm" data-q="kampus@demo.test">Kampus</button></div></div>` : '<p class="center" style="margin:14px 0 0;font-size:13px"><a href="?demo=1">Coba mode demo (data tidak disimpan)</a></p>'}
-      <p class="center" style="margin:12px 0 0;font-size:13px">Panduan penggunaan: <a href="#/panduan-pj">PJ Keuangan</a> · <a href="#/panduan-pp">Pengawas Pusat</a> · <a href="#/panduan-kampus">Kampus</a></p></div></div>`;
+      ${window.DEMO ? `<div style="margin-top:14px"><p class="muted" style="margin:0 0 6px;font-size:13px">Masuk cepat (kata sandi demo: demo123):</p><div class="row"><button class="btn sm" data-q="admin@demo.test">Admin</button><button class="btn sm" data-q="pj@demo.test">PJ Keuangan</button><button class="btn sm" data-q="pp1@demo.test">Pengawas Pusat</button></div></div>` : '<p class="center" style="margin:14px 0 0;font-size:13px"><a href="?demo=1">Coba mode demo (data tidak disimpan)</a></p>'}
+      <p class="center" style="margin:12px 0 0;font-size:13px">Panduan penggunaan: <a href="#/panduan-pj">PJ Keuangan</a> · <a href="#/panduan-pp">Pengawas Pusat</a></p></div></div>`;
     app.querySelectorAll('[data-q]').forEach((b) => (b.onclick = () => F.signInWithEmailAndPassword(auth, b.dataset.q, 'demo123')));
     app.querySelectorAll('[data-m]').forEach((b) => (b.onclick = () => renderAuth(b.dataset.m)));
-    const peran = $('[name=peran]');
-    if (peran) peran.onchange = () => { const k = peran.value === 'kampus'; $('#kodewrap').style.display = k ? 'none' : ''; $('#l_nama').textContent = k ? 'Nama penanggung jawab / kontak' : 'Nama lengkap (beserta gelar)'; $('#l_inst').textContent = k ? 'Nama kampus / institusi' : 'Asal institusi'; };
     const rs = $('#reset'); if (rs) rs.onclick = async () => { const em = $('[name=email]').value; if (!em) return toast('Isi email dulu'); try { await F.sendPasswordResetEmail(auth, em); toast('Tautan reset dikirim ke email'); } catch (e) { toast(msgOf(e)); } };
     $('#f').onsubmit = async (e) => {
       e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); $('#go').disabled = true;
       try {
         if (mode === 'login') { await F.signInWithEmailAndPassword(auth, f.email.trim(), f.password); return; }
-        const isKampus = f.peran === 'kampus', code = isKampus ? '' : (f.kode_pj || '').trim().toUpperCase();
+        const code = (f.kode_pj || '').trim().toUpperCase();
         const cred = await F.createUserWithEmailAndPassword(auth, f.email.trim(), f.password);
         let pj_id = null, rost = null;
-        if (!isKampus) try { const rs = await F.getDoc(F.doc(db, 'roster', cred.user.email.toLowerCase())); if (rs.exists()) { rost = rs.data(); pj_id = rost.pj_id; } } catch (_) {}
+        try { const rs = await F.getDoc(F.doc(db, 'roster', cred.user.email.toLowerCase())); if (rs.exists()) { rost = rs.data(); pj_id = rost.pj_id; } } catch (_) {}
         if (!pj_id && code) { try { const c = await F.getDoc(F.doc(db, 'pjCodes', code)); if (c.exists()) pj_id = c.data().pj_id; } catch (_) {} }
-        await F.setDoc(F.doc(db, 'users', cred.user.uid), { email: cred.user.email, full_name: f.full_name.trim() || (rost && rost.nama) || '', institusi: (f.institusi || '').trim() || (rost && rost.institusi) || '', role: isKampus ? 'kampus' : 'pp', pj_id, kode_used: rost ? null : (pj_id ? code : null), kode_pj: null, created_at: Date.now() });
+        await F.setDoc(F.doc(db, 'users', cred.user.uid), { email: cred.user.email, full_name: f.full_name.trim() || (rost && rost.nama) || '', institusi: (f.institusi || '').trim() || (rost && rost.institusi) || '', role: 'pp', pj_id, kode_used: rost ? null : (pj_id ? code : null), kode_pj: null, created_at: Date.now() });
         if ((cred.user.email || '').toLowerCase() === ADMIN) { try { await F.sendEmailVerification(cred.user); } catch (_) {} }
         if (code && !pj_id) toast('Kode PJ tidak dikenal; minta PJ menambahkan email Anda.');
         start();
@@ -368,14 +365,13 @@
     const pjs = data.filter((p) => p.role === 'pj' || p.role === 'admin');
     app.innerHTML = `<div class="card"><h2>Pengguna</h2><p class="muted">Ubah peran menjadi “PJ Keuangan” untuk akun yang berhak mengelola biaya TUK. Hubungkan PP ke PJ-nya di kolom terakhir.</p>
       <div class="tablewrap"><table><thead><tr><th>Nama</th><th>Email</th><th>Peran</th><th>Diampu oleh PJ</th></tr></thead><tbody>${data.map((p) => `<tr><td>${esc(p.full_name)}<br><small class="muted">${esc(p.institusi)}</small></td><td>${esc(p.email)}</td>
-      <td><select data-role="${p.id}" ${p.id === me.id ? 'disabled' : ''}>${['pp', 'kampus', 'pj', 'admin'].map((r) => `<option value="${r}" ${p.role === r ? 'selected' : ''}>${ROLE[r]}</option>`).join('')}</select>${p.kode_pj ? `<br><small class="muted">Kode: ${esc(p.kode_pj)}</small>` : ''}</td>
+      <td><select data-role="${p.id}" ${p.id === me.id ? 'disabled' : ''}>${['pp', 'pj', 'admin'].map((r) => `<option value="${r}" ${p.role === r ? 'selected' : ''}>${ROLE[r]}</option>`).join('')}</select>${p.kode_pj ? `<br><small class="muted">Kode: ${esc(p.kode_pj)}</small>` : ''}</td>
       <td>${p.role === 'pp' ? `<select data-pj="${p.id}"><option value="">— belum —</option>${pjs.map((j) => `<option value="${j.id}" ${p.pj_id === j.id ? 'selected' : ''}>${esc(j.full_name || j.email)}</option>`).join('')}</select>` : '<span class="muted">—</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
     app.querySelectorAll('[data-role]').forEach((s) => (s.onchange = async () => {
       const u = data.find((x) => x.id === s.dataset.role), role = s.value;
       try {
         const b = F.writeBatch(db); const ref = F.doc(db, 'users', u.id);
-        if (role === 'kampus') { b.update(ref, { role, kode_pj: null, pj_id: null }); if (u.kode_pj) b.delete(F.doc(db, 'pjCodes', u.kode_pj)); }
-        else if (role === 'pp') { b.update(ref, { role }); if (u.kode_pj) b.delete(F.doc(db, 'pjCodes', u.kode_pj)); b.update(ref, { kode_pj: null }); }
+        if (role === 'pp') { b.update(ref, { role }); if (u.kode_pj) b.delete(F.doc(db, 'pjCodes', u.kode_pj)); b.update(ref, { kode_pj: null }); }
         else { const code = u.kode_pj || randCode(); b.update(ref, { role, kode_pj: code, pj_id: null }); if (!u.kode_pj) b.set(F.doc(db, 'pjCodes', code), { pj_id: u.id }); }
         await b.commit(); toast('Peran diperbarui'); renderUsers();
       } catch (e) { toast(msgOf(e)); renderUsers(); }
@@ -562,14 +558,14 @@
   /* ---------------- Panduan / sosialisasi ---------------- */
   let guideKind = null;
   function renderPanduan(kind) {
-    const G = window.PANDUAN, pub = !me, onlyPP = me && me.role === 'pp', onlyPJ = me && me.role === 'pj', onlyKampus = me && me.role === 'kampus', single = onlyPP || onlyPJ || onlyKampus;
+    const G = window.PANDUAN, pub = !me, onlyPP = me && me.role === 'pp', onlyPJ = me && me.role === 'pj', single = onlyPP || onlyPJ;
     // panduan mengikuti akun: PJ hanya panduan PJ, PP hanya panduan PP (Admin & halaman publik: kedua panduan)
-    kind = onlyPP ? 'pp' : onlyPJ ? 'pj' : onlyKampus ? 'kampus' : (kind || guideKind || 'pj'); guideKind = kind;
+    kind = onlyPP ? 'pp' : onlyPJ ? 'pj' : (kind || guideKind || 'pj'); guideKind = kind;
     const g = G[kind], md = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     const link = location.origin + location.pathname + '#/panduan-' + kind;
     app.innerHTML = `<div class="card"><div class="row between"><h2 style="margin:0">${esc(g.title)}</h2>
       <div class="row">${pub ? '<button class="btn" id="gback">← Masuk</button>' : ''}<button class="btn primary" id="gpdf">Unduh PDF (A4)</button></div></div>
-      ${single ? '' : `<div class="tabs" style="margin-top:14px"><button class="btn ${kind === 'pj' ? 'primary' : ''}" data-gk="pj">Panduan PJ Keuangan</button><button class="btn ${kind === 'pp' ? 'primary' : ''}" data-gk="pp">Panduan Pengawas Pusat</button><button class="btn ${kind === 'kampus' ? 'primary' : ''}" data-gk="kampus">Panduan Kampus</button></div>`}
+      ${single ? '' : `<div class="tabs" style="margin-top:14px"><button class="btn ${kind === 'pj' ? 'primary' : ''}" data-gk="pj">Panduan PJ Keuangan</button><button class="btn ${kind === 'pp' ? 'primary' : ''}" data-gk="pp">Panduan Pengawas Pusat</button></div>`}
       <p style="margin:14px 0 0">${md(g.intro)}</p>
       <div class="row" style="margin-top:10px"><span class="muted" style="font-size:13px">Tautan untuk dibagikan:</span><input id="glink" readonly value="${esc(link)}" style="max-width:420px"><button class="btn sm" id="gcopy">Salin</button></div></div>
       ${g.sections.map((s) => `<div class="card"><h3>${esc(s.h)}</h3><ol class="guide">${s.steps.map((t) => `<li>${md(t)}</li>`).join('')}</ol>${s.tip ? `<div class="tip"><strong>Catatan:</strong> ${md(s.tip)}</div>` : ''}</div>`).join('')}`;
@@ -578,180 +574,6 @@
     $('#gcopy').onclick = async () => { try { await navigator.clipboard.writeText(link); toast('Tautan disalin'); } catch (_) { $('#glink').select(); toast('Tekan Ctrl+C untuk menyalin'); } };
     const back = $('#gback'); if (back) back.onclick = () => { location.hash = ''; renderAuth(); };
   }
-
-  /* ---------------- Pendaftaran UKOMNAS (kampus) & penerbitan invoice / kuitansi ---------------- */
-  const REGST = { menunggu_pembayaran: ['Menunggu pembayaran', 'warn'], menunggu_verifikasi: ['Menunggu verifikasi', 'warn'], lunas: ['Lunas', 'ok'], ditolak: ['Bukti ditolak', 'warn'] };
-  const stChip = (s) => { const [l, c] = REGST[s] || [s, '']; return `<span class="chip ${c}">${l}</span>`; };
-  const clean = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== '' && v !== undefined && v !== null));
-  const getCfg = async () => { const s = await F.getDoc(F.doc(db, 'config', 'pendaftaran')); return s.exists() ? s.data() : null; };
-  // nomor berurutan & unik lewat transaksi (aturan keamanan hanya mengizinkan naik tepat 1)
-  async function nextNumber(kind, tahun, prefix) {
-    const ref = F.doc(db, 'counters', `${kind}_${tahun}`);
-    const n = await F.runTransaction(db, async (tx) => { const s = await tx.get(ref); const v = (s.exists() ? s.data().n : 0) + 1; if (s.exists()) tx.update(ref, { n: v }); else tx.set(ref, { n: v }); return v; });
-    return `${prefix}/UKOMNAS/${tahun}/${String(n).padStart(4, '0')}`;
-  }
-  async function compressImage(file) {
-    const bmp = await createImageBitmap(file), r = Math.min(1, 1100 / Math.max(bmp.width, bmp.height));
-    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(bmp.width * r)); c.height = Math.max(1, Math.round(bmp.height * r));
-    const ctx2 = c.getContext('2d'); ctx2.fillStyle = '#fff'; ctx2.fillRect(0, 0, c.width, c.height); ctx2.drawImage(bmp, 0, 0, c.width, c.height);
-    let q = 0.8, url = c.toDataURL('image/jpeg', q); while (url.length > 480000 && q > 0.3) { q -= 0.08; url = c.toDataURL('image/jpeg', q); }
-    if (url.length > 640000) throw new Error('Foto terlalu besar. Coba foto/tangkapan layar yang lebih kecil.');
-    return url;
-  }
-  const regDl = (kind, reg, cfg) => {
-    const doc = kind === 'inv' ? U.invoicePdf(reg, cfg) : U.kuitansiDaftarPdf(reg, cfg);
-    const no = String((kind === 'inv' ? reg.nomor_invoice : reg.nomor_kuitansi) || kind).replace(/[\\/:*?"<>|]+/g, '-');
-    saveBlob(doc.output('blob'), `${kind === 'inv' ? 'Invoice' : 'Kuitansi'} ${no} - ${U.safe(reg.kampus_nama)}.pdf`);
-  };
-  function modal(html) {
-    const m = document.createElement('div'); m.className = 'modal'; m.innerHTML = `<div class="modalbox">${html}</div>`;
-    document.body.appendChild(m); m.addEventListener('click', (e) => { if (e.target === m) m.remove(); }); return m;
-  }
-
-  let regEdit = null, regUpload = null;
-  async function renderRegKampus() {
-    app.innerHTML = '<p class="muted center">Memuat…</p>';
-    let cfg, list;
-    try { cfg = await getCfg(); list = await DB.docs('pendaftaran', [F.where('kampus_id', '==', me.id)]); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
-    list.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
-    const ed = regEdit ? list.find((x) => x.id === regEdit && x.status === 'menunggu_pembayaran') : null, tarif = ed ? ed.tarif : cfg && Number(cfg.tarif), up = regUpload ? list.find((x) => x.id === regUpload) : null;
-    const v = (k, d = '') => esc(ed ? ed[k] || '' : d);
-    const formCard = !cfg || !(Number(cfg.tarif) > 0) ? '<div class="card"><h2>Pendaftaran UKOMNAS</h2><p class="err">Biaya pendaftaran belum ditetapkan oleh Admin. Silakan coba lagi nanti.</p></div>'
-      : cfg.buka === false && !ed ? '<div class="card"><h2>Pendaftaran UKOMNAS</h2><p class="err">Pendaftaran sedang ditutup.</p></div>'
-      : `<div class="card"><h2>${ed ? 'Ubah pendaftaran' : 'Pendaftaran UKOMNAS'}${cfg.periode ? ` <span class="muted" style="font-weight:400;font-size:15px">· Periode ${esc(cfg.periode)} ${esc(cfg.tahun || '')}</span>` : ''}</h2>
-        <form id="rf"><div class="grid">
-          <div><label>Nama kampus / institusi *</label><input id="r_nama" required value="${esc(ed ? ed.kampus_nama : me.institusi || me.full_name)}"></div>
-          <div><label>Alamat kampus</label><input id="r_alamat" value="${v('alamat')}"></div>
-          <div><label>Kota / kabupaten</label><input id="r_kota" value="${v('kota_kampus')}"></div>
-          <div><label>Nama kontak (penanggung jawab)</label><input id="r_kontak" value="${esc(ed ? ed.kontak_nama || '' : me.full_name)}"></div>
-          <div><label>No. HP / WhatsApp</label><input id="r_hp" value="${v('kontak_hp')}"></div>
-          <div><label>Email kontak</label><input id="r_email" type="email" value="${esc(ed ? ed.kontak_email || '' : me.email)}"></div>
-          <div><label>Jumlah peserta uji *</label><input id="r_jml" type="number" min="1" step="1" required value="${ed ? ed.jumlah_peserta : ''}" placeholder="mis. 250"></div>
-          <div><label>Catatan (opsional)</label><input id="r_cat" value="${v('catatan')}"></div></div>
-          <div class="sumbox"><div>Biaya per peserta <strong>${U.RP(tarif)}</strong> × <strong id="s_jml">0</strong> peserta</div><div class="sumtot" id="s_tot">Rp 0</div><div class="muted" id="s_terb" style="font-size:13px"></div></div>
-          <div class="err" id="r_err"></div>
-          <div class="row"><button class="btn primary" id="r_go">${ed ? 'Simpan perubahan' : 'Ajukan pendaftaran & terbitkan invoice'}</button>${ed ? '<button type="button" class="btn" id="r_cancel">Batal</button>' : ''}</div></form></div>`;
-    const upCard = up ? `<div class="card" id="upcard"><h2>Unggah bukti transfer</h2><p class="muted" style="margin:0 0 10px">Invoice <strong>${esc(up.nomor_invoice)}</strong> · ${U.RP(up.total)}. Pembayaran dilakukan melalui aplikasi lain; unggah foto bukti transfernya di sini.</p>
-        ${up.status === 'ditolak' ? `<p class="err">Bukti sebelumnya ditolak: ${esc(up.alasan_tolak || '-')}. Silakan unggah ulang.</p>` : ''}
-        <div class="grid"><div><label>Tanggal pembayaran *</label><input id="u_tgl" type="date" value="${new Date().toISOString().slice(0, 10)}"></div>
-          <div><label>Jumlah dibayar (Rp) *</label><input id="u_jml" type="number" min="0" value="${up.jumlah_dibayar || up.total}"></div>
-          <div><label>Catatan (opsional)</label><input id="u_cat" placeholder="mis. nama bank pengirim"></div>
-          <div><label>Foto bukti transfer *</label><input id="u_file" type="file" accept="image/*"></div></div>
-        <img id="u_prev" alt="Pratinjau bukti" style="display:none;max-width:260px;max-height:260px;margin-top:10px;border:1px solid var(--line);border-radius:4px">
-        <div class="err" id="u_err"></div><div class="row" style="margin-top:10px"><button class="btn primary" id="u_go">Kirim bukti pembayaran</button><button class="btn" id="u_cancel">Batal</button></div></div>` : '';
-    const rows = list.map((x) => `<tr><td>${esc(x.nomor_invoice)}</td><td>${U.fmtMs(x.created_at)}</td><td class="num">${U.NUM(x.jumlah_peserta)}</td><td class="num">${U.RP(x.total)}</td><td>${stChip(x.status)}${x.status === 'ditolak' && x.alasan_tolak ? `<div class="muted" style="font-size:12px">${esc(x.alasan_tolak)}</div>` : ''}</td>
-      <td class="num"><div class="acts"><button class="btn sm" data-inv="${x.id}">Invoice</button>${x.status === 'lunas' ? `<button class="btn sm primary" data-kwt="${x.id}">Kuitansi</button>` : ''}${['menunggu_pembayaran', 'ditolak', 'menunggu_verifikasi'].includes(x.status) ? `<button class="btn sm primary" data-up="${x.id}">${x.status === 'menunggu_verifikasi' ? 'Ganti bukti' : 'Unggah bukti'}</button>` : ''}${x.status === 'menunggu_pembayaran' ? `<button class="btn sm" data-ed="${x.id}">Ubah</button><button class="btn sm danger" data-del="${x.id}">Hapus</button>` : ''}</div></td></tr>`).join('');
-    app.innerHTML = formCard + upCard + `<div class="card"><h2>Pendaftaran saya</h2>${list.length ? `<div class="tablewrap"><table><thead><tr><th>No. Invoice</th><th>Tanggal</th><th class="num">Peserta</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="muted">Belum ada pendaftaran.</p>'}</div>`;
-    const jml = $('#r_jml');
-    if (jml) { const upd = () => { const n = Math.max(0, Math.floor(Number(jml.value)) || 0); $('#s_jml').textContent = U.NUM(n); $('#s_tot').textContent = U.RP(n * tarif); $('#s_terb').textContent = n ? U.terbilang(n * tarif).replace(/^./, (c) => c.toUpperCase()) + ' rupiah' : ''; }; jml.oninput = upd; upd(); }
-    const rc = $('#r_cancel'); if (rc) rc.onclick = () => { regEdit = null; renderRegKampus(); };
-    const rf = $('#rf');
-    if (rf) rf.onsubmit = async (e) => {
-      e.preventDefault(); const n = Math.floor(Number($('#r_jml').value)); const er = $('#r_err');
-      if (!(n > 0)) { er.textContent = 'Isi jumlah peserta (minimal 1).'; return; }
-      const nama = $('#r_nama').value.trim(); if (!nama) { er.textContent = 'Isi nama kampus.'; return; }
-      $('#r_go').disabled = true; er.textContent = '';
-      const f = { kampus_nama: nama, alamat: $('#r_alamat').value.trim(), kota_kampus: $('#r_kota').value.trim(), kontak_nama: $('#r_kontak').value.trim(), kontak_hp: $('#r_hp').value.trim(), kontak_email: $('#r_email').value.trim(), catatan: $('#r_cat').value.trim() };
-      try {
-        const now = Date.now();
-        if (ed) { await F.updateDoc(F.doc(db, 'pendaftaran', ed.id), { ...f, jumlah_peserta: n, total: n * ed.tarif, updated_at: now }); regEdit = null; toast('Perubahan disimpan. Unduh ulang invoice.'); }
-        else {
-          const tahun = String(cfg.tahun || new Date().getFullYear()), nomor = await nextNumber('invoice', tahun, cfg.prefix_invoice || 'INV');
-          const reg = clean({ ...f, kampus_id: me.id, jumlah_peserta: n, tarif: Number(cfg.tarif), total: n * Number(cfg.tarif), kegiatan: cfg.kegiatan, periode: cfg.periode, tahun, nomor_invoice: nomor, tgl_invoice: now, jatuh_tempo: now + (Number(cfg.jatuh_tempo_hari) || 7) * 86400000,
-            rek: { bank: cfg.bank || '', no: cfg.no_rek || '', atas_nama: cfg.atas_nama || '' }, kota: cfg.kota, penandatangan_nama: cfg.penandatangan_nama, penandatangan_jabatan: cfg.penandatangan_jabatan, status: 'menunggu_pembayaran', created_at: now, updated_at: now });
-          const dref = await F.addDoc(F.collection(db, 'pendaftaran'), reg); toast('Pendaftaran diajukan. Invoice ' + nomor + ' terbit.'); regUpload = null; reg.id = dref.id; try { regDl('inv', reg, cfg); } catch (_) {}
-        }
-        renderRegKampus();
-      } catch (x) { er.textContent = msgOf(x); $('#r_go').disabled = false; }
-    };
-    app.querySelectorAll('[data-inv]').forEach((b) => (b.onclick = () => regDl('inv', list.find((x) => x.id === b.dataset.inv), cfg)));
-    app.querySelectorAll('[data-kwt]').forEach((b) => (b.onclick = () => regDl('kwt', list.find((x) => x.id === b.dataset.kwt), cfg)));
-    app.querySelectorAll('[data-ed]').forEach((b) => (b.onclick = () => { regEdit = b.dataset.ed; regUpload = null; renderRegKampus(); window.scrollTo(0, 0); }));
-    app.querySelectorAll('[data-up]').forEach((b) => (b.onclick = () => { regUpload = b.dataset.up; regEdit = null; renderRegKampus(); setTimeout(() => { const c = $('#upcard'); if (c) c.scrollIntoView({ behavior: 'smooth' }); }, 50); }));
-    app.querySelectorAll('[data-del]').forEach((b) => (b.onclick = async () => { if (!confirm('Hapus pendaftaran ini?')) return; try { await F.deleteDoc(F.doc(db, 'pendaftaran', b.dataset.del)); renderRegKampus(); } catch (x) { toast(msgOf(x)); } }));
-    if (up) {
-      let dataUrl = null, fname = '';
-      $('#u_cancel').onclick = () => { regUpload = null; renderRegKampus(); };
-      $('#u_file').onchange = async (e) => { const f = e.target.files[0]; if (!f) return; $('#u_err').textContent = ''; try { dataUrl = await compressImage(f); fname = f.name; const im = $('#u_prev'); im.src = dataUrl; im.style.display = 'block'; } catch (x) { dataUrl = null; $('#u_err').textContent = 'Gagal memproses foto: ' + msgOf(x); } };
-      $('#u_go').onclick = async () => {
-        const er = $('#u_err'); const tgl = $('#u_tgl').value, jum = Number($('#u_jml').value);
-        if (!dataUrl) { er.textContent = 'Pilih foto bukti transfer.'; return; } if (!tgl) { er.textContent = 'Isi tanggal pembayaran.'; return; } if (!(jum > 0)) { er.textContent = 'Isi jumlah dibayar.'; return; }
-        $('#u_go').disabled = true; er.textContent = '';
-        try {
-          const now = Date.now();
-          await F.setDoc(F.doc(db, 'bukti', up.id), { kampus_id: me.id, data: dataUrl, nama: fname, at: now });
-          await F.updateDoc(F.doc(db, 'pendaftaran', up.id), clean({ status: 'menunggu_verifikasi', tgl_bayar: tgl, jumlah_dibayar: jum, catatan_bayar: $('#u_cat').value.trim() || 'ok', bukti_at: now, updated_at: now }));
-          regUpload = null; toast('Bukti terkirim. Menunggu verifikasi Admin.'); renderRegKampus();
-        } catch (x) { er.textContent = msgOf(x); $('#u_go').disabled = false; }
-      };
-    }
-  }
-
-  // ---- Admin: pengaturan biaya, verifikasi pembayaran, kuitansi, rekap ----
-  let regFilter = 'semua', regQuery = '';
-  async function renderRegAdmin() {
-    app.innerHTML = '<p class="muted center">Memuat…</p>';
-    let cfg, all;
-    try { cfg = (await getCfg()) || {}; all = await DB.docs('pendaftaran', []); } catch (e) { return (app.innerHTML = `<p class="err">${esc(msgOf(e))}</p>`); }
-    all.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
-    const q = regQuery.trim().toLowerCase(), list = all.filter((x) => (regFilter === 'semua' || x.status === regFilter) && (!q || (x.kampus_nama || '').toLowerCase().includes(q) || (x.nomor_invoice || '').toLowerCase().includes(q)));
-    const sum = (arr, k) => arr.reduce((s, x) => s + (Number(x[k]) || 0), 0), lunas = all.filter((x) => x.status === 'lunas'), wait = all.filter((x) => x.status === 'menunggu_verifikasi');
-    const cf = (id, label, val, extra = '') => `<div><label>${label}</label><input id="c_${id}" value="${esc(val == null ? '' : val)}" ${extra}></div>`;
-    app.innerHTML = `<div class="card"><h2>Pengaturan pendaftaran & biaya</h2>
-      <p class="muted" style="margin:0 0 10px">Biaya per peserta dipakai untuk semua pendaftaran <strong>baru</strong> (invoice yang sudah terbit tidak berubah). Biaya satu pendaftaran dapat diubah dari tabel di bawah.</p>
-      <div class="grid">${cf('tarif', 'Biaya per peserta (Rp) *', cfg.tarif, 'type="number" min="0"')}${cf('kegiatan', 'Nama kegiatan', cfg.kegiatan || 'Uji Kompetensi Nasional Rekam Medis dan Informasi Kesehatan')}${cf('periode', 'Periode (mis. I / II)', cfg.periode)}${cf('tahun', 'Tahun', cfg.tahun || new Date().getFullYear(), 'type="number"')}
-      ${cf('jatuh_tempo_hari', 'Jatuh tempo (hari setelah invoice)', cfg.jatuh_tempo_hari || 7, 'type="number" min="1"')}${cf('bank', 'Bank tujuan', cfg.bank)}${cf('no_rek', 'No. rekening', cfg.no_rek)}${cf('atas_nama', 'Atas nama rekening', cfg.atas_nama)}
-      ${cf('kota', 'Kota (tanda tangan)', cfg.kota || 'Jakarta')}${cf('penandatangan_nama', 'Nama penandatangan', cfg.penandatangan_nama || 'Dwi Retno Wulandari A.Md.Perkes., SKM., M.H')}${cf('penandatangan_jabatan', 'Jabatan penandatangan', cfg.penandatangan_jabatan || 'Bendahara Pengeluaran')}${cf('prefix_invoice', 'Awalan nomor invoice', cfg.prefix_invoice || 'INV')}${cf('prefix_kuitansi', 'Awalan nomor kuitansi', cfg.prefix_kuitansi || 'KWT')}
-      <div style="align-self:end"><label><input type="checkbox" id="c_buka" ${cfg.buka === false ? '' : 'checked'}> Pendaftaran dibuka</label></div></div>
-      <div class="err" id="c_err"></div><div class="row" style="margin-top:10px"><button class="btn primary" id="c_save">Simpan pengaturan</button></div></div>
-      <div class="card"><div class="row between"><h2 style="margin:0">Daftar pendaftaran kampus</h2><button class="btn" id="a_xls">Ekspor Excel</button></div>
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:12px 0"><div class="stat"><span>Pendaftar</span><strong>${all.length}</strong></div><div class="stat"><span>Total peserta</span><strong>${U.NUM(sum(all, 'jumlah_peserta'))}</strong></div><div class="stat"><span>Total tagihan</span><strong>${U.RP(sum(all, 'total'))}</strong></div><div class="stat"><span>Sudah lunas</span><strong>${U.RP(sum(lunas, 'total'))}</strong></div><div class="stat"><span>Perlu verifikasi</span><strong>${wait.length}</strong></div></div>
-      <div class="row" style="margin-bottom:10px"><select id="a_f" style="max-width:220px">${[['semua', 'Semua status'], ['menunggu_pembayaran', 'Menunggu pembayaran'], ['menunggu_verifikasi', 'Menunggu verifikasi'], ['lunas', 'Lunas'], ['ditolak', 'Bukti ditolak']].map(([k, l]) => `<option value="${k}" ${regFilter === k ? 'selected' : ''}>${l}</option>`).join('')}</select><input id="a_q" placeholder="Cari kampus / nomor invoice" value="${esc(regQuery)}" style="max-width:280px"></div>
-      ${list.length ? `<div class="tablewrap"><table><thead><tr><th>No. Invoice</th><th>Kampus</th><th class="num">Peserta</th><th class="num">Biaya/peserta</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody>${list.map((x) => `<tr><td>${esc(x.nomor_invoice)}<div class="muted" style="font-size:12px">${U.fmtMs(x.created_at)}</div></td><td>${esc(x.kampus_nama)}<div class="muted" style="font-size:12px">${esc(x.kontak_nama || '')} ${esc(x.kontak_hp || '')}</div></td><td class="num">${U.NUM(x.jumlah_peserta)}</td><td class="num">${U.RP(x.tarif)}</td><td class="num">${U.RP(x.total)}</td><td>${stChip(x.status)}${x.nomor_kuitansi ? `<div class="muted" style="font-size:12px">${esc(x.nomor_kuitansi)}</div>` : ''}</td>
-        <td class="num"><div class="acts">${['menunggu_verifikasi', 'lunas', 'ditolak'].includes(x.status) ? `<button class="btn sm ${x.status === 'menunggu_verifikasi' ? 'primary' : ''}" data-ab="${x.id}">${x.status === 'menunggu_verifikasi' ? 'Periksa bukti' : 'Lihat bukti'}</button>` : ''}<button class="btn sm" data-ai="${x.id}">Invoice</button>${x.status === 'lunas' ? `<button class="btn sm" data-ak="${x.id}">Kuitansi</button>` : ''}<button class="btn sm" data-ae="${x.id}">Ubah biaya</button><button class="btn sm danger" data-ad="${x.id}">Hapus</button></div></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Belum ada pendaftaran yang sesuai.</p>'}</div>`;
-    const g = (id) => $('#c_' + id).value.trim();
-    $('#c_save').onclick = async () => {
-      const tarif = Number(g('tarif')); const er = $('#c_err'); if (!(tarif > 0)) { er.textContent = 'Isi biaya per peserta (lebih dari 0).'; return; }
-      const data = clean({ tarif, kegiatan: g('kegiatan'), periode: g('periode'), tahun: g('tahun'), jatuh_tempo_hari: Number(g('jatuh_tempo_hari')) || 7, bank: g('bank'), no_rek: g('no_rek'), atas_nama: g('atas_nama'), kota: g('kota'), penandatangan_nama: g('penandatangan_nama'), penandatangan_jabatan: g('penandatangan_jabatan'), prefix_invoice: g('prefix_invoice'), prefix_kuitansi: g('prefix_kuitansi') }); data.buka = $('#c_buka').checked;
-      try { await F.setDoc(F.doc(db, 'config', 'pendaftaran'), data); toast('Pengaturan tersimpan'); renderRegAdmin(); } catch (e) { er.textContent = msgOf(e); }
-    };
-    $('#a_f').onchange = (e) => { regFilter = e.target.value; renderRegAdmin(); };
-    $('#a_q').onchange = (e) => { regQuery = e.target.value; renderRegAdmin(); };
-    $('#a_xls').onclick = () => {
-      const rows = list.map((x) => ({ 'No. Invoice': x.nomor_invoice, Tanggal: U.fmtMs(x.created_at), Kampus: x.kampus_nama, Alamat: x.alamat || '', Kota: x.kota_kampus || '', Kontak: x.kontak_nama || '', 'No HP': x.kontak_hp || '', Email: x.kontak_email || '', 'Jumlah peserta': x.jumlah_peserta, 'Biaya per peserta': x.tarif, Total: x.total, Status: (REGST[x.status] || [x.status])[0], 'Tanggal bayar': x.tgl_bayar || '', 'Jumlah dibayar': x.jumlah_dibayar || '', 'No. Kuitansi': x.nomor_kuitansi || '' }));
-      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows.length ? rows : [{ Info: 'Tidak ada data' }]), 'Pendaftaran'); XLSX.writeFile(wb, 'Rekap Pendaftaran UKOMNAS.xlsx');
-    };
-    const find = (id) => all.find((x) => x.id === id), full = () => Object.assign({}, cfg);
-    app.querySelectorAll('[data-ai]').forEach((b) => (b.onclick = () => regDl('inv', find(b.dataset.ai), full())));
-    app.querySelectorAll('[data-ak]').forEach((b) => (b.onclick = () => regDl('kwt', find(b.dataset.ak), full())));
-    app.querySelectorAll('[data-ae]').forEach((b) => (b.onclick = async () => {
-      const x = find(b.dataset.ae); const t = prompt('Biaya per peserta (Rp):', x.tarif); if (t === null) return; const jm = prompt('Jumlah peserta:', x.jumlah_peserta); if (jm === null) return;
-      const tarif = Number(t), n = Math.floor(Number(jm)); if (!(tarif > 0) || !(n > 0)) return toast('Angka tidak valid');
-      try { await F.updateDoc(F.doc(db, 'pendaftaran', x.id), { tarif, jumlah_peserta: n, total: tarif * n, updated_at: Date.now() }); toast('Biaya diubah. Unduh ulang invoice.'); renderRegAdmin(); } catch (e) { toast(msgOf(e)); }
-    }));
-    app.querySelectorAll('[data-ad]').forEach((b) => (b.onclick = async () => {
-      const x = find(b.dataset.ad); if (!confirm(`Hapus pendaftaran ${x.nomor_invoice} (${x.kampus_nama})?`)) return;
-      try { await F.deleteDoc(F.doc(db, 'pendaftaran', x.id)); try { await F.deleteDoc(F.doc(db, 'bukti', x.id)); } catch (_) {} renderRegAdmin(); } catch (e) { toast(msgOf(e)); }
-    }));
-    app.querySelectorAll('[data-ab]').forEach((b) => (b.onclick = async () => {
-      const x = find(b.dataset.ab); let bk = null; try { const s = await F.getDoc(F.doc(db, 'bukti', x.id)); if (s.exists()) bk = s.data(); } catch (_) {}
-      const m = modal(`<h3>Bukti pembayaran — ${esc(x.kampus_nama)}</h3><p class="muted" style="margin:0 0 8px">Invoice ${esc(x.nomor_invoice)} · tagihan <strong>${U.RP(x.total)}</strong></p>
-        <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:10px"><div><span class="muted">Tanggal bayar</span><br><strong>${esc(x.tgl_bayar || '-')}</strong></div><div><span class="muted">Jumlah dibayar</span><br><strong>${U.RP(x.jumlah_dibayar || 0)}</strong>${Number(x.jumlah_dibayar) !== Number(x.total) ? ' <span class="chip warn">tidak sama dengan tagihan</span>' : ''}</div></div>
-        ${x.catatan_bayar && x.catatan_bayar !== 'ok' ? `<p>Catatan: ${esc(x.catatan_bayar)}</p>` : ''}${bk ? `<img src="${bk.data}" alt="Bukti transfer" style="max-width:100%;max-height:55vh;border:1px solid var(--line);border-radius:4px">` : '<p class="err">Foto bukti tidak ditemukan.</p>'}
-        <div class="row" style="margin-top:14px">${x.status === 'menunggu_verifikasi' ? '<button class="btn primary" id="m_ok">Setujui (Lunas) & terbitkan kuitansi</button><button class="btn danger" id="m_no">Tolak</button>' : ''}<button class="btn" id="m_x">Tutup</button></div>`);
-      m.querySelector('#m_x').onclick = () => m.remove();
-      const ok = m.querySelector('#m_ok'), no = m.querySelector('#m_no');
-      if (ok) ok.onclick = async () => {
-        ok.disabled = true;
-        try { const nomor = await nextNumber('kuitansi', x.tahun || new Date().getFullYear(), cfg.prefix_kuitansi || 'KWT'); await F.updateDoc(F.doc(db, 'pendaftaran', x.id), { status: 'lunas', nomor_kuitansi: nomor, tgl_lunas: Date.now(), updated_at: Date.now() }); m.remove(); toast('Lunas. Kuitansi ' + nomor + ' terbit.'); renderRegAdmin(); } catch (e) { toast(msgOf(e)); ok.disabled = false; }
-      };
-      if (no) no.onclick = async () => {
-        const why = prompt('Alasan penolakan (akan dilihat kampus):'); if (why === null) return;
-        try { await F.updateDoc(F.doc(db, 'pendaftaran', x.id), { status: 'ditolak', alasan_tolak: why.trim() || 'Bukti tidak sesuai', updated_at: Date.now() }); m.remove(); toast('Bukti ditolak'); renderRegAdmin(); } catch (e) { toast(msgOf(e)); }
-      };
-    }));
-  }
-
 
   boot();
 })();
